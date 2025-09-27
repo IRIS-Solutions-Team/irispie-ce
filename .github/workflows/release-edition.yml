@@ -116,3 +116,14 @@ jobs:
               --title "Release $VERSION" \
               --notes ""
 
+
+  broadcast-deployment:
+    name: Broadcast deployment
+    runs-on: ubuntu-latest
+
+    needs: create-release
+    steps:
+      - name: Broadcast deployment
+      - run: |
+          echo "Deploy to PYPI"
+
