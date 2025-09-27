@@ -6,15 +6,23 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout develop
+      - name: Checkout irispie/develop
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: develop
-          path: irispie-package
+          path: irispie
           token: ${{ secrets.IRISPIE_ACTIONS_TOKEN_2025 }}
-          repository: IRIS-Solutions-Team/irispie
+
+      - name: Checkout irispie-tests/master
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: master
+          path: irispie-tests
+          token: ${{ secrets.IRISPIE_ACTIONS_TOKEN_2025 }}
 
       - uses: actions/setup-python@v5
         with:
@@ -22,13 +30,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -e irispie-package
+          pip install -e irispie
           pip install pytest toml
 
       - name: Run tests
-        working-directory: irispie-package
+        working-directory: irispie-tests
         run: |
-          pytest @tests/specs
+          pytest @specs
 
 
   version-bump:
@@ -39,17 +47,17 @@ jobs:
       new-mmp: ${{ steps.bump-version.outputs.new-mmp }}
 
     steps:
-      - name: Checkout develop
+      - name: Checkout irispie/develop
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: develop
-          path: irispie-package
+          path: irispie
           token: ${{ secrets.IRISPIE_ACTIONS_TOKEN_2025 }}
           repository: IRIS-Solutions-Team/irispie
 
       - name: Set up identity
-        working-directory: irispie-package
+        working-directory: irispie
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
@@ -64,7 +72,7 @@ jobs:
 
       - name: Bump version in pyproject.toml
         id: bump-version
-        working-directory: irispie-package
+        working-directory: irispie
         run: |
           if ! [[ -e ./.release_type ]]; then
             echo "Cannot release without .release_type"
@@ -82,7 +90,7 @@ jobs:
       - name: Commit and push new version to develop
         env:
             version: ${{ steps.bump-version.outputs.new-version }}
-        working-directory: irispie-package
+        working-directory: irispie
         run: |
           git switch develop
           git add ./pyproject.toml
@@ -97,7 +105,7 @@ jobs:
           version: ${{ steps.bump-version.outputs.new-version }}
           # gh picks the token from GITHUB_TOKEN env variable automatically
           GITHUB_TOKEN: ${{ secrets.IRISPIE_ACTIONS_TOKEN_2025 }}
-        working-directory: irispie-package
+        working-directory: irispie
         run: |
             gh release create "$version" \
               --title "Release $version" \
@@ -109,7 +117,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        repository: [irispie-ce, irispie-re, irispie-pe]
+        #repository: [irispie-ce, irispie-re, irispie-pe]
+        repository: [irispie-re]
     env:
       new-mmp: ${{ needs.version-bump.outputs.new-mmp }}
 
