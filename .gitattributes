@@ -1,0 +1,14 @@
+
+LICENSE merge=ours
+.github/workflows/deploy.yml merge=ours
+.github/workflows/test-and-version.yml merge=ours
+.gitattributes merge=ours
+tests/** merge=ours
+
+pyproject.toml merge=theirs
+.github/workflows/bump_version.py merge=theirs
+.github/workflows/make_edition.py merge=theirs
+.github/workflows/print_edition.py merge=theirs
+.github/workflows/print_mmp.py merge=theirs
+.github/workflows/print_version.py merge=theirs
+
