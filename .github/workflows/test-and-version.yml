@@ -19,6 +19,7 @@ jobs:
       - name: Checkout irispie-tests/master
         uses: actions/checkout@v4
         with:
+          repository: IRIS-Solutions-Team/irispie-tests
           fetch-depth: 1
           ref: master
           path: irispie-tests
