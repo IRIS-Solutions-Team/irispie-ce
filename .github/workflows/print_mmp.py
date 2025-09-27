@@ -1,3 +1,4 @@
+# Print mmp from pyproject.toml version
 
 import toml
 

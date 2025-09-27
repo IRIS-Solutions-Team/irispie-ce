@@ -1,3 +1,6 @@
+# Worflow to run tests, bump version, create tag and release, and notify edition
+# repositories
+
 name: Test and version
 
 on:

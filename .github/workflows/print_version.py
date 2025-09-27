@@ -1,3 +1,4 @@
+# Print version from pyproject.toml
 
 import toml
 

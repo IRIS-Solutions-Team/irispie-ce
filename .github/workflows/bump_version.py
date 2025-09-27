@@ -1,3 +1,4 @@
+# Bump version (mmp) in pyproject.toml
 
 import argparse
 import toml
@@ -44,5 +45,4 @@ toml_content["project"]["version"] = bumped_version
 
 with open(_PYPROJECT_PATH, "wt", ) as f:
     f.write(toml.dumps(toml_content, ), )
-
 
