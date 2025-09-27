@@ -4,7 +4,7 @@ import toml
 
 
 _PYPROJECT_PATH = "./pyproject.toml"
-_EDITION_SEPARATOR = "+"
+_VERSION_EDITION_SEPARATOR = "+"
 
 
 def _upgrade_mmp_string(
@@ -37,9 +37,9 @@ with open(_PYPROJECT_PATH, "rt", ) as f:
     toml_content = toml.load(f, )
 
 current_version = toml_content["project"]["version"]
-current_mmp_string, edition, = current_version.split(_EDITION_SEPARATOR, maxsplit=1, )
+current_mmp_string, edition, = current_version.split(_VERSION_EDITION_SEPARATOR, maxsplit=1, )
 bumped_mmp_string = _upgrade_mmp_string(current_mmp_string, args.release_type, )
-bumped_version = f"{bumped_mmp_string}{_EDITION_SEPARATOR}{edition}"
+bumped_version = f"{bumped_mmp_string}{_VERSION_EDITION_SEPARATOR}{edition}"
 toml_content["project"]["version"] = bumped_version
 
 with open(_PYPROJECT_PATH, "wt", ) as f:
