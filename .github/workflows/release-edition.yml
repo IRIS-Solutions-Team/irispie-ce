@@ -116,3 +116,14 @@ jobs:
               --title "Release $VERSION" \
               --notes ""
 
+  bwaycast-deployment:
+    name: Bwaycast deployment
+    runs-on: ubuntu-latest
+
+    needs: create-release
+    steps:
+      - name: Bwaycast deployment
+      - run: |
+          echo "Deploy to PYPI"
+
+
