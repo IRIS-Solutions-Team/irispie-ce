@@ -7,17 +7,16 @@ import toml
 
 
 _PYPROJECT_PATH = "./pyproject.toml"
-_EPOCH_SEPARATOR = "!"
 
 
-def _upgrade_mmp_string(
-    mmp_string: str,
+def _upgrade_version_string(
+    version_string: str,
     bump: str,
 ) -> str:
     """Bump the major-minor-patch number"""
     def add_one(number: str, ) -> str:
         return str(int(number) + 1)
-    mmp = mmp_string.split(".")
+    mmp = version_string.split(".")
     if bump == "major":
         mmp[0] = add_one(mmp[0], )
         mmp[1] = "0"
@@ -40,10 +39,8 @@ with open(_PYPROJECT_PATH, "rt", ) as f:
     toml_content = toml.load(f, )
 
 current_version = toml_content["project"]["version"]
-epoch, current_mmp_string, = current_version.split(_EPOCH_SEPARATOR, maxsplit=1, )
-bumped_mmp_string = _upgrade_mmp_string(current_mmp_string, args.release_type, )
-bumped_version = f"{epoch}{_EPOCH_SEPARATOR}{bumped_mmp_string}"
-toml_content["project"]["version"] = bumped_version
+new_version = _upgrade_version_string(current_version, args.release_type, )
+toml_content["project"]["version"] = new_version
 
 with open(_PYPROJECT_PATH, "wt", ) as f:
     f.write(toml.dumps(toml_content, ), )
