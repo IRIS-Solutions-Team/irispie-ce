@@ -121,8 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        #repository: [irispie-ce, irispie-re, irispie-pe]
-        repository: [irispie-re]
+        repository: [irispie-ce, irispie-re, irispie-pe]
     env:
       new-mmp: ${{ needs.version-bump.outputs.new-mmp }}
 
