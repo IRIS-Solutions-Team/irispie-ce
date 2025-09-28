@@ -58,11 +58,6 @@ _STEADY_EQUATION_SOLVED = ENDOGENOUS_EQUATION
 _DEFAULT_SOLVER = "neqs_levenberg"
 
 
-#-------------------------------------------------------------------------------
-# Functions to be used as methods in Simultaneous class
-#-------------------------------------------------------------------------------
-
-
 def inlay(klass: type, ) -> type:
     r"""
     Inlay the steady state methods in the class
@@ -79,6 +74,11 @@ def inlay(klass: type, ) -> type:
     #
     return klass
     #]
+
+
+#-------------------------------------------------------------------------------
+# Functions to be used as methods in Simultaneous class
+#-------------------------------------------------------------------------------
 
 
 def solve_steady(

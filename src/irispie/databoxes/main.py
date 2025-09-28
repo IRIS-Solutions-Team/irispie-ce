@@ -7,7 +7,7 @@ Data management tools for storing and manipulating unstructured data
 
 from __future__ import annotations
 
-from typing import (Self, TypeAlias, Literal, Sequence, Protocol, Any, NoReturn, )
+from typing import Self, TypeAlias, Literal, Sequence, Protocol, Any, NoReturn
 from collections.abc import (Iterable, Iterator, Callable, )
 from numbers import (Number, )
 import json as _js
@@ -23,7 +23,7 @@ import documark as _dm
 from ..conveniences import views as _views
 from ..conveniences import descriptions as _descriptions
 from ..conveniences import iterators as _iterators
-from ..series.main import (Series, )
+from ..series import Series
 from ..dates import Period, Frequency, Span, EmptySpan
 from .. import dates as _times
 from .. import quantities as _quantities
@@ -35,6 +35,7 @@ from . import _fred
 from . import _imports as _imports
 from . import _exports as _exports
 from . import _views as _views
+from . import _jsonables as _jsonables
 
 #]
 
@@ -56,6 +57,7 @@ class SteadyDataboxableProtocol(Protocol):
     #]
 
 
+@_jsonables.mixin
 @_merge.mixin
 @_fred.mixin
 @_dm.reference(
@@ -1023,42 +1025,6 @@ Get the encompassing date span for all time series with a specified frequency.
         min_start_date = min(start_periods, key=_op.attrgetter("serial"), )
         max_end_date = max(end_periods, key=_op.attrgetter("serial"), )
         return Span(min_start_date, max_end_date, )
-
-    @_dm.reference(category="import_export", )
-    def to_json(self, file_name, **kwargs):
-        r"""
-................................................................................
-
-==Save a Databox to a JSON file==
-
-Save a Databox to a JSON file, preserving the structure and data of the Databox
-object. This method is useful for storing Databoxes in a format that can be
-easily shared or imported into other applications.
-
-    self.to_json(
-        file_name,
-        **kwargs,
-    )
-
-### Input arguments ###
-
-???+ input "self"
-    The Databox object to save to a JSON file.
-
-???+ input "file_name"
-    Path to the JSON file where the Databox will be saved.
-
-???+ input "**kwargs"
-    Additional keyword arguments to pass to the JSON encoder.
-
-### Returns ###
-
-Returns `None`; the Databox is saved to the specified JSON file.
-
-................................................................................
-        """
-        with open(file_name, "wt+") as f:
-            return _js.dump(self, f, **kwargs)
 
     @_dm.reference(category="multiple", )
     def overlay(
