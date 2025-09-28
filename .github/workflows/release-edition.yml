@@ -1,6 +1,8 @@
-# # Workflow to create a new release of irispie-edition
+#
+# Create a new release of irispie-edition
 # Needs a secret IRISPIE_ACTIONS_TOKEN_2025
 # Needs a repository variable EDITION
+#
 
 name: Create new release
 
