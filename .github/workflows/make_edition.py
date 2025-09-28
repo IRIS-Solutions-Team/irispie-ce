@@ -1,4 +1,6 @@
+#
 # Change edition in pyproject.toml
+#
 
 import argparse
 import toml

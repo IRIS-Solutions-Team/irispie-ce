@@ -1,4 +1,6 @@
+#
 # Print edition from pyproject.toml version
+#
 
 import toml
 

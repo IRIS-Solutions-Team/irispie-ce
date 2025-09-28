@@ -1,4 +1,6 @@
+#
 # Bump version (mmp) in pyproject.toml
+#
 
 import argparse
 import toml
