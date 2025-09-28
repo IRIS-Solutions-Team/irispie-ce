@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "irispie-ce"
-version = "0.72.0+ce"
+version = "0.72.1+ce"
 description = "Macroeconomic modeling package"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -19,9 +19,9 @@ email = "jaromir.benes@gmail.com"
 text = "OGResearch Community License 1.0"
 
 [project.urls]
-Homepage = "https://github.com/iris-solutions-team/irispie"
+Homepage = "https://github.com/iris-solutions-team/irispie-ce"
 Documentation = "https://iris-solutions-team.github.io/irispie-pages"
-"Bug Tracker" = "https://github.com/iris-solutions-team/irispie/issues"
+"Bug Tracker" = "https://github.com/iris-solutions-team/irispie-ce/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = [ "src/irispie",]
