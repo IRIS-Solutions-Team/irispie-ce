@@ -19,9 +19,9 @@ email = "jaromir.benes@gmail.com"
 text = "OGResearch Developer License 1.0"
 
 [project.urls]
-Homepage = "https://github.com/iris-solutions-team/irispie"
+Homepage = "https://github.com/iris-solutions-team/irispie-ce"
 Documentation = "https://iris-solutions-team.github.io/irispie-pages"
-"Bug Tracker" = "https://github.com/iris-solutions-team/irispie/issues"
+"Bug Tracker" = "https://github.com/iris-solutions-team/irispie-ce/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = [ "src/irispie",]

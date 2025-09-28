@@ -3,13 +3,22 @@
 Macroeconomic modeling package for Python
 
 
+---
+
+
 ## Project URLs
 
-Homepage: [`https://github.com/iris-solutions-team/irispie`](https://github.com/iris-solutions-team/irispie)
+Community edition homepage:
+[`https://github.com/iris-solutions-team/irispie-ce`](https://github.com/iris-solutions-team/irispie-ce)
 
-Documentation: [`https://iris-solutions-team.github.io/irispie-pages`](https://iris-solutions-team.github.io/irispie-pages)
+Documentation:
+[`https://iris-solutions-team.github.io/irispie-pages`](https://iris-solutions-team.github.io/irispie-pages)
 
-Bug Tracker: [`https://github.com/iris-solutions-team/irispie/issues`](https://github.com/iris-solutions-team/irispie/issues)
+Community edition issue tracker:
+[`https://github.com/iris-solutions-team/irispie-ce/issues`](https://github.com/iris-solutions-team/irispie-ce/issues)
+
+
+---
 
 
 ## License overview
