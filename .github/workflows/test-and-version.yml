@@ -122,8 +122,6 @@ jobs:
     strategy:
       matrix:
         repository: [irispie-ce, irispie-re, irispie-pe]
-    env:
-      new-mmp: ${{ needs.version-bump.outputs.new-mmp }}
 
     steps:
       - name: Repository dispatch to ${{ matrix.repository }}
@@ -132,8 +130,4 @@ jobs:
           token: ${{ secrets.IRISPIE_ACTIONS_TOKEN_2025 }}
           repository: IRIS-Solutions-Team/${{ matrix.repository }}
           event-type: new-release
-          client-payload: |
-            {
-              "mmp": "${{ env.new-mmp }}"
-            }
 
