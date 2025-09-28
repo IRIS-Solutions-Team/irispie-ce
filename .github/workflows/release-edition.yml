@@ -127,5 +127,5 @@ jobs:
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.IRISPIE_ACTIONS_TOKEN_2025 }}
-          event-type: new-deployment
+          event-type: deploy-to-pypi
 
