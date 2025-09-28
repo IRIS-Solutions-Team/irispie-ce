@@ -52,22 +52,17 @@ jobs:
 
       - name: Upload to PYPI
         env:
-          VERSION: ${{ env.VERSION }}
           PYPI_IRISPIE_CE: ${{ secrets.PYPI_IRISPIE_CE }}
         working-directory: irispie-edition
         run: |
-            echo "Uploading version $VERSION to PYPI"
-            echo "Version: $VERSION"
-            cd dist
-            ls
-            # python -m twine upload dist/* -r pypi -u __token__ -p $PYPI_IRISPIE_CE --verbose
+            python -m twine upload dist/* -r pypi -u __token__ -p $PYPI_IRISPIE_CE --verbose
 
-#       - name: Upload new dist as artifact
-#         env:
-#           VERSION: ${{ env.VERSION }}
-#         uses: actions/upload-artifact@master
-#         with:
-#             name: dist-${{ env.VERSION }}
-#         path: irispie-edition/dist/*
+      - name: Upload new dist as artifact
+        env:
+          VERSION: ${{ env.VERSION }}
+        uses: actions/upload-artifact@master
+        with:
+            name: dist-${{ env.VERSION }}
+        path: irispie-edition/dist/*
 
 
