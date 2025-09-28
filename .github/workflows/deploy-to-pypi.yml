@@ -37,9 +37,7 @@ jobs:
 
       - name: Install build dependencies
         run: |
-            python -m pip install --upgrade pip
-            python -m pip install --upgrade build
-            python -m pip install --upgrade twine
+            python -m pip install --upgrade pip build twine toml
 
       - name: Get version
         working-directory: irispie-edition
@@ -60,6 +58,8 @@ jobs:
         run: |
             echo "Uploading version $VERSION to PYPI"
             echo "Version: $VERSION"
+            cd dist
+            ls
             # python -m twine upload dist/* -r pypi -u __token__ -p $PYPI_IRISPIE_CE --verbose
 
 #       - name: Upload new dist as artifact
