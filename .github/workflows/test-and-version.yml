@@ -50,7 +50,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       new-version: ${{ steps.bump-version.outputs.new-version }}
-      new-mmp: ${{ steps.bump-version.outputs.new-mmp }}
 
     steps:
       - name: Checkout irispie/develop
@@ -86,11 +85,7 @@ jobs:
           fi
           RELEASE_TYPE=$(< ./.release_type)
           python ./.github/workflows/bump_version.py --release-type=$RELEASE_TYPE
-          NEW_MMP=$(python ./.github/workflows/print_mmp.py)
           NEW_VERSION=$(python ./.github/workflows/print_version.py)
-          echo "New version is $NEW_VERSION"
-          echo "New MMP is $NEW_MMP"
-          echo "new-mmp=$NEW_MMP" >> $GITHUB_OUTPUT
           echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT 
 
       - name: Commit and push new version to develop

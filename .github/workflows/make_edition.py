@@ -16,7 +16,7 @@ _LICENSES = {
     "pe": "OGResearch Private License 1.0",
 }
 
-_EPOCHS = {
+_EPOCH_FROM_EDITION = {
     "de": "0",
     "ce": "1",
     "re": "2",
@@ -39,7 +39,7 @@ with open(_PYPROJECT_PATH, "rt") as f:
 
 current_version = toml_content["project"]["version"]
 current_epoch, current_mmp_string, = current_version.split(_EPOCH_SEPARATOR, maxsplit=1, )
-new_epoch = _EPOCHS[args.edition]
+new_epoch = _EPOCH_FROM_EDITION[args.edition]
 new_version = f"{new_epoch}{_EPOCH_SEPARATOR}{current_mmp_string}"
 toml_content["project"]["version"] = new_version
 
