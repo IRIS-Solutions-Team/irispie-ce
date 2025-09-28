@@ -37,6 +37,7 @@ from . import _x13
 from . import _moving
 from . import _elementwise
 from . import _statistics
+from . import _jsonables
 
 from ._categories import CATEGORIES
 
@@ -76,6 +77,7 @@ def _get_date_positions(dates, base, num_periods, ):
     return pos_adjusted, add_before, add_after
 
 
+@_jsonables.mixin
 @_dm.reference(
     path=("data_management", "time_series.md", ),
     categories=CATEGORIES,
@@ -1197,6 +1199,45 @@ This method modifies `self` in place and returns `None`.
     for n in ["gt", "lt", "ge", "le", "eq", "ne", ]:
         exec(f"def __{n}__(self, other): return self._binop(other, _op.{n}, )", )
 
+    @_dm.reference(category="comparison", )
+    def same_as(self, other: Self, ) -> bool:
+        r"""
+................................................................................
+
+==Check if two time series are the same==
+
+    self.same_as(other)
+
+
+### Input arguments ###
+
+???+ input "self"
+    The current time series object.
+
+???+ input "other"
+    The time series object to compare with the current time series object.
+
+
+### Returns ###
+
+???+ returns "bool"
+    `True` if the two time series are the same by comparing their start dates,
+    numerical values, and descriptions; `False` otherwise.
+
+................................................................................
+        """
+        if not isinstance(other, type(self)):
+            return False
+        if self.frequency != other.frequency:
+            return False
+        if self.start != other.start:
+            return False
+        if not _np.array_equal(self.data, other.data, equal_nan=True, ):
+            return False
+        if self.get_description() != other.get_description():
+            return False
+        return True
+
     def apply(self, func, *args, **kwargs, ):
         new_data = func(self.data, *args, **kwargs, )
         axis = kwargs.get("axis", None, )
@@ -1309,7 +1350,7 @@ This method modifies `self` in place and returns `None`.
 
 
 def _get_num_leading_trailing_missing_rows(data: _np.ndarray, ):
-    """
+    r"""
     """
     #[
     # Boolean index of rows with at least one observation
@@ -1349,7 +1390,7 @@ def _from_periods_and_values(
     frequency: Frequency | None = None,
     **kwargs,
 ) -> None:
-    """
+    r"""
     """
     #[
     # dates = _dates.ensure_period_tuple(dates, frequency=frequency, )

@@ -39,13 +39,13 @@ def mixin(klass, ):
     Mix the by_merging and merge methods into the class
     """
     #[
-    klass.by_merging = classmethod(_by_merging, )
-    klass.merge = _merge
+    klass.by_merging = classmethod(by_merging, )
+    klass.merge = merge
     return klass
     #]
 
 
-def _by_merging(
+def by_merging(
     klass,
     databoxes: Iterable[Self],
     merge_strategy: MergeStrategyType = "stack",
@@ -58,7 +58,7 @@ def _by_merging(
 
 
 @_dm.reference(category="multiple", )
-def _merge(
+def merge(
     self: Self,
     other: Self | Iterable[Self],
     merge_strategy: MergeStrategyType = "stack",
@@ -82,31 +82,31 @@ self.merge(
 ### Input arguments ###
 
 ???+ input "other"
-The databox or iterable of databoxes to merge into the current databox. If
-merging a single databox, it should be passed directly; for multiple
-databoxes, pass an iterable containing all.
+    The databox or iterable of databoxes to merge into the current databox. If
+    merging a single databox, it should be passed directly; for multiple
+    databoxes, pass an iterable containing all.
 
 ???+ input "merge_strategy"
-Determines how to process keys that exist in more than one databox. The
-default strategy is `"stack"`.
+    Determines how to process keys that exist in more than one databox. The
+    default strategy is `"stack"`.
 
-* `"stack"`: Stack values; this means combine time series into multiple
-columns, or combine lists, or convert non-lists to lists for stacking.
+    * `"stack"`: Stack values; this means combine time series into multiple
+    columns, or combine lists, or convert non-lists to lists for stacking.
 
-* `"replace"`: Replace existing values with new values.
+    * `"replace"`: Replace existing values with new values.
 
-* `"discard"` and `"silent"`: Retain original values and ignore new values.
+    * `"discard"` and `"silent"`: Retain original values and ignore new values.
 
-* `"warning"`: Behave like `"discard"` but issue a warning for each conflict.
+    * `"warning"`: Behave like `"discard"` but issue a warning for each conflict.
 
-* `"error"`: Raise an error on encountering the first duplicate key.
+    * `"error"`: Raise an error on encountering the first duplicate key.
 
-* `"critical"`: Raise a critical error on encountering the first duplicate key.
+    * `"critical"`: Raise a critical error on encountering the first duplicate key.
 
 
 ### Returns ###
 
-This method modifies the databox in place and returns `None`.
+    This method modifies the databox in place and returns `None`.
 
 ................................................................................
     """

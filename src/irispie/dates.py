@@ -110,7 +110,6 @@ custom check of time period or time series properties is needed.
     def from_letter(
         klass,
         string: str,
-        /,
     ) -> Self:
         r"""
 ................................................................................
@@ -120,6 +119,8 @@ custom check of time period or time series properties is needed.
 ................................................................................
         """
         letter = string.replace("_", "").upper()[0]
+        if letter == "?":
+            return klass.UNKNOWN
         return next( x for x in klass if x.name.startswith(letter) )
 
     @classmethod
@@ -130,7 +131,6 @@ custom check of time period or time series properties is needed.
     def from_sdmx_string(
         klass,
         sdmx_string: str,
-        /,
     ) -> Self:
         r"""
 ................................................................................
@@ -153,17 +153,31 @@ custom check of time period or time series properties is needed.
 
     @property
     @_dm.reference(category="property", )
-    def letter(self, /, ) -> str:
+    def letter(self, ) -> str:
         r"""==Single letter representation of time frequency=="""
         return self.name[0] if self is not self.UNKNOWN else "?"
 
+    def to_jsonable(self, ) -> str:
+        r"""
+        """
+        return str(self.letter)
+
+    @classmethod
+    def from_jsonable(
+        klass,
+        jsonable: str,
+    ) -> Self:
+        r"""
+        """
+        return klass.from_letter(jsonable, )
+
     @property
     @_dm.reference(category="property", )
-    def is_regular(self, /, ) -> bool:
+    def is_regular(self, ) -> bool:
         r"""==True for regular time frequency=="""
         return self in (self.YEARLY, self.HALFYEARLY, self.QUARTERLY, self.MONTHLY, )
 
-    def __str__(self, /, ) -> str:
+    def __str__(self, ) -> str:
         return self.name
 
     #]
@@ -298,7 +312,6 @@ class ResolutionContext:
         self,
         start_date: Period | None = None,
         end_date: Period | None = None,
-        /,
     ) -> None:
         """
         """
@@ -385,7 +398,6 @@ class _SpannableMixin:
 
 def _period_constructor_with_ellipsis(
     func: Callable,
-    /,
 ) -> Callable:
     """
     """
@@ -849,7 +861,7 @@ on the time frequency specified.
         return PERIOD_CLASS_FROM_FREQUENCY_RESOLUTION[freq].from_ymd(t.year, t.month, t.day, )
 
     @property
-    def start(self, /, ) -> Self:
+    def start(self, ) -> Self:
         """
         """
         return self
@@ -857,7 +869,7 @@ on the time frequency specified.
     start_date = start
 
     @property
-    def end(self, /, ) -> Self:
+    def end(self, ) -> Self:
         """
         """
         return self
@@ -866,13 +878,13 @@ on the time frequency specified.
 
     @property
     @_dm.reference(category="property", )
-    def year(self, /, ) -> int:
+    def year(self, ) -> int:
         r"""==Calendar year of the time period=="""
         ...
 
     @property
     @_dm.reference(category="property", )
-    def segment(self, /, ) -> int:
+    def segment(self, ) -> int:
         r"""==Segment within the calendar year=="""
         ...
 
@@ -975,7 +987,7 @@ integers.
 
 ................................................................................
         """
-        ...
+        return self.to_ymd(**kwargs, )
 
     @_dm.reference(category="print", )
     def to_iso_string(self, **kwargs, ) -> str:
@@ -1016,7 +1028,7 @@ integers.
         return f"{year:04g}-{month:02g}-{day:02g}"
 
     @_dm.reference(category="print", )
-    def to_sdmx_string(self, /, ) -> str:
+    def to_sdmx_string(self, ) -> str:
         r"""
 ................................................................................
 
@@ -1058,10 +1070,10 @@ where lowercase letters represent the respective time period components
 
 ................................................................................
         """
-        ...
+        return self.to_sdmx_string()
 
     @_dm.reference(category="print", )
-    def to_compact_string(self, /, ) -> str:
+    def to_compact_string(self, ) -> str:
         r"""
 ................................................................................
 
@@ -1101,12 +1113,11 @@ where lowercase letters represent the respective time period components
 
 ................................................................................
         """
-        ...
+        return self.to_compact_string()
 
     @_dm.reference(category="conversion", )
     def to_python_date(
         self,
-        /,
         position: PositionType = "start",
     ) -> _dt.date:
         r"""
@@ -1233,7 +1244,7 @@ and to 0 for integer periods.
     def __iter__(self) -> Iterator[Self]:
         yield self
 
-    def __hash__(self, /, ) -> int:
+    def __hash__(self, ) -> int:
         return hash((int(self.serial), hash(self.frequency), ))
 
     def __add__(self, other: int, ) -> Self:
@@ -1340,7 +1351,7 @@ respective frequency to move backward or forward.
     def __index__(self):
         return self.serial
 
-    def __eq__(self, other: Self, /, ) -> bool:
+    def __eq__(self, other: Self, ) -> bool:
         r"""
 ................................................................................
 
@@ -1353,7 +1364,7 @@ See documentation for [time period comparison](#time-period-comparison).
         _check_periods(self, other, )
         return self.serial == other.serial
 
-    def __ne__(self, other: Self, /, ) -> bool:
+    def __ne__(self, other: Self, ) -> bool:
         r"""
 ................................................................................
 
@@ -1366,7 +1377,7 @@ See documentation for [time period comparison](#time-period-comparison).
         _check_periods(self, other, )
         return self.serial != other.serial
 
-    def __lt__(self, other: Self, /, ) -> bool:
+    def __lt__(self, other: Self, ) -> bool:
         r"""
 ................................................................................
 
@@ -1379,7 +1390,7 @@ See documentation for [time period comparison](#time-period-comparison).
         _check_periods(self, other, )
         return self.serial < other.serial
 
-    def __le__(self, other: Self, /, ) -> bool: 
+    def __le__(self, other: Self, ) -> bool: 
         r"""
 ................................................................................
 
@@ -1392,7 +1403,7 @@ See documentation for [time period comparison](#time-period-comparison).
         _check_periods(self, other, )
         return self.serial <= other.serial
 
-    def __gt__(self, other: Self, /, ) -> bool:
+    def __gt__(self, other: Self, ) -> bool:
         r"""
 ................................................................................
 
@@ -1405,7 +1416,7 @@ See documentation for [time period comparison](#time-period-comparison).
         _check_periods(self, other, )
         return self.serial > other.serial
 
-    def __ge__(self, other: Self, /, ) -> bool:
+    def __ge__(self, other: Self, ) -> bool:
         r"""
 ................................................................................
 
@@ -1485,7 +1496,7 @@ class IntegerPeriod(Period, ):
         sdmx_string = sdmx_string.strip().removeprefix("(").removesuffix(")")
         return klass(int(sdmx_string))
 
-    def to_sdmx_string(self, /, ) -> str:
+    def to_sdmx_string(self, ) -> str:
         return f"({self.serial})"
 
     to_compact_string = to_sdmx_string
@@ -1560,30 +1571,30 @@ class DailyPeriod(Period, ):
         return klass.from_ymd(int(year), int(month), int(day), )
 
     @property
-    def year(self, /, ) -> int:
+    def year(self, ) -> int:
         return _dt.date.fromordinal(self.serial).year
 
     @property
-    def month(self, /, ) -> int:
+    def month(self, ) -> int:
         return _dt.date.fromordinal(self.serial).month
 
     @property
-    def day(self, /, ) -> int:
+    def day(self, ) -> int:
         return _dt.date.fromordinal(self.serial).day
 
     @property
-    def segment(self, /, ) -> int:
+    def segment(self, ) -> int:
         return self.to_year_segment()[1]
 
     @property
-    def period(self, /, ) -> int:
+    def period(self, ) -> int:
         return self.segment
 
-    def to_sdmx_string(self, /, **kwargs) -> str:
+    def to_sdmx_string(self, **kwargs) -> str:
         year, month, day = self.to_ymd()
         return f"{year:04g}-{month:02g}-{day:02g}"
 
-    def to_compact_string(self, /, **kwargs) -> str:
+    def to_compact_string(self, **kwargs) -> str:
         year, month, day = self.to_ymd()
         year_string = _get_compact_year_string(year)
         month_string = _COMPACT_MONTH_STRINGS[month-1]
@@ -1595,11 +1606,11 @@ class DailyPeriod(Period, ):
         year = _dt.date.fromordinal(self.serial).year
         return year, per
 
-    def to_ymd(self, /, **kwargs) -> tuple[int, int, int]:
+    def to_ymd(self, **kwargs) -> tuple[int, int, int]:
         py_date = _dt.date.fromordinal(self.serial)
         return py_date.year, py_date.month, py_date.day
 
-    def get_year(self, /, ) -> int:
+    def get_year(self, ) -> int:
         return _dt.date.fromordinal(self.serial).year
 
     @_remove_blanks
@@ -1633,7 +1644,7 @@ class DailyPeriod(Period, ):
         _, seg = self.to_year_segment()
         return self - 1 if seg > 1 else None
 
-    def to_daily(self, /, **kwargs, ) -> Self:
+    def to_daily(self, **kwargs, ) -> Self:
         return self
 
     #]
@@ -1701,7 +1712,7 @@ class RegularPeriodMixin:
             _, day = _ca.monthrange(year, month)
         return year, month, day
 
-    def __str__(self, /, ) -> str:
+    def __str__(self, ) -> str:
         return self.to_sdmx_string()
 
     def create_soy(self, ) -> Self:
@@ -1724,7 +1735,6 @@ class RegularPeriodMixin:
 
     def to_daily(
         self,
-        /,
         position: PositionType = "start"
     ) -> DailyPeriod:
         try:
@@ -1753,10 +1763,10 @@ class YearlyPeriod(RegularPeriodMixin, Period, ):
     def from_sdmx_string(klass, sdmx_string: str, ) -> YearlyPeriod:
         return klass(int(sdmx_string.strip()))
 
-    def to_sdmx_string(self, /, ) -> str:
+    def to_sdmx_string(self, ) -> str:
         return f"{self.get_year():04g}"
 
-    def to_compact_string(self, /, ) -> str:
+    def to_compact_string(self, ) -> str:
         year_string = _get_compact_year_string(self.get_year())
         return f"{year_string}Y"
 
@@ -1786,11 +1796,11 @@ class HalfyearlyPeriod(RegularPeriodMixin, Period, ):
         year, halfyear = sdmx_string.strip().split("-H")
         return klass.from_year_segment(int(year), int(halfyear))
 
-    def to_sdmx_string(self, /, ) -> str:
+    def to_sdmx_string(self, ) -> str:
         year, per = self.to_year_segment()
         return f"{year:04g}-{self.frequency.letter}{per:1g}"
 
-    def to_compact_string(self, /, ) -> str:
+    def to_compact_string(self, ) -> str:
         year, per = self.to_year_segment()
         year_string = _get_compact_year_string(year)
         return f"{year_string}{self.frequency.letter}{per:1g}"
@@ -1800,7 +1810,6 @@ class HalfyearlyPeriod(RegularPeriodMixin, Period, ):
 
     def get_month(
         self,
-        /,
         position: PositionType = "start",
     ) -> int:
         _, per = self.to_year_segment()
@@ -1831,11 +1840,11 @@ class QuarterlyPeriod(RegularPeriodMixin, Period, ):
         year, quarter = sdmx_string.strip().split("-Q")
         return klass.from_year_segment(int(year), int(quarter))
 
-    def to_sdmx_string(self, /, ) -> str:
+    def to_sdmx_string(self, ) -> str:
         year, per = self.to_year_segment()
         return f"{year:04g}-{self.frequency.letter}{per:1g}"
 
-    def to_compact_string(self, /, ) -> str:
+    def to_compact_string(self, ) -> str:
         year, per = self.to_year_segment()
         year_string = _get_compact_year_string(year)
         return f"{year_string}{self.frequency.letter}{per:1g}"
@@ -1866,11 +1875,11 @@ class MonthlyPeriod(RegularPeriodMixin, Period, ):
         year, month = sdmx_string.strip().split("-")
         return klass.from_year_segment(int(year), int(month))
 
-    def to_sdmx_string(self, /, ) -> str:
+    def to_sdmx_string(self, ) -> str:
         year, per = self.to_year_segment()
         return f"{year:04g}-{per:02g}"
 
-    def to_compact_string(self, /, ) -> str:
+    def to_compact_string(self, ) -> str:
         year, per = self.to_year_segment()
         year_string = _get_compact_year_string(year)
         return f"{year_string}{self.frequency.letter}{per:02g}"
@@ -2162,7 +2171,6 @@ The time span is reversed in place.
     def shift_end(
         self,
         by: int,
-        /,
     ) -> Self:
         r"""
 ................................................................................
@@ -2199,7 +2207,6 @@ depending on the direction and magnitude of the shift.
     def shift_start(
         self,
         by: int,
-        /,
     ) -> Self:
         r"""
 ................................................................................
@@ -2439,17 +2446,17 @@ distance between each period in the span and a given `Period`.
         else:
             return None
 
-    def __iter__(self, /, ) -> Iterable:
+    def __iter__(self, ) -> Iterable:
         return (self._class(x) for x in self._serials) if not self.needs_resolve else None
 
-    def __getitem__(self, i: int, /, ) -> Period | tuple[Period] | None:
+    def __getitem__(self, i: int, ) -> Period | tuple[Period] | None:
         if isinstance(i, int):
             return self._class(self._serials[i]) if not self.needs_resolve else None
         elif isinstance(i, slice):
             indexes = range(*i.indices(len(self)))
             return tuple(t for i, t in enumerate(self) if i in indexes)
 
-    def resolve(self, context: ResolutionContextProtocol, /, ) -> Self:
+    def resolve(self, context: ResolutionContextProtocol, ) -> Self:
         resolved_start = self._start if self._start else self._start.resolve(context, )
         resolved_end = self._end if self._end else self._end.resolve(context, )
         return type(self)(resolved_start, resolved_end, self._step, )
@@ -2588,7 +2595,7 @@ start = ContextualPeriod("start_date", )
 end = ContextualPeriod("end_date", )
 
 
-def resolve_period_or_integer(input_period: Any, /, ) -> Period:
+def resolve_period_or_integer(input_period: Any, ) -> Period:
     """
     Convert non-dater to integer dater
     """

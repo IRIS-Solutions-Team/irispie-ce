@@ -8,6 +8,7 @@ CATEGORIES = {
     "conversion": "Converting time series frequency",
     "information": "Getting information about time series",
     "manipulation": "Manipulating time series values",
+    "comparison": "Comparing time series",
     "multiple": "Combining multiple time series",
     "homogenizing": "Homogenizing and extrapolating time series",
     "filtering": "Filtering time series",
@@ -16,5 +17,6 @@ CATEGORIES = {
     "temporal_change_conversion": "Converting measures of temporal change",
     "temporal_cumulation": "Calculating temporal cumulation",
     "indexing": "Indexing time series",
+    "serialization": "Serializing and deserializing time series",
 }
 
