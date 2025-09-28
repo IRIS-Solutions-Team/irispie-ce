@@ -1,0 +1,71 @@
+# Deploy new version to PYPI
+#
+name: Deploy to PYPI
+
+
+on:
+  repository_dispatch:
+    types: [deploy-to-pypi]
+  workflow_dispatch:
+
+
+jobs:
+  deploy-to-pypi:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+          path: irispie-edition
+          token: ${{ secrets.IRISPIE_ACTIONS_TOKEN_2025 }}
+
+      - name: Set up identity
+        working-directory: irispie-edition
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install build dependencies
+        run: |
+            python -m pip install --upgrade pip
+            python -m pip install --upgrade build
+            python -m pip install --upgrade twine
+
+      - name: Get version
+        working-directory: irispie-edition
+        run: |
+          VERSION=$(python .github/workflows/print_version.py)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Build dist files
+        working-directory: irispie-edition
+        run: |
+            python -m build
+
+      - name: Upload to PYPI
+        env:
+          VERSION: ${{ env.VERSION }}
+          PYPI_IRISPIE_CE: ${{ secrets.PYPI_IRISPIE_CE }}
+        working-directory: irispie-edition
+        run: |
+            echo "Uploading version $VERSION to PYPI"
+            echo "Version: $VERSION"
+            # python -m twine upload dist/* -r pypi -u __token__ -p $PYPI_IRISPIE_CE --verbose
+
+#       - name: Upload new dist as artifact
+#         env:
+#           VERSION: ${{ env.VERSION }}
+#         uses: actions/upload-artifact@master
+#         with:
+#             name: dist-${{ env.VERSION }}
+#         path: irispie-edition/dist/*
+
+
