@@ -58,9 +58,9 @@ jobs:
             python -m twine upload dist/* -r pypi -u __token__ -p $PYPI_IRISPIE_CE --verbose
 
       - name: Upload new dist as artifact
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         with:
-            name: dist-${{ env.VERSION }}
-        path: irispie-edition/dist/*
+          name: dist-${{ env.VERSION }}
+          path: irispie-edition/dist/*
 
 
