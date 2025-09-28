@@ -50,13 +50,13 @@ jobs:
         run: |
             python -m build
 
-#      - name: Upload to PYPI
-#        env:
-#          PYPI_IRISPIE_CE: ${{ secrets.PYPI_IRISPIE_CE }}
-#        working-directory: irispie-edition
-#        run: |
-#            python -m twine upload dist/* -r pypi -u __token__ -p $PYPI_IRISPIE_CE --verbose
-#
+      - name: Upload to PYPI
+        env:
+          PYPI_IRISPIE_CE: ${{ secrets.PYPI_IRISPIE_CE }}
+        working-directory: irispie-edition
+        run: |
+            python -m twine upload dist/* -r pypi -u __token__ -p $PYPI_IRISPIE_CE --verbose
+
 #      - name: Upload new dist as artifact
 #        env:
 #          VERSION: ${{ env.VERSION }}
