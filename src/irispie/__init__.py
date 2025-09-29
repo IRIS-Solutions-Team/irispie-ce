@@ -3,6 +3,7 @@
 
 import importlib.metadata as _md
 import re as _re
+import functools as _ft
 import warnings as _wa
 
 _BANNER = {
@@ -60,7 +61,8 @@ version = distribution.version + "-" + edition
 __version__ = version
 __doc__ = distribution.metadata["description"]
 
-_wa.warn(_BANNER[edition], UserWarning, )
+irispie_edition_warning = _ft.partial(_wa.warn, _BANNER[edition], UserWarning, )
+irispie_edition_warning()
 
 #]
 

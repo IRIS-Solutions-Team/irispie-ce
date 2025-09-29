@@ -37,15 +37,13 @@ def mixin(klass, ):
     Mix the from_fred method into the class
     """
     #[
-    if hasattr(klass, "from_fred", ):
-        raise TypeError("The class already has a 'from_fred' method; cannot mixin again", )
-    klass.from_fred = classmethod(_from_fred, )
+    klass.from_fred = classmethod(from_fred, )
     return klass
     #]
 
 
 @_dm.reference(category="api", )
-def _from_fred(
+def from_fred(
     klass,
     request: Iterable[str] | dict[str, str],
 ) -> _databoxes.Databox:
