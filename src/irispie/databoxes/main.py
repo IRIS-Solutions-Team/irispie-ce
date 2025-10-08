@@ -1027,7 +1027,7 @@ Get the encompassing date span for all time series with a specified frequency.
         return Span(min_start_date, max_end_date, )
 
     @_dm.reference(category="multiple", )
-    def overlay(
+    def overlay_by_span(
         self,
         other: Self,
         **kwargs,
@@ -1039,12 +1039,12 @@ Get the encompassing date span for all time series with a specified frequency.
 ==Overlay another Databox time series onto the ones in the current Databox==
 
 Overlay another Databox's time series onto the corresponding time series in the
-current Databox, aligning and incorporating data series using the `overlay`
+current Databox, aligning and incorporating data series using the `overlay_by_span`
 method defined in the Series class. This operation modifies the current Databox
 in-place by applying the overlay technique to each individual series that exists
 in both Databoxes.
 
-    self.overlay(
+    self.overlay_by_span(
         other,
         names=None,
         strict_names=False,
@@ -1077,17 +1077,32 @@ This method modifies the Databox in place and returns `None`.
 
 ### Details ###
 
-The `overlay` method ensures that corresponding time series in both the source
+The `overlay_by_span` method ensures that corresponding time series in both the source
 Databox and the other Databox are merged based on the overlay logic determined
 by the Series class.
 
 
 ................................................................................
 """
-        self._lay(other, Series.overlay, **kwargs)
+        self._lay(other, Series.overlay_by_span, **kwargs, )
 
     @_dm.reference(category="multiple", )
-    def underlay(
+    def overlay_by_observation(
+        self,
+        other: Self,
+        **kwargs,
+    ) -> None:
+        r"""
+................................................................................
+
+==Overlay another Databox time series onto the ones in the current Databox==
+
+................................................................................
+        """
+        self._lay(other, Series.overlay_by_observation, **kwargs, )
+
+    @_dm.reference(category="multiple", )
+    def underlay_by_span(
         self,
         other: Self,
         **kwargs,
@@ -1099,12 +1114,12 @@ by the Series class.
 ==Underlay another Databox time series beneath those in the current Databox==
 
 Underlay another Databox's time series beneath the corresponding times series in
-the current Databox, aligning and incorporating data series using the `underlay`
+the current Databox, aligning and incorporating data series using the `underlay_by_span`
 method defined in the Series class. This operation modifies the current Databox
 in-place by applying the underlay technique to each individual series that
 exists in both Databoxes.
 
-    self.underlay(
+    self.underlay_by_span`
         other,
         names=None,
         strict_names=False,
@@ -1118,7 +1133,7 @@ exists in both Databoxes.
     time series data.
 
 ???+ input "other"
-    The Databox that provides the time series to underlay beneta `self`. Only
+    The Databox that provides the time series to underlay beneath `self`. Only
     series present in both Databoxes will be affected.
 
 ???+ input "names"
@@ -1137,14 +1152,29 @@ This method modifies the Databox in place and returns `None`.
 
 ### Details ###
 
-The `underlay` method ensures that corresponding time series in both the source
+The `underlay_by_span` method ensures that corresponding time series in both the source
 Databox and the other Databox are merged based on the underlay logic determined
 by the Series class.
 
 
 ................................................................................
         """
-        self._lay(other, Series.underlay, **kwargs)
+        self._lay(other, Series.underlay_by_span, **kwargs, )
+
+    @_dm.reference(category="multiple", )
+    def underlay_by_observation(
+        self,
+        other: Self,
+        **kwargs,
+    ) -> None:
+        r"""
+................................................................................
+
+==Underlay another Databox time series beneath those in the current Databox==
+
+................................................................................
+        """
+        self._lay(other, Series.underlay_by_observation, **kwargs, )
 
     def _lay(
         self,
@@ -1273,7 +1303,7 @@ This method uses the `underlay` method to add the time series data from the
         """
         other = other.copy()
         other.clip(None, end_prepending, )
-        self.underlay(other, )
+        self.underlay_by_span(other, )
 
     @_dm.reference(category="evaluation", )
     def evaluate_expression(

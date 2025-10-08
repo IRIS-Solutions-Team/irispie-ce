@@ -24,25 +24,45 @@ if TYPE_CHECKING:
 #]
 
 
-__all__ = []
+FUNCTIONAL_FORMS = (
+    "fill_missing",
+)
 
 
-MethodType = Literal["next", "previous", "nearest", "linear", "log_linear", "constant", "from_series", ]
+Method = Literal[
+    "next",
+    "previous",
+    "nearest",
+    "linear",
+    "log_linear",
+    "constant",
+    "from_series",
+]
 
 
-class Inlay:
-    """
+def mixin(klass: type, ) -> type:
+    r"""
+    Inlay the filling methods in the class
     """
     #[
+    klass.fill_missing = fill_missing
+    return klass
+    #]
 
-    @_dm.reference(category="homogenizing", )
-    def fill_missing(
-        self,
-        method: Literal["next", "previous", "nearest", "linear", "log_linear", "constant", "from_series", ],
-        method_args: Any | None = None,
-        span: Iterable[Period] | EllipsisType | None = None,
-    ) -> None:
-        r"""
+
+#-------------------------------------------------------------------------------
+# Functions to be used as methods in Series class
+#-------------------------------------------------------------------------------
+
+
+@_dm.reference(category="homogenizing", )
+def fill_missing(
+    self,
+    method: Method,
+    method_args: Any | None = None,
+    span: Iterable[Period] | EllipsisType | None = None,
+) -> None:
+    r"""
 ················································································
 
 ==Fill missing observations==
@@ -109,23 +129,17 @@ class Inlay:
     A new time `Series` object with missing observations filled.
 
 ················································································
-        """
-        fill_func = _FILL_METHOD_DISPATCH[method]
-        data, span = self.get_data_and_periods(span, )
-        new_data = [
-            fill_func(variant, method_args, span=span, ).T
-            for variant in data.T
-        ]
-        self.set_data(span, new_data, )
-
-    #]
+    """
+    fill_func = _FILL_METHOD_DISPATCH[method]
+    data, span, = self.get_data_and_periods(span, )
+    new_data = [
+        fill_func(variant, method_args, span=span, ).T
+        for variant in data.T
+    ]
+    self.set_data(span, new_data, )
 
 
-attributes = (n for n in dir(Inlay) if not n.startswith("_"))
-for n in attributes:
-    code = FUNC_STRING.format(n=n, )
-    exec(code, globals(), locals(), )
-    __all__.append(n)
+#-------------------------------------------------------------------------------
 
 
 def _fill_neighbor(
