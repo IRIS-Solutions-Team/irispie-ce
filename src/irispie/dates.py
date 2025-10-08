@@ -428,7 +428,6 @@ def _period_constructor_with_ellipsis(
 )
 class Period(
     _SpannableMixin,
-    _copies.Mixin,
 ):
     """
 ......................................................................
@@ -532,6 +531,14 @@ Overview of time period constructors:
 ......................................................................
         """
         self.serial = int(serial)
+
+    def copy(self, ) -> Self:
+        """
+        """
+        x = type(self)()
+        x.serial = self.serial
+        return x
+        #return type(self)(self.serial, )
 
     @_dm.reference(
         category=None,
@@ -2018,10 +2025,8 @@ def daily_serial_from_ymd(year: int, month: int, day: int, ) -> int:
         "property": None,
     },
 )
-class Span(
-    _copies.Mixin,
-):
-    """
+class Span:
+    r"""
 ................................................................................
 
 Time spans
@@ -2034,6 +2039,13 @@ from a start period to an end period (possibly with a step size other than
 ................................................................................
     """
     #[
+
+    __slots__ = (
+        "_start",
+        "_end",
+        "_step",
+        "needs_resolve",
+    )
 
     @_dm.reference(
         category="constructor",
@@ -2079,6 +2091,33 @@ from a start period to an end period (possibly with a step size other than
         self.needs_resolve = self._start.needs_resolve or self._end.needs_resolve
         if not self.needs_resolve:
             _check_periods(from_per, until_per)
+
+    @_dm.reference(category="constructor", )
+    def copy(self, ) -> Self:
+        r"""
+................................................................................
+
+==Create a copy of the time span==
+
+    new_span = span.copy()
+
+### Input arguments ###
+
+???+ input "span"
+    The time span to be copied.
+
+### Returns ###
+
+???+ returns "new_span"
+    A new time span object that is a copy of the original time span.
+
+................................................................................
+        """
+        return type(self)(
+            from_per=self._start,
+            until_per=self._end,
+            step=self._step,
+        )
 
     @classmethod
     def encompassing(klass, *args, ) -> Self:

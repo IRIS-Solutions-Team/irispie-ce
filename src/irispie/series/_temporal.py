@@ -17,7 +17,7 @@ from ._categories import CATEGORIES
 #]
 
 
-__all__ = []
+FUNCTIONAL_FORMS = []
 
 
 class Inlay:
@@ -626,7 +626,7 @@ self.cum_roc(shift=-1, initial=None, span=None)
 attributes = (n for n in dir(Inlay) if not n.startswith("_"))
 for n in attributes:
     exec(FUNC_STRING.format(n=n, ), globals(), locals(), )
-    __all__.append(n)
+    FUNCTIONAL_FORMS.append(n)
 
 
 _CUMULATIVE_FACTORY = {

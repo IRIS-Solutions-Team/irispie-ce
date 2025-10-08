@@ -38,6 +38,8 @@ from . import _moving
 from . import _elementwise
 from . import _statistics
 from . import _jsonables
+from . import _lays
+from . import _broadcasts
 
 from ._categories import CATEGORIES
 
@@ -53,13 +55,11 @@ from ._categories import CATEGORIES
 
 __all__ = (
     "Series",
-    "shift",
 )
 
 
 Dates = Period | Iterable[Period] | Span | EllipsisType | None
 VariantsRequestType = int | Iterable[int] | slice | None
-LayMethodType = Literal["by_span", ]
 ShiftType = int | Literal["yoy", "soy", "eopy", "tty", ]
 AxisType = Literal[0, 1]
 
@@ -77,6 +77,9 @@ def _get_date_positions(dates, base, num_periods, ):
     return pos_adjusted, add_before, add_after
 
 
+@_lays.mixin
+@_filling.mixin
+@_broadcasts.mixin
 @_jsonables.mixin
 @_dm.reference(
     path=("data_management", "time_series.md", ),
@@ -86,7 +89,6 @@ class Series(
     _indexing.Inlay,
     _conversions.Inlay,
     _temporal.Inlay,
-    _filling.Inlay,
     _hp.Inlay,
     _extrapolate.Inlay,
     _moving.Inlay,
@@ -118,7 +120,6 @@ variants of the data, stored as mutliple columns.
         "start",
         "data",
         "data_type",
-        "metadata",
         "__description__",
     )
 
@@ -201,17 +202,19 @@ variants of the data, stored as mutliple columns.
 ················································································
         """
         self.start = None
-        self.data_type = data_type
-        self.data = _np.full((0, num_variants), _np.nan, dtype=self.data_type, )
-        self.metadata = {}
-        self.__description__ = description
+        self.data = _np.empty((0, num_variants), dtype=data_type, )
+        self.data_type = self.data.dtype
+        self.set_description(description, )
         #
-        start = start_date if start is None else start
-        periods = dates if periods is None else periods
+        # Legacy support for start_date and dates
+        if start is None and start_date is not None:
+            start = start_date
+        if periods is None and dates is not None:
+            periods = dates
         #
         if populate:
-            test = (x is not None for x in (start, periods, values, func))
-            populator = _SERIES_POPULATOR.get(tuple(test), _invalid_constructor)
+            test = tuple(x is not None for x in (start, periods, values, func))
+            populator = _SERIES_POPULATOR.get(test, _invalid_constructor)
             populator(
                 self,
                 start=start,
@@ -220,6 +223,16 @@ variants of the data, stored as mutliple columns.
                 values=values,
                 func=func,
             )
+
+    def copy(self, ) -> Self:
+        r"""
+        """
+        new = type(self)(populate=False, )
+        new.start = self.start.copy()
+        new.data = _np.array(self.data, )
+        new.data_type = self.data_type
+        new.set_description(self.get_description(), )
+        return new
 
     @classmethod
     def as_empty(
@@ -805,143 +818,6 @@ date.
         num_variants = num_variants if num_variants is not None else self.num_variants
         self.data = _np.empty((0, num_variants), dtype=self.data_type)
 
-    @_dm.no_reference
-    def overlay_by_span(
-        self,
-        other: Self,
-    ) -> None:
-        self.set_data(other.span, other.data, )
-        self.trim()
-
-    @_dm.reference(category="multiple", )
-    def overlay(
-        self,
-        other: Self,
-        method: LayMethodType = "by_span",
-    ) -> None:
-        r"""
-................................................................................
-
-==Overlay another time series values onto the current time series==
-
-Overlay the values of another time series onto the current time series on the
-entire span of the other time series, i.e. from the start to the end period
-regardless of missing in-sample values.
-
-    self.overlay(
-        other,
-        method="by_span",
-    )
-
-### Input arguments ###
-
-???+ input "self"
-    The current time series object.
-
-???+ input "other"
-    The time series object whose values will be overlaid onto the current time
-    series.
-
-???+ input "method"
-    The method to use for overlaying the values. The default (and currently the
-    only available) method is `"by_span"`.
-
-### Returns ###
-
-This method modifies `self` in place and returns `None`.
-
-### Details ###
-
-???+ abstract "Algorithm"
-
-    The resulting time series is determined the following way:
-
-    1. The span of the resulting series starts at the earliest start period of the two
-    series and ends at the latest end period of the two series.
-
-    2. The observations from the `self` (current) time series used to fill the
-    resulting time span.
-
-    3. Within the span of the `other` time series (from the first available
-    observation to the last available observation), the observations from this
-    `other` time series are superimposed on the resulting time series, including any
-    in-sample missing observations.
-
-................................................................................
-"""
-        _broadcast_variants_if_needed(self, other, )
-        getattr(type(self), "overlay_" + method)(self, other, )
-
-    @_dm.no_reference
-    def underlay_by_span(
-        self,
-        other: Self,
-    ) -> None:
-        r"""
-        """
-        new_self = other.copy()
-        new_self.overlay(self, )
-        self._shallow_copy_data(new_self, )
-
-    @_dm.reference(category="multiple", )
-    def underlay(
-        self,
-        other: Self,
-        method: LayMethodType = "by_span",
-    ) -> None:
-        r"""
-................................................................................
-
-==Underlay another time series values beneath the current time series==
-
-Underlay the values of another time series beneath the current time series on
-the entire span of the other time series, i.e. from the start to the end period
-regardless of missing in-sample values.
-
-    self.underlay(
-        other,
-        method="by_span",
-    )
-
-### Input arguments ###
-
-???+ input "self"
-    The current time series object.
-
-???+ input "other"
-    The time series object whose values will be underlaid beneath the current
-    time series.
-
-???+ input "method"
-    The method to use for underlaying the values. The default (and currently the
-    only available) method is `"by_span"`.
-
-### Returns ###
-
-This method modifies `self` in place and returns `None`.
-
-### Details ###
-
-???+ abstract "Algorithm"
-
-    The resulting time series is determined the following way:
-
-    1. The span of the resulting series starts at the earliest start period of the two
-    series and ends at the latest end period of the two series.
-
-    2. The observations from the `other` time series used to fill the
-    resulting time span.
-
-    3. Within the span of the `self` time series (from the first available
-    observation to the last available observation), the observations from this
-    `self` time series are superimposed on the resulting time series, including any
-    in-sample missing observations.
-
-................................................................................
-        """
-        _broadcast_variants_if_needed(self, other, )
-        getattr(type(self), "underlay_" + method)(self, other, )
-
     def redate(
         self,
         new_date: Period,
@@ -1272,15 +1148,6 @@ This method modifies `self` in place and returns `None`.
         new._replace_start_and_values(from_until[0], new_data, )
         return new
 
-    def _broadcast_variants(self, num_variants, ) -> None:
-        """
-        """
-        if self.data.shape[1] == num_variants:
-            return
-        if self.data.shape[1] == 1:
-            self.data = _np.repeat(self.data, num_variants, axis=1, )
-            return
-        raise _wrongdoings.IrisPieError("Cannot broadcast variants")
 
     def _replace_data(
         self,
@@ -1461,26 +1328,6 @@ def _reshape_numpy_array(values: _np.ndarray, ) -> _np.ndarray:
     #]
 
 
-def _broadcast_variants_if_needed(
-    self: Series,
-    other: Series,
-) -> tuple[Series, Series]:
-    """
-    """
-    #[
-    if self.num_variants == other.num_variants:
-        return self, other
-    #
-    if self.num_variants == 1:
-        return self._broadcast_variants(other.num_variants, ), other
-    #
-    if other.num_variants == 1:
-        return self, other._broadcast_variants(self.num_variants, )
-    #
-    raise _wrongdoings.IrisPieError("Cannot broadcast time series variants")
-    #]
-
-
 def _invalid_constructor(
     self,
     **kwargs,
@@ -1496,8 +1343,8 @@ _SERIES_POPULATOR = {
 }
 
 
-for n in ("shift", "redate", "underlay", "overlay", ):
-    code = FUNC_STRING.format(n=n, )
-    exec(code, globals(), locals(), )
-    __all__ += (n, )
+FUNCTIONAL_FORMS = (
+    "shift",
+    "redate",
+)
 

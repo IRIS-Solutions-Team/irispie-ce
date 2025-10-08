@@ -15,7 +15,7 @@ class Mixin:
     """
     """
     #[
-    def copy(self, /, ) -> Self:
+    def copy(self, ) -> Self:
         """
         """
         return _cp.deepcopy(self)
