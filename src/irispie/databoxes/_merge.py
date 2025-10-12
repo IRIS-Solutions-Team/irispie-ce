@@ -1,4 +1,4 @@
-"""
+r"""
 Merge inlay
 """
 
@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Literal
 import warnings as _wa
 import documark as _dm
+import functools as _ft
 
 from .. import wrongdoings as _wrongdoings
 from ..series import main as _series
@@ -25,6 +26,10 @@ if TYPE_CHECKING:
 MergeStrategyType = Literal[
     "stack", # Stack values as variants
     "hstack", # Legacy alias for stack, do not include in the docstring
+    "overlay_by_observation",
+    "overlay_by_span",
+    "underlay_by_observation",
+    "underlay_by_span",
     "replace", # Replace the existing value with the new one
     "discard", # Discard the new value and keep the existing one
     "silent", # Exactly the same as discard
@@ -139,7 +144,6 @@ def _merge_stack(
     key: str,
     value: Any,
     stream: _wrongdoings.Stream,
-    /,
 ) -> None:
     """
     Horizontal stack of values: time series are concatenated, lists are
@@ -157,12 +161,28 @@ def _merge_stack(
     #]
 
 
+def _merge_lay(
+    self,
+    key: str,
+    value: Any,
+    stream: _wrongdoings.Stream,
+    method: str,
+) -> None:
+    """
+    Overlay time series by observation (index), other values are kept unchanged.
+    """
+    #[
+    if isinstance(value, _series.Series, ) and isinstance(self[key], _series.Series, ):
+        self[key] = self[key].copy()
+        getattr(self[key], method, )(value, )
+    #]
+
+
 def _merge_replace(
     self,
     key: str,
     value: Any,
     stream: _wrongdoings.Stream,
-    /,
 ) -> None:
     """
     """
@@ -176,7 +196,6 @@ def _merge_discard(
     key: str,
     value: Any,
     stream: _wrongdoings.Stream,
-    /,
 ) -> None:
     """
     """
@@ -190,7 +209,6 @@ def _merge_report(
     key: str,
     value: Any,
     stream: _wrongdoings.Stream,
-    /,
 ) -> None:
     """
     """
@@ -202,6 +220,10 @@ def _merge_report(
 _MERGE_STRATEGY_DISPATCH = {
     "stack": _merge_stack,
     "hstack": _merge_stack,
+    "overlay_by_observation": _ft.partial(_merge_lay, method="overlay_by_observation", ),
+    "overlay_by_span": _ft.partial(_merge_lay, method="overlay_by_span", ),
+    "underlay_by_observation": _ft.partial(_merge_lay, method="underlay_by_observation", ),
+    "underlay_by_span": _ft.partial(_merge_lay, method="underlay_by_span", ),
     "replace": _merge_replace,
     "discard": _merge_discard,
     "silent": _merge_report,
