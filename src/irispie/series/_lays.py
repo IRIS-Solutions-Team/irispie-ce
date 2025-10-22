@@ -49,6 +49,7 @@ def overlay_by_span(
     self,
     other,
 ) -> None:
+    _bc.broadcast_variants_if_needed(self, other, )
     self.set_data(other.span, other.data, )
     self.trim()
 
