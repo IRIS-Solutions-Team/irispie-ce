@@ -191,6 +191,24 @@ self = Chartpack(
         for f in self._figures:
             f.set_span(span, )
 
+    def set_highlight(
+        self,
+        highlight: Iterable[Period] | EllipsisType,
+    ) -> None:
+        r"""
+        """
+        for f in self._figures:
+            f.highlight = highlight
+
+    def modify_figure_titles(
+        self,
+        modifier: Callable[[str], str],
+    ) -> None:
+        r"""
+        """
+        for f in self._figures:
+            f.title = modifier(f.title, )
+
     @_dm.reference(category="plot", )
     def plot(
         self,

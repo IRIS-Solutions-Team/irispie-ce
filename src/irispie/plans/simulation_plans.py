@@ -19,6 +19,7 @@ import documark as _dm
 from ..conveniences import copies as _copies
 from ..dates import (Period, )
 from ..series.main import (Series, )
+from .. import simultaneous as _simultaneous
 from .. import wrongdoings as _wrongdoings
 from . import _registers as _registers
 from . import _pretty as _pretty
@@ -168,7 +169,6 @@ Create a new simulation plan object for a
         self,
         plannable: SimulationPlannableProtocol,
         span: Iterable[Period] | None,
-        /,
     ) -> None:
         """
         """
@@ -181,7 +181,7 @@ Create a new simulation plan object for a
 
     @property
     @_dm.reference(category="property", )
-    def start(self, /, ) -> Period:
+    def start(self, ) -> Period:
         """==Start date of the simulation span=="""
         return self.base_span[0]
 
@@ -190,7 +190,7 @@ Create a new simulation plan object for a
 
     @property
     @_dm.reference(category="property", )
-    def end(self, /, ) -> Period:
+    def end(self, ) -> Period:
         """==End date of the simulation span=="""
         return self.base_span[-1]
 
@@ -199,13 +199,13 @@ Create a new simulation plan object for a
 
     @property
     @_dm.reference(category="property", )
-    def num_periods(self, /, ) -> int:
+    def num_periods(self, ) -> int:
         """==Number of periods in the simulation span=="""
         return len(self.base_span) if self.base_span is not None else 1
 
     @property
     @_dm.reference(category="property", )
-    def frequency(self, /, ) -> str:
+    def frequency(self, ) -> str:
         """==Date frequency of the simulation span=="""
         return self.start.frequency
 
@@ -214,7 +214,6 @@ Create a new simulation plan object for a
         self,
         dates: Iterable[Period] | EllipsisType,
         names: Iterable[str] | str | EllipsisType,
-        /,
         *,
         transform: str | None = None,
         # when_data: bool | None = None,
@@ -347,7 +346,6 @@ values.
 ```
 self.exogenize_unanticipated(
     dates, names,
-    /,
     transform=None,
     when_data=False,
 )
@@ -433,7 +431,6 @@ self.exogenize_unanticipated(
         self,
         dates: Iterable[Period] | EllipsisType,
         names: Iterable[str] | str | EllipsisType,
-        /,
     ) -> None:
         r"""
         """
@@ -444,7 +441,6 @@ self.exogenize_unanticipated(
         self,
         dates: Iterable[Period] | EllipsisType,
         names: Iterable[str] | str | EllipsisType,
-        *,
         status: bool | int = True,
     ) -> None:
         """
@@ -454,10 +450,26 @@ self.exogenize_unanticipated(
 
 ················································································
         """
+        if isinstance(names, str):
+            names = (names, )
+        # names_with_prefix = tuple(
+        #     n for n in names
+        #     if _simultaneous.is_anticipated_shock_name(n)
+        # )
+        # if names_with_prefix:
+        #     _wrongdoings.warn(
+        #         "When endogenizing anticipated quantities, do not include the "
+        #         "'ant_' prefix in the names; the prefix will be added automatically."
+        #     )
+        ant_names = tuple(
+            n if _simultaneous.is_anticipated_shock_name(n, )
+            else _simultaneous.anticipated_shock_name_from_transition_shock_name(n, )
+            for n in names
+        )
         self._write_to_register(
             "endogenized_anticipated",
             dates,
-            names,
+            ant_names,
             status,
         )
 
@@ -514,14 +526,14 @@ self.exogenize_unanticipated(
         )
 
     @property
-    def any_endogenized_unanticipated_except_start(self, /, ) -> bool:
+    def any_endogenized_unanticipated_except_start(self, ) -> bool:
         r"""
         True if there is any endogenized unanticipated point in the plan after the first period
         """
         return self._any_in_register_except_start("endogenized_unanticipated", )
 
     @property
-    def any_endogenized_anticipated_except_start(self, /, ) -> bool:
+    def any_endogenized_anticipated_except_start(self, ) -> bool:
         r"""
         True if there is any endogenized anticipated point in the plan after the first period
         """
@@ -538,7 +550,7 @@ self.exogenize_unanticipated(
         )
 
     @property
-    def is_empty(self, /, ) -> bool:
+    def is_empty(self, ) -> bool:
         """
         True if there are no exogenized or endogenized points in the plan
         """
@@ -615,9 +627,9 @@ quantity in the pair at the specified dates. It is equivalent to calling
             return
         if len(pairs) == 2 and isinstance(pairs[0], str) and isinstance(pairs[1], str):
             pairs = (pairs, )
-        for pair in pairs:
-            self.exogenize_anticipated(dates, pair[0], *args, **kwargs, )
-            self.endogenize_anticipated(dates, pair[1], *args, **kwargs, )
+        names_to_exogenize, names_to_endogenize, = zip(*pairs)
+        self.exogenize_anticipated(dates, names_to_exogenize, *args, **kwargs, )
+        self.endogenize_anticipated(dates, names_to_endogenize, *args, **kwargs, )
 
     def swap_unanticipated(
         self,
@@ -669,9 +681,9 @@ quantity in the pair at the specified dates. It is equivalent to calling
             return
         if len(pairs) == 2 and isinstance(pairs[0], str) and isinstance(pairs[1], str):
             pairs = (pairs, )
-        for pair in pairs:
-            self.exogenize_unanticipated(dates, pair[0], *args, **kwargs, )
-            self.endogenize_unanticipated(dates, pair[1], *args, **kwargs, )
+        names_to_exogenize, names_to_endogenize, = zip(*pairs)
+        self.exogenize_unanticipated(dates, names_to_exogenize, *args, **kwargs, )
+        self.endogenize_unanticipated(dates, names_to_endogenize, *args, **kwargs, )
 
     def get_register_as_bool_array(
         self: Self,
@@ -727,7 +739,6 @@ quantity in the pair at the specified dates. It is equivalent to calling
     def _get_per_indexes(
         self,
         periods: Iterable[Period] | EllipsisType,
-        /,
     ) -> tuple[int | None, ...]:
         """
         """
@@ -746,7 +757,6 @@ quantity in the pair at the specified dates. It is equivalent to calling
         self,
         name: str,
         date: Period,
-        /,
     ) -> _transforms.PlanTransformProtocol | None:
         """
         """
@@ -762,14 +772,13 @@ quantity in the pair at the specified dates. It is equivalent to calling
         self,
         name: str,
         column: int,
-        /,
     ) -> _transforms.PlanTransformProtocol | None:
         """
         """
         point = self._endogenized_register[name][column]
         return point if point is not None else self._default_endogenized
 
-    def get_databox_names(self, /, ) -> tuple[str]:
+    def get_databox_names(self, ) -> tuple[str]:
         """
         """
         databox_names = set()
@@ -794,7 +803,7 @@ quantity in the pair at the specified dates. It is equivalent to calling
             if bool(status[column_index])
         )
 
-    def __str__(self, /, ) -> str:
+    def __str__(self, ) -> str:
         """
         """
         return self.get_pretty_string()
@@ -818,7 +827,6 @@ quantity in the pair at the specified dates. It is equivalent to calling
     def _get_period_indexes(
         self,
         periods: Iterable[Period] | EllipsisType,
-        /,
     ) -> tuple[tuple[int, ...], tuple[Period, ...]]:
         """
         """
@@ -883,7 +891,6 @@ quantity in the pair at the specified dates. It is equivalent to calling
 def _get_registered_periods(
     register: dict[str, Any],
     base_span: tuple[Period],
-    /,
 ) -> dict[str, tuple[Period]]:
     """
     """
@@ -900,7 +907,6 @@ def _get_registered_periods(
 def catch_invalid_periods(
     dates: Iterable[Period],
     base_span: tuple[Period],
-    /,
 ) -> NoReturn | None:
     """
     """
@@ -911,11 +917,11 @@ def catch_invalid_periods(
         )
 
 
-def _is_active_status(value: Any, /, ) -> bool:
+def _is_active_status(value: Any, ) -> bool:
     return (value is not None) and (value is not False)
 
 
-def _has_points_in_register(register: dict, /, ) -> bool:
+def _has_points_in_register(register: dict, ) -> bool:
     return any(
         any(_is_active_status(i) for i in v)
         for v in register.values()

@@ -35,11 +35,13 @@ class IrisPieError(Exception, ):
 
 
 class IrisPieCritical(IrisPieError, ):
+    r"""
+    """
     pass
 
 
 class IrisPieWarning(UserWarning, ):
-    """
+    r"""
     """
     pass
 
@@ -83,7 +85,7 @@ def _raise_as_error(
 def _raise_as_warning(
     message: str | Iterable[str],
 ) -> None:
-    """
+    r"""
     """
     #[
     message = _prepare_message(message, )
