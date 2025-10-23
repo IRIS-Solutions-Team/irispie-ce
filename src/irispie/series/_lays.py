@@ -44,7 +44,7 @@ def mixin(klass: type, ) -> type:
 #-------------------------------------------------------------------------------
 
 
-@_dm.no_reference
+@_dm.reference(category="multiple", )
 def overlay_by_span(
     self: Series,
     other: Series,
@@ -58,9 +58,9 @@ Overlay the values of another time series onto the current time series on the
 entire span of the other time series, i.e. from the start to the end period
 regardless of missing in-sample values.
 
-    self.overlay_by_span(
-        other,
-    )
+
+    self.overlay_by_span(other, )
+
 
 ### Input arguments ###
 
@@ -75,9 +75,11 @@ series.
 The method to use for overlaying the values. The default (and currently the
 only available) method is `"by_span"`.
 
+
 ### Returns ###
 
 This method modifies `self` in place and returns `None`.
+
 
 ### Details ###
 
@@ -104,7 +106,7 @@ in-sample missing observations.
     self.trim()
 
 
-@_dm.no_reference
+@_dm.reference(category="multiple", )
 def overlay_by_observation(
     self,
     other,
@@ -118,9 +120,8 @@ Overlay the values of another time series onto the current time series
 observation by observation, only where the other time series has valid
 (non-missing) observations.
 
-    self.overlay_by_observation(
-        other,
-    )
+    self.overlay_by_observation(other, )
+
 
 ### Input arguments ###
 
@@ -131,9 +132,11 @@ observation by observation, only where the other time series has valid
     The time series object whose values will be overlaid onto the current time
     series.
 
+
 ### Returns ###
 
 This method modifies `self` in place and returns `None`.
+
 
 ### Details ###
 
@@ -187,7 +190,7 @@ This method modifies `self` in place and returns `None`.
     self.data = result_data
 
 
-@_dm.no_reference
+@_dm.reference(category="multiple", )
 def underlay_by_span(
     self,
     other,
@@ -201,9 +204,8 @@ Underlay the values of another time series beneath the current time series on
 the entire span of the other time series, i.e. from the start to the end period
 regardless of missing in-sample values.
 
-    self.underlay_by_span(
-        other,
-    )
+    self.underlay_by_span(other, )
+
 
 ### Input arguments ###
 
@@ -218,9 +220,11 @@ time series.
 The method to use for underlaying the values. The default (and currently the
 only available) method is `"by_span"`.
 
+
 ### Returns ###
 
 This method modifies `self` in place and returns `None`.
+
 
 ### Details ###
 
@@ -246,7 +250,7 @@ in-sample missing observations.
     self._shallow_copy_data(new_self, )
 
 
-@_dm.no_reference
+@_dm.reference(category="multiple", )
 def underlay_by_observation(
     self,
     other,
@@ -260,9 +264,8 @@ Underlay the values of another time series beneath the current time series
 observation by observation, only where the current time series has missing
 observations.
 
-    self.underlay_by_observation(
-        other,
-    )
+    self.underlay_by_observation(other, )
+
 
 ### Input arguments ###
 
@@ -273,9 +276,11 @@ observations.
     The time series object whose values will be underlaid beneath the current
     time series.
 
+
 ### Returns ###
 
 This method modifies `self` in place and returns `None`.
+
 
 ### Details ###
 
