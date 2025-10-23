@@ -30,7 +30,7 @@ from ..dataslates.main import Dataslate
 #-------------------------------------------------------------------------------
 
 
-def inlay(klass, ) -> type:
+def mixin(klass, ) -> type:
     """
     """
     klass.simulate = simulate

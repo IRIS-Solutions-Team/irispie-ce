@@ -228,7 +228,9 @@ variants of the data, stored as mutliple columns.
         r"""
         """
         new = type(self)(populate=False, )
-        new.start = self.start.copy()
+        new.start = None
+        if self.start is not None:
+            new.start = self.start.copy()
         new.data = _np.array(self.data, )
         new.data_type = self.data_type
         new.set_description(self.get_description(), )

@@ -36,7 +36,7 @@ _TIME_SERIES_QUANTITY = (
 #-------------------------------------------------------------------------------
 
 
-def inlay(klass: type, ) -> type:
+def mixin(klass: type, ) -> type:
     r"""
     Inlay the steady state methods in the class
     """

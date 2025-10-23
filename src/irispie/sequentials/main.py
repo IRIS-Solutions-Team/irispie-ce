@@ -44,7 +44,7 @@ __all__ = (
 )
 
 
-@_simulate.inlay
+@_simulate.mixin
 @_dm.reference(
     path=("structural_models", "sequential.md", ),
     categories={

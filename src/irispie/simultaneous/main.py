@@ -63,11 +63,12 @@ __all__ = [
 ]
 
 
-@_pretty.inlay
-@_steady_boxable_protocols.inlay
-@_slatable_protocols.inlay
-@_steady.inlay
-@_plannable_protocols.inlay
+@_simulate.mixin
+@_pretty.mixin
+@_steady_boxable_protocols.mixin
+@_slatable_protocols.mixin
+@_steady.mixin
+@_plannable_protocols.mixin
 @_dm.reference(
     path=("structural_models", "simultaneous.md", ),
     categories={
@@ -83,9 +84,7 @@ class Simultaneous(
     _has_invariant.Mixin,
     _has_variants.Mixin,
     _std_simulators.Mixin,
-    #
     _assigns.Inlay,
-    _simulate.Inlay,
     _kalmans.Inlay,
     _logly.Inlay,
     _get.Inlay,
@@ -244,12 +243,12 @@ See [`Simultaneous.from_file`](simultaneousfrom_file) for return values.
         return "\n".join((
             f"",
             f"<{self.__class__.__name__} at {id(self):#x}>",
-            f"[Description: \"{self.get_description()}\"]",
-            f"[Num variants: {self.num_variants}]",
-            f"[Num transition: {self.num_transition_equations}]",
-            f"[Num measurement: {self.num_measurement_equations}]",
-            f"[Max lag: t{self.max_lag:+g}]",
-            f"[Max lead: t{self.max_lead:+g}]",
+            f"    [Description: \"{self.get_description()}\"]",
+            f"    [Num variants: {self.num_variants}]",
+            f"    [Num transition: {self.num_transition_equations}]",
+            f"    [Num measurement: {self.num_measurement_equations}]",
+            f"    [Max lag: t{self.max_lag:+g}]",
+            f"    [Max lead: t{self.max_lead:+g}]",
             f"",
         ))
 

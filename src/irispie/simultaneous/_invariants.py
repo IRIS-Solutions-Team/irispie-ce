@@ -598,8 +598,8 @@ def _create_anticipated_shock_for_transition_shock(
     r"""
     """
     #[
-    name = _anticipated_shock_name_from_transition_shock_name(shock.human, )
-    description = _anticipated_shock_description_from_transition_shock_description(shock.description or shock.human, )
+    name = anticipated_shock_name_from_transition_shock_name(shock.human, )
+    description = anticipated_shock_description_from_transition_shock_description(shock.description or shock.human, )
     kind = QuantityKind.ANTICIPATED_SHOCK_VALUE
     return Quantity(
         id=None,
@@ -613,12 +613,15 @@ def _create_anticipated_shock_for_transition_shock(
 
 
 _ANTICIPATED_PREFIX = "ant_"
-def _anticipated_shock_name_from_transition_shock_name(transition_shock_name: str, ) -> str:
+
+def anticipated_shock_name_from_transition_shock_name(transition_shock_name: str, ) -> str:
     return _ANTICIPATED_PREFIX + transition_shock_name
 
+def is_anticipated_shock_name(name: str, ) -> bool:
+    return name.startswith(_ANTICIPATED_PREFIX, )
 
 _ANTICIPATED_DESCRIPTION_PREFIX = "(Anticipated value) "
-def _anticipated_shock_description_from_transition_shock_description(transition_shock_description: str, ) -> str:
-    return _ANTICIPATED_DESCRIPTION_PREFIX + transition_shock_description
 
+def anticipated_shock_description_from_transition_shock_description(transition_shock_description: str, ) -> str:
+    return _ANTICIPATED_DESCRIPTION_PREFIX + transition_shock_description
 

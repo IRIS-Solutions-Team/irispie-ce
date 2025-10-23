@@ -95,7 +95,7 @@ class Dataslate(
         databox: Databox | dict,
         names: Iterable[str] | None,
         periods: Iterable[Period] | string,
-        /,
+        #
         num_variants: int = 1,
         fallbacks: dict[str, Real] | None = None,
         overwrites: dict[str, Real] | None = None,
