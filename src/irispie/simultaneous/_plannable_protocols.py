@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 #-------------------------------------------------------------------------------
 
 
-def inlay(klass: type, ) -> type:
+def mixin(klass: type, ) -> type:
     r"""
     Inlay plannable protocol methods in the class
     """

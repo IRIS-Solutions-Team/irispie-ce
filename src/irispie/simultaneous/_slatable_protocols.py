@@ -39,7 +39,7 @@ _OUTPUT_KIND_FOR_KALMAN_FILTER = (
 #-------------------------------------------------------------------------------
 
 
-def inlay(klass: type, ) -> type:
+def mixin(klass: type, ) -> type:
     r"""
     Inlay plannable protocol methods in the class
     """

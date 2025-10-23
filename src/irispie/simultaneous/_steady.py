@@ -58,7 +58,7 @@ _STEADY_EQUATION_SOLVED = ENDOGENOUS_EQUATION
 _DEFAULT_SOLVER = "neqs_levenberg"
 
 
-def inlay(klass: type, ) -> type:
+def mixin(klass: type, ) -> type:
     r"""
     Inlay the steady state methods in the class
     """

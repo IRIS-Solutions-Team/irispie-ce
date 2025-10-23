@@ -28,7 +28,7 @@ _DEFAULT_ROUND_TO = 16
 #-------------------------------------------------------------------------------
 
 
-def inlay(klass: type, ) -> type:
+def mixin(klass: type, ) -> type:
     r"""
     """
     #[

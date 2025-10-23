@@ -13,6 +13,7 @@ from .. import wrongdoings as _wrongdoings
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Self
+    from .main import Series
 
 #]
 
@@ -49,25 +50,25 @@ def broadcast_variants(self, num_variants, ) -> None:
 #-------------------------------------------------------------------------------
 
 
-def broadcast_variants_if_needed(
-    self: 'Series',
-    other: 'Series',
-) -> tuple['Series', 'Series']:
-    """
+def broadcast_variants_when_needed(
+    self: Series,
+    other: Series,
+) -> None:
+    r"""
     Broadcast variants between two Series objects if needed
     """
     #[
     if self.num_variants == other.num_variants:
-        return self, other,
-    #
+        return
     if self.num_variants == 1:
-        return self.broadcast_variants(other.num_variants, ), other
-    #
+        self.broadcast_variants(other.num_variants, )
+        return
     if other.num_variants == 1:
-        return self, other.broadcast_variants(self.num_variants, )
-    #
+        other.broadcast_variants(self.num_variants, )
+        return
     raise _wrongdoings.IrisPieError("Cannot broadcast time series variants")
     #]
 
 
 #-------------------------------------------------------------------------------
+

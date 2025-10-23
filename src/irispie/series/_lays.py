@@ -46,75 +46,21 @@ def mixin(klass: type, ) -> type:
 
 @_dm.no_reference
 def overlay_by_span(
-    self,
-    other,
-) -> None:
-    _bc.broadcast_variants_if_needed(self, other, )
-    self.set_data(other.span, other.data, )
-    self.trim()
-
-
-@_dm.no_reference
-def overlay_by_observation(
-    self,
-    other,
-) -> None:
-    r"""
-    Overlay another time series values observation by observation
-    """
-    # Handle empty series cases
-    if self.is_empty and other.is_empty:
-        return
-    #
-    if self.is_empty:
-        self.start = other.start
-        self.data = _np.array(other.data)
-        return
-    #
-    if other.is_empty:
-        return
-    #
-    # Broadcast variants if needed
-    _bc.broadcast_variants_if_needed(self, other)
-    #
-    # Get encompassing span and from_until tuple for data extraction
-    encompassing_span, *from_until = _dates.get_encompassing_span(self, other)
-    #
-    # Get data for both series over the encompassing span
-    self_data = self.get_data_from_until(from_until)
-    other_data = other.get_data_from_until(from_until)
-    #
-    # Create boolean indices for non-NaN values
-    other_valid = ~_np.isnan(other_data)
-    #
-    # For overlay: use other's values where other has valid data
-    result_data = _np.array(self_data)
-    result_data[other_valid] = other_data[other_valid]
-    #
-    # Set the result data directly
-    self.start = encompassing_span.start
-    self.data = result_data
-
-
-@_dm.reference(category="multiple", )
-def overlay(
-    self,
-    other,
-    method: LayMethod = "by_span",
+    self: Series,
+    other: Series,
 ) -> None:
     r"""
 ................................................................................
 
-==Overlay another time series values onto the current time series==
+==Overlay the current series with another series by span==
 
 Overlay the values of another time series onto the current time series on the
 entire span of the other time series, i.e. from the start to the end period
 regardless of missing in-sample values.
 
-self.overlay(
-    other,
-    method="by_span",
-)
+    self.overlay_by_span(
+        other,
+    )
 
 ### Input arguments ###
 
@@ -151,9 +97,94 @@ observation to the last available observation), the observations from this
 in-sample missing observations.
 
 ................................................................................
-"""
-    _bc.broadcast_variants_if_needed(self, other, )
-    getattr(type(self), f"overlay_{method}")(self, other, )
+    """
+    other_copy = other.copy()
+    _bc.broadcast_variants_when_needed(self, other_copy, )
+    self.set_data(other_copy.span, other_copy.data, )
+    self.trim()
+
+
+@_dm.no_reference
+def overlay_by_observation(
+    self,
+    other,
+) -> None:
+    r"""
+................................................................................
+
+==Overlay the current series with another series by observation==
+
+Overlay the values of another time series onto the current time series
+observation by observation, only where the other time series has valid
+(non-missing) observations.
+
+    self.overlay_by_observation(
+        other,
+    )
+
+### Input arguments ###
+
+???+ input "self"
+    The current time series object.
+
+???+ input "other"
+    The time series object whose values will be overlaid onto the current time
+    series.
+
+### Returns ###
+
+This method modifies `self` in place and returns `None`.
+
+### Details ###
+
+???+ abstract "Algorithm"
+
+    The resulting time series is determined the following way:
+
+    1. The span of the resulting series starts at the earliest start period of the two
+    series and ends at the latest end period of the two series.
+
+    2. The observations from the `self` (current) time series are used to fill the
+    resulting time span.
+
+    3. For each period where the `other` time series has a valid (non-missing)
+    observation, that observation is superimposed on the resulting time series,
+    replacing the value from `self` at that period.
+
+................................................................................
+    """
+    # Handle empty series cases
+    if self.is_empty and other.is_empty:
+        return
+    #
+    if self.is_empty:
+        self.start = other.start
+        self.data = _np.array(other.data)
+        return
+    #
+    if other.is_empty:
+        return
+    #
+    # Broadcast variants if needed
+    _bc.broadcast_variants_when_needed(self, other)
+    #
+    # Get encompassing span and from_until tuple for data extraction
+    encompassing_span, *from_until = _dates.get_encompassing_span(self, other)
+    #
+    # Get data for both series over the encompassing span
+    self_data = self.get_data_from_until(from_until)
+    other_data = other.get_data_from_until(from_until)
+    #
+    # Create boolean indices for non-NaN values
+    other_valid = ~_np.isnan(other_data)
+    #
+    # For overlay: use other's values where other has valid data
+    result_data = _np.array(self_data)
+    result_data[other_valid] = other_data[other_valid]
+    #
+    # Set the result data directly
+    self.start = encompassing_span.start
+    self.data = result_data
 
 
 @_dm.no_reference
@@ -162,44 +193,17 @@ def underlay_by_span(
     other,
 ) -> None:
     r"""
-    """
-    new_self = other.copy()
-    new_self.overlay_by_span(self, )
-    self._shallow_copy_data(new_self, )
-
-
-@_dm.no_reference
-def underlay_by_observation(
-    self,
-    other,
-) -> None:
-    r"""
-    Underlay another time series values observation by observation
-    """
-    new_self = other.copy()
-    new_self.overlay_by_observation(self)
-    self._shallow_copy_data(new_self)
-
-
-@_dm.reference(category="multiple", )
-def underlay(
-    self,
-    other,
-    method: LayMethod = "by_span",
-) -> None:
-    r"""
 ................................................................................
 
-==Underlay another time series values beneath the current time series==
+==Underlay the current series with another series by span==
 
 Underlay the values of another time series beneath the current time series on
 the entire span of the other time series, i.e. from the start to the end period
 regardless of missing in-sample values.
 
-self.underlay(
-    other,
-    method="by_span",
-)
+    self.underlay_by_span(
+        other,
+    )
 
 ### Input arguments ###
 
@@ -237,8 +241,66 @@ in-sample missing observations.
 
 ................................................................................
     """
-    _bc.broadcast_variants_if_needed(self, other, )
-    getattr(type(self), f"underlay_{method}")(self, other, )
+    new_self = other.copy()
+    new_self.overlay_by_span(self, )
+    self._shallow_copy_data(new_self, )
+
+
+@_dm.no_reference
+def underlay_by_observation(
+    self,
+    other,
+) -> None:
+    r"""
+................................................................................
+
+==Underlay the current series with another series by observation==
+
+Underlay the values of another time series beneath the current time series
+observation by observation, only where the current time series has missing
+observations.
+
+    self.underlay_by_observation(
+        other,
+    )
+
+### Input arguments ###
+
+???+ input "self"
+    The current time series object.
+
+???+ input "other"
+    The time series object whose values will be underlaid beneath the current
+    time series.
+
+### Returns ###
+
+This method modifies `self` in place and returns `None`.
+
+### Details ###
+
+???+ abstract "Algorithm"
+
+    The resulting time series is determined the following way:
+
+    1. The span of the resulting series starts at the earliest start period of the two
+    series and ends at the latest end period of the two series.
+
+    2. The observations from the `other` time series are used to fill the
+    resulting time span.
+
+    3. For each period where the `self` time series has a valid (non-missing)
+    observation, that observation is superimposed on the resulting time series,
+    replacing the value from `other` at that period.
+
+................................................................................
+    """
+    new_self = other.copy()
+    new_self.overlay_by_observation(self)
+    self._shallow_copy_data(new_self)
+
+
+#-------------------------------------------------------------------------------
 
 
 FUNCTIONAL_FORMS = (
