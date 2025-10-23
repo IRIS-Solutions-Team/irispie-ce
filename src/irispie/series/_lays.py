@@ -229,7 +229,6 @@ This method modifies `self` in place and returns `None`.
 ### Details ###
 
 ???+ abstract "Algorithm"
-
     The resulting time series is determined the following way:
 
     1. The span of the resulting series starts at the earliest start period of the two
