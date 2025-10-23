@@ -165,9 +165,7 @@ class Inlay:
     """
     #[
 
-    @_dm.reference(
-        category="filtering",
-    )
+    @_dm.reference(category="filtering", )
     def hpf(self, /, ):
         r"""
 ················································································
