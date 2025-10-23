@@ -65,15 +65,15 @@ regardless of missing in-sample values.
 ### Input arguments ###
 
 ???+ input "self"
-The current time series object.
+    The current time series object.
 
 ???+ input "other"
-The time series object whose values will be overlaid onto the current time
-series.
+    The time series object whose values will be overlaid onto the current time
+    series.
 
 ???+ input "method"
-The method to use for overlaying the values. The default (and currently the
-only available) method is `"by_span"`.
+    The method to use for overlaying the values. The default (and currently the
+    only available) method is `"by_span"`.
 
 
 ### Returns ###
@@ -85,18 +85,18 @@ This method modifies `self` in place and returns `None`.
 
 ???+ abstract "Algorithm"
 
-The resulting time series is determined the following way:
+    The resulting time series is determined the following way:
 
-1. The span of the resulting series starts at the earliest start period of the two
-series and ends at the latest end period of the two series.
+    1. The span of the resulting series starts at the earliest start period of the two
+    series and ends at the latest end period of the two series.
 
-2. The observations from the `self` (current) time series used to fill the
-resulting time span.
+    2. The observations from the `self` (current) time series used to fill the
+    resulting time span.
 
-3. Within the span of the `other` time series (from the first available
-observation to the last available observation), the observations from this
-`other` time series are superimposed on the resulting time series, including any
-in-sample missing observations.
+    3. Within the span of the `other` time series (from the first available
+    observation to the last available observation), the observations from this
+    `other` time series are superimposed on the resulting time series, including any
+    in-sample missing observations.
 
 ................................................................................
     """
@@ -210,15 +210,15 @@ regardless of missing in-sample values.
 ### Input arguments ###
 
 ???+ input "self"
-The current time series object.
+    The current time series object.
 
 ???+ input "other"
-The time series object whose values will be underlaid beneath the current
-time series.
+    The time series object whose values will be underlaid beneath the current
+    time series.
 
 ???+ input "method"
-The method to use for underlaying the values. The default (and currently the
-only available) method is `"by_span"`.
+    The method to use for underlaying the values. The default (and currently the
+    only available) method is `"by_span"`.
 
 
 ### Returns ###
@@ -230,18 +230,18 @@ This method modifies `self` in place and returns `None`.
 
 ???+ abstract "Algorithm"
 
-The resulting time series is determined the following way:
+    The resulting time series is determined the following way:
 
-1. The span of the resulting series starts at the earliest start period of the two
-series and ends at the latest end period of the two series.
+    1. The span of the resulting series starts at the earliest start period of the two
+    series and ends at the latest end period of the two series.
 
-2. The observations from the `other` time series used to fill the
-resulting time span.
+    2. The observations from the `other` time series used to fill the
+    resulting time span.
 
-3. Within the span of the `self` time series (from the first available
-observation to the last available observation), the observations from this
-`self` time series are superimposed on the resulting time series, including any
-in-sample missing observations.
+    3. Within the span of the `self` time series (from the first available
+    observation to the last available observation), the observations from this
+    `self` time series are superimposed on the resulting time series, including any
+    in-sample missing observations.
 
 ................................................................................
     """
