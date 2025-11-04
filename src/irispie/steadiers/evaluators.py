@@ -23,7 +23,6 @@ if TYPE_CHECKING:
     from typing import Any
     from collections.abc import Iterable
     from numbers import Number
-    from ..simultaneous._variants import Variant
 
 #]
 
@@ -37,10 +36,9 @@ class SteadyEvaluator:
     #[
 
     _equator_factory = ...
-
     _jacobian_factory = ...
-
     _iter_printer_factory = ...
+    _get_num_equations = ...
 
     def __init__(
         self,
@@ -51,6 +49,7 @@ class SteadyEvaluator:
         variant: Variant,
         *,
         context: dict | None = None,
+        use_iter_printer: bool = True,
         iter_printer_settings: dict[str, Any] | None = None,
     ) -> None:
         """
@@ -94,13 +93,13 @@ class SteadyEvaluator:
         self._num_levels = sum(self._bool_index_wrt_levels)
         self._num_changes = sum(self._bool_index_wrt_changes)
         #
-        self._init_guess = _np.hstack((
+        self.init_guess = _np.hstack((
             self._maybelog_init_levels[self._bool_index_wrt_levels],
             self._maybelog_init_changes[self._bool_index_wrt_changes],
         ))
         #
         self._steady_array = variant.create_steady_array(qid_to_logly, num_columns=shift_vec.shape[1], shift_in_first_column=self._min_shift, )
-        self._update_steady_array(self._init_guess)
+        self._update_steady_array(self.init_guess)
         #
         # Set up components
         self._equator = self._equator_factory(
@@ -115,6 +114,7 @@ class SteadyEvaluator:
             context=context,
         )
         #
+        self.use_iter_printer = use_iter_printer
         self.iter_printer = self._iter_printer_factory(
             equations=wrt_equations,
             qids=self.wrt_qids,
@@ -123,23 +123,33 @@ class SteadyEvaluator:
             **(iter_printer_settings or {}),
         )
         #
+        self._populate_num_unknowns()
+        self._populate_num_equations(wrt_equations, )
+        #
         self.final_guess = None
 
     @property
-    def _column_offset(self, /, ) -> int:
+    def _column_offset(self, ) -> int:
         """
         """
         return -self._min_shift
 
+    def _populate_num_unknowns(self, ) -> None:
+        r"""
+        """
+        self.num_unknowns = int(
+            _np.count_nonzero(self._bool_index_wrt_levels)
+            + _np.count_nonzero(self._bool_index_wrt_changes)
+        )
+
     def get_init_guess(self, *args, **kwargs, ) -> _np.ndarray:
         """
         """
-        return self._init_guess
+        return self.init_guess
 
     def eval(
         self,
         maybelog_guess: _np.ndarray,
-        /,
     ) -> tuple[_np.ndarray, _np.ndarray]:
         """
         """
@@ -147,13 +157,19 @@ class SteadyEvaluator:
         equator = self._equator.eval(self._steady_array, self._column_offset, )
         jacobian = self._jacobian.eval(self._steady_array, self._column_offset, )
         jacobian = jacobian[:, self._bool_index_wrt_levels + self._bool_index_wrt_changes]
-        self.iter_printer.next(maybelog_guess, equator, jacobian_calculated=True, )
+        #
+        if self.use_iter_printer:
+            self.iter_printer.next(
+                maybelog_guess,
+                equator,
+                jacobian_calculated=True,
+            )
+        #
         return equator, jacobian
 
     def eval_func(
         self,
         maybelog_guess: _np.ndarray,
-        /,
     ) -> tuple[_np.ndarray, _np.ndarray]:
         """
         """
@@ -163,7 +179,6 @@ class SteadyEvaluator:
     def eval_jacob(
         self,
         maybelog_guess: _np.ndarray,
-        /,
     ) -> tuple[_np.ndarray, _np.ndarray]:
         """
         """
@@ -175,7 +190,6 @@ class SteadyEvaluator:
         self,
         wrt_qids_levels: Iterable[str],
         wrt_qids_changes: Iterable[str],
-        /,
     ) -> None:
         """
         """
@@ -184,7 +198,6 @@ class SteadyEvaluator:
     def _update_steady_array(
         self,
         current_guess: _np.ndarray,
-        /,
     ) -> None:
         """
         """
@@ -193,7 +206,6 @@ class SteadyEvaluator:
     def extract_levels(
         self,
         guess: _np.ndarray,
-        /,
     ) -> tuple[_np.ndarray, tuple[int, ...]]:
         """
         """
@@ -206,7 +218,6 @@ class SteadyEvaluator:
     def extract_changes(
         self,
         guess: _np.ndarray,
-        /,
     ) -> tuple[_np.ndarray, tuple[int, ...]]:
         """
         """
@@ -225,10 +236,13 @@ class FlatSteadyEvaluator(SteadyEvaluator, ):
     #[
 
     _equator_factory = _equators.FlatSteadyEquator
-
     _jacobian_factory = _jacobian.FlatSteadyJacobian
-
     _iter_printer_factory = _iter_printers.FlatIterPrinter
+
+    def _populate_num_equations(self, wrt_equations, ) -> None:
+        r"""
+        """
+        self.num_equations = len(wrt_equations)
 
     def _reset_changes(
         self,
@@ -243,7 +257,6 @@ class FlatSteadyEvaluator(SteadyEvaluator, ):
         self,
         wrt_qids_levels: list[int],
         wrt_qids_changes: list[int],
-        /,
     ) -> None:
         """
         """
@@ -254,7 +267,6 @@ class FlatSteadyEvaluator(SteadyEvaluator, ):
     def _get_maybelog_levels(
         self,
         current_guess: _np.ndarray,
-        /,
     ) -> _np.ndarray:
         """
         """
@@ -266,7 +278,6 @@ class FlatSteadyEvaluator(SteadyEvaluator, ):
     def _get_maybelog_changes(
         self,
         current_guess: _np.ndarray,
-        /,
     ) -> _np.ndarray:
         """
         """
@@ -275,7 +286,6 @@ class FlatSteadyEvaluator(SteadyEvaluator, ):
     def _update_steady_array(
         self,
         current_guess: _np.ndarray,
-        /,
     ) -> None:
         """
         """
@@ -299,6 +309,11 @@ class NonflatSteadyEvaluator(SteadyEvaluator, ):
 
     _iter_printer_factory = _iter_printers.NonflatIterPrinter
 
+    def _populate_num_equations(self, wrt_equations, ) -> None:
+        r"""
+        """
+        self.num_equations = 2 * len(wrt_equations)
+
     def _reset_changes(self, *args, **kwargs, ) -> None:
         """
         """
@@ -308,7 +323,6 @@ class NonflatSteadyEvaluator(SteadyEvaluator, ):
         self,
         wrt_qids_levels: list[str],
         wrt_qids_changes: list[str],
-        /,
     ) -> None:
         self.wrt_qids = list(set(wrt_qids_levels) | set(wrt_qids_changes))
         self._bool_index_wrt_levels = [qid in wrt_qids_levels for qid in self.wrt_qids]
@@ -317,7 +331,6 @@ class NonflatSteadyEvaluator(SteadyEvaluator, ):
     def _get_maybelog_levels(
         self,
         current_guess: _np.ndarray,
-        /,
     ) -> _np.ndarray:
         """
         """
@@ -329,7 +342,6 @@ class NonflatSteadyEvaluator(SteadyEvaluator, ):
     def _get_maybelog_changes(
         self,
         current_guess: _np.ndarray,
-        /,
     ) -> _np.ndarray:
         """
         """
@@ -341,7 +353,6 @@ class NonflatSteadyEvaluator(SteadyEvaluator, ):
     def _update_steady_array(
         self,
         current_guess: _np.ndarray,
-        /,
     ) -> None:
         """
         """
@@ -356,7 +367,6 @@ class NonflatSteadyEvaluator(SteadyEvaluator, ):
 def _fill_missing(
     maybelog_levels: _np.ndarray,
     maybelog_changes: _np.ndarray,
-    /,
     default_level: Number = DEFAULT_MAYBELOG_INIT_GUESS,
     default_change: Number = 0,
 ) -> tuple[_np.ndarray, _np.ndarray]:
@@ -371,7 +381,6 @@ def _fill_missing(
 
 def _prepare_time_shifts(
     equations: Iterable[_equations.Equation],
-    /,
 ) -> tuple[_np.ndarray, int]:
     """
     Return [min_shift, ..., max_shift] and the index of the column with shift=0
@@ -387,5 +396,4 @@ def _prepare_time_shifts(
     shift_vec = _np.array(range(min_shift, max_shift+1, ), dtype=float, ).reshape(1, -1, )
     return shift_vec, min_shift
     #]
-
 

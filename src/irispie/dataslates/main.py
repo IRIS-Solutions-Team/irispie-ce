@@ -55,7 +55,7 @@ class Dataslate(
         klass,
         names: Iterable[str],
         periods: Iterable[Period] | string,
-        /,
+        *,
         num_variants: int = 1,
         **kwargs,
     ) -> Iterator[Self]:
@@ -77,7 +77,7 @@ class Dataslate(
     def nan_from_template(
         klass,
         other: Self,
-        /,
+        *,
         num_variants: int = 1,
     ) -> Self:
         """
@@ -156,14 +156,14 @@ class Dataslate(
         slatable: Slatable,
         databox: Databox | dict,
         base_span: Iterable[Period],
-        /,
+        *,
         extra_databox_names: Iterable[str] | None = None,
         prepend_initial: bool = True,
         append_terminal: bool = True,
         clip_data_to_base_span: bool = False,
         **kwargs,
     ) -> Self:
-        """
+        r"""
         """
         names = tuple(slatable.databox_names, )
         if slatable.descriptions:
@@ -194,27 +194,27 @@ class Dataslate(
         )
 
     @property
-    def descriptions(self, /, ) -> tuple[str, ...] | None:
+    def descriptions(self, ) -> tuple[str, ...] | None:
         return self._invariant.descriptions
 
     @property
-    def logly_indexes(self, /, ) -> tuple[int, ...] | None:
+    def logly_indexes(self, ) -> tuple[int, ...] | None:
         return self._invariant.logly_indexes
 
     @property
-    def periods(self, /, ) -> tuple[Period]:
+    def periods(self, ) -> tuple[Period]:
         """
         """
         return self._invariant.periods
 
     @property
-    def num_base_periods(self, /, ) -> int:
+    def num_base_periods(self, ) -> int:
         """
         """
         return self._invariant.num_base_periods
 
     @property
-    def start(self, /, ) -> Period:
+    def start(self, ) -> Period:
         """
         """
         return self._invariant.periods[0]
@@ -222,7 +222,7 @@ class Dataslate(
     first_period = start
 
     @property
-    def end(self, /, ) -> Period:
+    def end(self, ) -> Period:
         """
         """
         return self._invariant.periods[-1]
@@ -230,49 +230,49 @@ class Dataslate(
     last_period = end
 
     @property
-    def base_periods(self, /, ) -> tuple[Period]:
+    def base_periods(self, ) -> tuple[Period]:
         """
         """
         return self._invariant.base_periods
 
     @base_periods.setter
-    def base_periods(self, base_periods: Iterable[Period], /, ) -> None:
+    def base_periods(self, base_periods: Iterable[Period], ) -> None:
         """
         """
         self._invariant.base_periods = base_periods
 
     @property
-    def base_start(self, /, ) -> Period:
+    def base_start(self, ) -> Period:
         """
         """
         return self._invariant.base_periods[0]
 
     @property
-    def names(self, /, ) -> tuple[str]:
+    def names(self, ) -> tuple[str]:
         """
         """
         return self._invariant.names
 
     @property
-    def num_names(self, /, ) -> int:
+    def num_names(self, ) -> int:
         """
         """
         return len(self.names)
 
     @property
-    def num_initials(self, /, ) -> int:
+    def num_initials(self, ) -> int:
         """
         """
         return -self._invariant.min_max_shift[0]
 
     @property
-    def num_terminals(self, /, ) -> int:
+    def num_terminals(self, ) -> int:
         """
         """
         return self._invariant.min_max_shift[1]
 
     @property
-    def output_names(self, /, ) -> tuple[str, ...]:
+    def output_names(self, ) -> tuple[str, ...]:
         """
         """
         return tuple(self.names[i] for i in self._invariant.output_qids)
@@ -297,7 +297,7 @@ class Dataslate(
         #
         return new
 
-    def rename(self, old_name_to_new_name: dict[str, str], /, ) -> None:
+    def rename(self, old_name_to_new_name: dict[str, str], ) -> None:
         """
         """
         self._invariant.names = tuple(
@@ -308,14 +308,13 @@ class Dataslate(
     def extend(
         self: Self,
         other: Self,
-        /,
     ) -> None:
         """
         """
         # TODO: Check if the other is compatible
         self._variants.extend(other._variants, )
 
-    def nan_copy(self, /, ) -> Self:
+    def nan_copy(self, ) -> Self:
         """
         """
         return self.nan_from_template(self, num_variants=self.num_variants, )
@@ -324,14 +323,13 @@ class Dataslate(
         self,
         other: Self,
         columns: Iterable[int],
-        /,
     ) -> None:
         """
         """
         for self_v, other_v in zip(self._variants, other._variants, ):
             self_v.update_columns_from(other_v, columns, )
 
-    def remove_initial_data(self, /, ) -> None:
+    def remove_initial_data(self, ) -> None:
         """
         """
         if self.num_initials:
@@ -385,28 +383,24 @@ class Dataslate(
 
     get_data_array_variant = get_data_variant
 
-    def remove_initial(self, /, ) -> None:
+    def remove_initial(self, ) -> None:
         """
         """
         remove = -self._invariant.min_max_shift[0]
         self.remove_periods_from_start(remove, )
 
-    def remove_terminal(self, /, ) -> None:
+    def remove_terminal(self, ) -> None:
         """
         """
         remove = self._invariant.min_max_shift[1]
         self.remove_periods_from_end(remove, )
 
-    def create_name_to_row(
-        self,
-        /,
-    ) -> dict[str, int]:
+    def create_name_to_row(self, ) -> dict[str, int]:
         return self._invariant.create_name_to_row()
 
     def remove_periods_from_start(
         self,
         num_periods_to_remove: int,
-        /,
     ) -> None:
         """
         """
@@ -419,7 +413,6 @@ class Dataslate(
     def add_periods_to_end(
         self,
         num_periods_to_add: int,
-        /,
     ) -> None:
         """
         """
@@ -439,7 +432,6 @@ class Dataslate(
     def remove_periods_from_end(
         self,
         remove: int,
-        /,
     ) -> None:
         """
         """
@@ -449,7 +441,7 @@ class Dataslate(
         for v in self._variants:
             v.remove_periods_from_end(remove, )
 
-    def logarithmize(self, /, ) -> None:
+    def logarithmize(self, ) -> None:
         """
         """
         logly_indexes = tuple(self.logly_indexes)
@@ -458,7 +450,7 @@ class Dataslate(
         for v in self._variants:
             v.logarithmize(logly_indexes, )
 
-    def delogarithmize(self, /, ) -> None:
+    def delogarithmize(self, ) -> None:
         """
         """
         logly_indexes = tuple(self.logly_indexes)
@@ -472,7 +464,7 @@ class Dataslate(
 def _get_extended_span(
     slatable: Slatable,
     base_span: Iterable[Period],
-    /,
+    *,
     prepend_initial: bool,
     append_terminal: bool,
 ) -> tuple[Iterable[Period], tuple[int, ...]]:
@@ -493,7 +485,7 @@ def _get_extended_span(
 
 def _slate_value_variant_iterator(
     value: Any,
-    /,
+    *,
     from_until: tuple[Period, Period],
 ) -> Iterator[Any]:
     """
@@ -512,7 +504,6 @@ def retrieve_vector_from_data_array(
     data: _np.ndarray,
     tokens: tuple[str, ...],
     column_zero: int,
-    /,
 ) -> _np.ndarray:
     """
     """

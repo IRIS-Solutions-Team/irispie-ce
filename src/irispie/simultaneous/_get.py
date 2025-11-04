@@ -514,6 +514,11 @@ class Inlay(
             if q.kind in kind
         }
 
+    def get_context(self, ) -> dict[str, Any]:
+        r"""
+        """
+        return self._invariant._context
+
     #]
 
 

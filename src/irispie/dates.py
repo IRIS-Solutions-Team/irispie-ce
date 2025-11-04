@@ -96,6 +96,7 @@ custom check of time period or time series properties is needed.
     YEARLY = 1
     ANNUAL = 1
     HALFYEARLY = 2
+    HALFANNUAL = 2
     QUARTERLY = 4
     MONTHLY = 12
     WEEKLY = 52
@@ -175,13 +176,20 @@ custom check of time period or time series properties is needed.
     @_dm.reference(category="property", )
     def is_regular(self, ) -> bool:
         r"""==True for regular time frequency=="""
-        return self in (self.YEARLY, self.HALFYEARLY, self.QUARTERLY, self.MONTHLY, )
+        return self in REGULAR_FREQUENCIES
 
     def __str__(self, ) -> str:
         return self.name
 
     #]
 
+
+REGULAR_FREQUENCIES = (
+   Frequency.YEARLY,
+   Frequency.HALFYEARLY,
+   Frequency.QUARTERLY,
+   Frequency.MONTHLY,
+)
 
 
 _COMPACT_MONTH_STRINGS = [

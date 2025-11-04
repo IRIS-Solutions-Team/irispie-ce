@@ -30,7 +30,7 @@ _COLUMNS = (
 
 
 class _IterPrinterWithStrings(IterPrinter, ):
-    """
+    r"""
     """
     #[
 
@@ -56,7 +56,6 @@ class _IterPrinterWithStrings(IterPrinter, ):
     def _get_equation_strings(
         self,
         equations: Iterable[Equation],
-        /,
     ) -> tuple[str, ...]:
         return tuple(i.human for i in equations)
 
@@ -76,7 +75,6 @@ class FlatIterPrinter(_IterPrinterWithStrings, ):
         qids: Iterable[str],
         qid_to_logly: dict[str, bool],
         qid_to_name: dict[str, str],
-        /,
     ) -> tuple[str, ...]:
         return tuple(
             _quantities.wrap_logly(qid_to_name[i], qid_to_logly.get(i, False), )
@@ -96,7 +94,6 @@ class NonflatIterPrinter(_IterPrinterWithStrings, ):
         qids: Iterable[str],
         qid_to_logly: dict[str, bool],
         qid_to_name: dict[str, str],
-        /,
     ) -> tuple[str, ...]:
         return tuple(
             _quantities.wrap_logly(qid_to_name[i], qid_to_logly.get(i, False), )
