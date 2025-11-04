@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Callable
     from typing import Any, Literal, NoReturn
     from ..steadiers.solver_dispatcher import SolverType
+    from ..steadiers.evaluators import SteadyEvaluator
 
 #]
 
@@ -68,6 +69,7 @@ def mixin(klass: type, ) -> type:
     klass.split_into_blocks = split_into_blocks
     klass.build_steady_paths = build_steady_paths
     klass.build_zero_paths = build_zero_paths
+    klass.create_steady_evaluator = create_steady_evaluator
     #
     # Legacy aliases
     klass.steady = solve_steady
@@ -295,6 +297,45 @@ build_zero_paths = _ft.partial(
 )
 
 
+def create_steady_evaluator(
+    self,
+    plan: SteadyPlan | None = None,
+    use_iter_printer: bool = True,
+    iter_printer_settings: dict[str, Any] | None = None,
+    variant_id: int = 0,
+    **kwargs,
+) -> SteadyEvaluator:
+    r"""
+    """
+    #[
+    model_flags = self.resolve_flags(**kwargs, )
+    klass = (
+        _evaluators.FlatSteadyEvaluator if model_flags.is_flat
+        else _evaluators.NonflatSteadyEvaluator
+    )
+    wrt = _resolve_steady_wrt(self, plan, is_flat=model_flags.is_flat, )
+    block = _blazer.Block(wrt.eids, wrt.qids, )
+    block_id = 0
+    custom_header = f"[Variant {variant_id}][Block {block_id}]"
+    #
+    block_level_qids = tuple(sorted(set(block.qids) - set(wrt.fixed_level_qids)))
+    block_change_qids = tuple(sorted(set(block.qids) - set(wrt.fixed_change_qids)))
+    block_equations = tuple(wrt.equations[eid] for eid in block.eids)
+    #
+    steady_evaluator = klass(
+        block_level_qids,
+        block_change_qids,
+        block_equations,
+        all_quantities=self.get_quantities(),
+        variant=self._variants[variant_id],
+        context=self.get_context(),
+        use_iter_printer=use_iter_printer,
+        iter_printer_settings=(iter_printer_settings or {}) | {"custom_header": custom_header},
+    )
+    return steady_evaluator
+    #]
+
+
 #-------------------------------------------------------------------------------
 
 
@@ -375,7 +416,7 @@ def _steady_nonlinear(
         im = _calculate_steady_incidence_matrix(wrt.equations, wrt.qids, )
         blocks = _blazer.blaze(im, wrt.eids, wrt.qids, )
     else:
-        blocks = (_blazer.Block(wrt.eids, wrt.qids), )
+        blocks = (_blazer.Block(wrt.eids, wrt.qids, ), )
     num_blocks = len(blocks)
     #
     all_quantities = self.get_quantities()
@@ -464,7 +505,7 @@ def _steady_nonlinear(
 
 def _resolve_steady_wrt(
     self,
-    plan: SteadyPlan,
+    plan: SteadyPlan | None,
     is_flat: bool,
 ) -> _Wrt:
     r"""
@@ -626,5 +667,4 @@ def _throw_block_error(human_block, custom_header: str, ) -> NoReturn:
     )
     raise _wrongdoings.IrisPieError(message, )
     #]
-
 

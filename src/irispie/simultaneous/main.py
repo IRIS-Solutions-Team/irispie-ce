@@ -240,15 +240,16 @@ See [`Simultaneous.from_file`](simultaneousfrom_file) for return values.
     def __repr__(self, ) -> str:
         """
         """
+        indent = " " * 4
         return "\n".join((
             f"",
             f"<{self.__class__.__name__} at {id(self):#x}>",
-            f"    [Description: \"{self.get_description()}\"]",
-            f"    [Num variants: {self.num_variants}]",
-            f"    [Num transition: {self.num_transition_equations}]",
-            f"    [Num measurement: {self.num_measurement_equations}]",
-            f"    [Max lag: t{self.max_lag:+g}]",
-            f"    [Max lead: t{self.max_lead:+g}]",
+            f"{indent}[Description: \"{self.get_description()}\"]",
+            f"{indent}[Num variants: {self.num_variants}]",
+            f"{indent}[Num transition: {self.num_transition_equations}]",
+            f"{indent}[Num measurement: {self.num_measurement_equations}]",
+            f"{indent}[Max lag: t{self.max_lag:+g}]",
+            f"{indent}[Max lead: t{self.max_lead:+g}]",
             f"",
         ))
 

@@ -8,8 +8,8 @@ Data management tools for storing and manipulating unstructured data
 from __future__ import annotations
 
 from typing import Self, TypeAlias, Literal, Sequence, Protocol, Any, NoReturn
-from collections.abc import (Iterable, Iterator, Callable, )
-from numbers import (Number, )
+from collections.abc import Iterable, Iterator, Callable
+from numbers import Number
 import json as _js
 import copy as _co
 import types as _ty

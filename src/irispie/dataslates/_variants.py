@@ -42,17 +42,22 @@ class Variant:
     ) -> None:
         """
         """
+        data_type = _np.float64
+        num_periods = invariant.num_periods
         def _create_nan_vector() -> _np.ndarray:
-            return _np.full((invariant.num_periods, ), _np.nan, dtype=_np.float64, )
-        self = klass()
-        data_list = []
+            return _np.full((1, num_periods, ), _np.nan, dtype=data_type, )
+        data_list = [_np.empty((0, num_periods, ), dtype=data_type, ), ]
         for n in invariant.names:
             new_data = _create_nan_vector()
             if n in databox_v:
                 new_data[:] = databox_v[n]
             data_list.append(new_data, )
         #
-        self.data = _np.vstack(data_list, )
+        self = klass()
+        self.data = (
+            _np.vstack(data_list, ) if data_list
+            else _np.empty((0, invariant.num_periods, ), dtype=data_type, )
+        )
         nonbase_columns = invariant.nonbase_columns
         if clip_data_to_base_span and nonbase_columns:
             self.data[:, nonbase_columns] = _np.nan

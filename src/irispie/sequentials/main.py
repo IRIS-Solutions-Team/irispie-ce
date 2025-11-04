@@ -566,16 +566,16 @@ self.set_description(description, )
     def __repr__(self, /, ) -> str:
         """
         """
-        indented = " " * 4
+        indent = " " * 4
         return "\n".join((
             f"",
             f"<{self.__class__.__name__} at {id(self):#x}>",
-            f"[Description: \"{self.get_description()}\"]",
-            f"[Num variants: {self.num_variants}]",
-            f"[Num equations, nonidentities, identities: {self.num_equations}, {len(self.nonidentity_index)}, {len(self.identity_index)}]",
-            f"[Num parameters: {len(self.parameter_names)}]",
-            f"[Num rhs-only variables: {len(self.rhs_only_names)}]",
-            f"[Max lag, lead: t{self.min_shift:+g}, t{self.max_shift:+g}]",
+            f"{indent}[Description: \"{self.get_description()}\"]",
+            f"{indent}[Num variants: {self.num_variants}]",
+            f"{indent}[Num equations, nonidentities, identities: {self.num_equations}, {len(self.nonidentity_index)}, {len(self.identity_index)}]",
+            f"{indent}[Num parameters: {len(self.parameter_names)}]",
+            f"{indent}[Num rhs-only variables: {len(self.rhs_only_names)}]",
+            f"{indent}[Max lag, lead: t{self.min_shift:+g}, t{self.max_shift:+g}]",
             f"",
         ))
 
