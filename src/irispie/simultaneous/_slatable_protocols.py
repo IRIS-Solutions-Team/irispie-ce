@@ -34,11 +34,6 @@ _OUTPUT_KIND_FOR_KALMAN_FILTER = (
 )
 
 
-#-------------------------------------------------------------------------------
-# Functions to be used as methods in Simultaneous class
-#-------------------------------------------------------------------------------
-
-
 def mixin(klass: type, ) -> type:
     r"""
     Inlay plannable protocol methods in the class
@@ -51,13 +46,18 @@ def mixin(klass: type, ) -> type:
     #]
 
 
+#-------------------------------------------------------------------------------
+# Functions to be used as methods in Simultaneous class
+#-------------------------------------------------------------------------------
+
+
 def slatable_for_simulate(self, **kwargs, ) -> Slatable:
     r"""
     """
     #[
     slatable = _slatable_for_simulate_or_kalman_filter(self, **kwargs, )
     output_kind = _OUTPUT_KIND_FOR_SIMULATE
-    if kwargs.get("output_parameters", False):
+    if kwargs.get("parameters_to_output", False):
         output_kind |= _quantities.PARAMETER
     slatable.output_names = self.get_names(kind=output_kind, )
     #
@@ -71,7 +71,7 @@ def slatable_for_kalman_filter(self, **kwargs, ) -> Slatable:
     #[
     slatable = _slatable_for_simulate_or_kalman_filter(self, parameters_from_data=False, **kwargs, )
     output_kind = _OUTPUT_KIND_FOR_KALMAN_FILTER
-    if kwargs.get("output_parameters", False):
+    if kwargs.get("parameters_to_output", False):
         output_kind |= _quantities.PARAMETER
     slatable.output_names = self.get_names(kind=output_kind, )
     #

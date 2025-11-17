@@ -7,18 +7,19 @@ Meta plans for steady-state calculations
 
 from __future__ import annotations
 
-from typing import (TYPE_CHECKING, Protocol, )
-from numbers import (Real, )
+from typing import Protocol
+from numbers import Real
 import textwrap as _tw
 import documark as _dm
 
 from ..conveniences import copies as _copies
-from ..series.main import (Series, )
-from . import _registers as _registers
-from . import _pretty as _pretty
+from ..series.main import Series
+from . import _registers
+from . import _pretty
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from typing import (Iterable, )
+    from typing import Iterable
 
 #]
 
@@ -45,8 +46,7 @@ class SimulationPlannableProtocol(Protocol, ):
     #]
 
 
-
-#[
+@_registers.mixin
 @_dm.reference(
     path=("structural_models", "steady_plans.md", ),
     categories={
@@ -56,9 +56,7 @@ class SimulationPlannableProtocol(Protocol, ):
         "information": "Getting information about steady plans",
     },
 )
-#]
 class SteadyPlan(
-    _registers.Mixin,
     _pretty.Mixin,
     _copies.Mixin,
 ):
@@ -67,19 +65,6 @@ class SteadyPlan(
     #[
 
     _TABLE_FIELDS = ("NAME", "REGISTER", "VALUE", )
-
-    _registers = (
-        "exogenized",
-        "endogenized",
-        "fixed_level",
-        "fixed_change",
-    )
-
-    __slots__ = (
-        ()
-        + tuple(f"_can_be_{r}" for r in _registers)
-        + tuple(f"_{r}_register" for r in _registers)
-    )
 
     @_dm.reference(
         category="constructor",
@@ -255,5 +240,4 @@ class SteadyPlan(
             table.add_row(row, )
 
     #]
-
 

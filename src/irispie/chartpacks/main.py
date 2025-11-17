@@ -209,6 +209,12 @@ self = Chartpack(
         for f in self._figures:
             f.title = modifier(f.title, )
 
+    def format_figure_titles(self, **kwargs, ) -> None:
+        r"""
+        """
+        for f in self._figures:
+            f.title = f.title.format(**kwargs, ) if f.title else f.title
+
     @_dm.reference(category="plot", )
     def plot(
         self,
