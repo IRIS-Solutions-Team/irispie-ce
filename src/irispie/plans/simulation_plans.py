@@ -1,4 +1,4 @@
-"""
+r"""
 Meta plans for dynamic simulations
 """
 
@@ -7,9 +7,9 @@ Meta plans for dynamic simulations
 
 from __future__ import annotations
 
-from collections.abc import (Iterable, )
-from typing import (Self, Any, Protocol, NoReturn, )
-from types import (EllipsisType, )
+from collections.abc import Iterable
+from typing import Self, Any, Protocol, NoReturn
+from types import EllipsisType, MethodType
 import itertools as _it
 import numpy as _np
 import textwrap as _tw
@@ -17,13 +17,13 @@ import functools as _ft
 import documark as _dm
 
 from ..conveniences import copies as _copies
-from ..dates import (Period, )
-from ..series.main import (Series, )
+from ..dates import Period
+from ..series.main import Series
 from .. import simultaneous as _simultaneous
 from .. import wrongdoings as _wrongdoings
-from . import _registers as _registers
-from . import _pretty as _pretty
-from . import _indexes as _indexes
+from . import _registers
+from . import _pretty
+from . import _indexes
 from . import transforms as _transforms
 
 #]
@@ -53,7 +53,7 @@ class SimulationPlannableProtocol(Protocol, ):
     #]
 
 
-#[
+@_registers.mixin
 @_dm.reference(
     path=("structural_models", "simulation_plans.md", ),
     categories={
@@ -65,9 +65,7 @@ class SimulationPlannableProtocol(Protocol, ):
         "information_sequential": "Getting information about simulation plans for [`Sequential` models](sequential.md)",
     },
 )
-#]
 class SimulationPlan(
-    _registers.Mixin,
     _pretty.Mixin,
     _indexes.ItemMixin,
     _copies.Mixin,
@@ -96,22 +94,6 @@ the input databox when the simulation is run.
     #[
 
     _TABLE_FIELDS = ("NAME", "PERIOD(S)", "REGISTER", "TRANSFORM", "VALUE", )
-
-    _registers = (
-        "exogenized",
-        "endogenized",
-        "exogenized_anticipated",
-        "exogenized_unanticipated",
-        "endogenized_unanticipated",
-        "endogenized_anticipated",
-    )
-
-    __slots__ = (
-        ("base_span", )
-        + tuple(f"_can_be_{r}" for r in _registers)
-        + tuple(f"_{r}_register" for r in _registers)
-        + tuple(f"default_{r}" for r in _registers)
-    )
 
     @_dm.reference(
         category="constructor",
@@ -161,9 +143,15 @@ Create a new simulation plan object for a
         self._default_exogenized = None
         self._default_endogenized = None
         plannable = model.get_simulation_plannable()
-        def default_value(*args, **kwargs, ):
+        def create_default_value():
             return [None] * self.num_periods
-        self._initialize_registers(plannable, default_value, )
+        self._initialize_registers(plannable, create_default_value, )
+        for n in self._registers:
+            setattr(
+                self,
+                f"get_{n}_periods",
+                MethodType(eval(f"_get_{n}_periods", globals(), locals(), ), self),
+            )
 
     def check_consistency(
         self,
@@ -426,16 +414,6 @@ self.exogenize_unanticipated(
             *args, **kwargs,
         )
 
-    # @_dm.reference(category="definition_sequential", )
-    def endogenize(
-        self,
-        dates: Iterable[Period] | EllipsisType,
-        names: Iterable[str] | str | EllipsisType,
-    ) -> None:
-        r"""
-        """
-        self._write_to_register("endogenized", dates, names, True, )
-
     @_dm.reference(category="definition_simultaneous", )
     def endogenize_anticipated(
         self,
@@ -452,15 +430,6 @@ self.exogenize_unanticipated(
         """
         if isinstance(names, str):
             names = (names, )
-        # names_with_prefix = tuple(
-        #     n for n in names
-        #     if _simultaneous.is_anticipated_shock_name(n)
-        # )
-        # if names_with_prefix:
-        #     _wrongdoings.warn(
-        #         "When endogenizing anticipated quantities, do not include the "
-        #         "'ant_' prefix in the names; the prefix will be added automatically."
-        #     )
         ant_names = tuple(
             n if _simultaneous.is_anticipated_shock_name(n, )
             else _simultaneous.anticipated_shock_name_from_transition_shock_name(n, )
@@ -559,23 +528,6 @@ self.exogenize_unanticipated(
             for n in self._registers
         )
         return not has_any_points
-
-    # def swap(
-    #     self,
-    #     dates: Iterable[Period] | EllipsisType,
-    #     pairs: Iterable[tuple[str, str]] | tuple[str, str],
-    #     *args, **kwargs,
-    # ) -> None:
-    #     """
-    #     """
-    #     pairs = tuple(pairs)
-    #     if not pairs:
-    #         return
-    #     if len(pairs) == 2 and isinstance(pairs[0], str) and isinstance(pairs[1], str):
-    #         pairs = (pairs, )
-    #     for pair in pairs:
-    #         self.exogenize(dates, pair[0], *args, **kwargs, )
-    #         self.endogenize(dates, pair[1], *args, **kwargs, )
 
     def swap_anticipated(
         self,
@@ -781,6 +733,8 @@ quantity in the pair at the specified dates. It is equivalent to calling
     def get_databox_names(self, ) -> tuple[str]:
         """
         """
+        if not hasattr(self, "_exogenized_register"):
+            return tuple()
         databox_names = set()
         for k, v in self._exogenized_register.items():
             databox_names.update(
@@ -879,29 +833,34 @@ quantity in the pair at the specified dates. It is equivalent to calling
             representative = _create_representative_for_table_rows(tuple(g), )
             table.add_row(representative, )
 
-    for n in _registers:
-        exec(_tw.dedent(f"""
-            def get_{n}(self, ) -> tuple[Period, ...]:
-                return _get_registered_periods(self._{n}_register, self.base_span, )
-        """))
-
     #]
 
 
+for n in (
+    "exogenized", "exogenized_anticipated", "exogenized_unanticipated",
+    "endogenized_anticipated", "endogenized_unanticipated",
+    "conditioned_upon",
+):
+    exec(_tw.dedent(f"""
+        def _get_{n}_periods(self, ) -> dict[str, tuple[Period]]:
+            return _get_registered_periods(self, self._{n}_register, )
+    """))
+
+
 def _get_registered_periods(
-    register: dict[str, Any],
-    base_span: tuple[Period],
+    self,
+    register: _registers.Register,
 ) -> dict[str, tuple[Period]]:
     """
     """
-    return {
-        k: tuple(
+    registered_periods = {}
+    for k, v in register.items():
+        registered_periods[k] = tuple(
             period
-            for period, status in zip(base_span, v)
+            for period, status in zip(self.base_span, v)
             if status is not None and status is not False
         )
-        for k, v in register.items()
-    }
+    return registered_periods
 
 
 def catch_invalid_periods(

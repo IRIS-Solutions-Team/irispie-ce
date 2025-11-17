@@ -46,6 +46,7 @@ class QuantityKind(enum.Flag):
     EXOGENOUS_VARIABLE = enum.auto()
     TRANSITION_STD = enum.auto()
     MEASUREMENT_STD = enum.auto()
+    RESIDUAL = enum.auto()
 
     ENDOGENOUS_VARIABLE = TRANSITION_VARIABLE | MEASUREMENT_VARIABLE
     ANY_VARIABLE = ENDOGENOUS_VARIABLE | EXOGENOUS_VARIABLE
@@ -59,7 +60,6 @@ class QuantityKind(enum.Flag):
     def from_keyword(
         klass,
         keyword: str,
-        /,
     ) -> Self:
         """
         """
@@ -73,18 +73,18 @@ class QuantityKind(enum.Flag):
             .removesuffix("S")
         ]
 
-    def to_keyword(self, /, ) -> str:
+    def to_keyword(self, ) -> str:
         return "!" + self.name.lower() + "s"
 
-    def to_portable(self, /, ) -> str:
+    def to_portable(self, ) -> str:
         return _TO_PORTABLES[self]
 
     @classmethod
-    def from_portable(klass, portable: str, /, ) -> Self:
+    def from_portable(klass, portable: str, ) -> Self:
         return _FROM_PORTABLES[portable]
 
     @property
-    def human(self, /, ) -> str:
+    def human(self, ) -> str:
         return self.name.replace("_", " ").title()
 
     #]
@@ -141,21 +141,21 @@ class Quantity:
     entry: int | None = None
     attributes: set[str] | None = None
 
-    def wrap_logly(self, /, ) -> str:
+    def wrap_logly(self, ) -> str:
         return wrap_logly(self.human, self.logly, )
 
-    def copy(self, /, ) -> Self:
+    def copy(self, ) -> Self:
         """
         Shallow copy of the quantity
         """
         return type(self)(**self.__dict__, )
 
-    def __hash__(self, /, ) -> int:
+    def __hash__(self, ) -> int:
         return hash(self.__repr__)
 
     has_attributes = _attributes.has_attributes
 
-    def to_portable(self, /, ) -> _PortableType:
+    def to_portable(self, ) -> _PortableType:
         """
         """
         return (
@@ -167,7 +167,7 @@ class Quantity:
         )
 
     @classmethod
-    def from_portable(klass, portable: _PortableType, /, ) -> Self:
+    def from_portable(klass, portable: _PortableType, ) -> Self:
         """
         """
         kind, human, logly, description, attributes = portable
@@ -189,7 +189,7 @@ def create_name_to_qid(quantities: Iterable[Quantity]) -> dict[str, int]:
     }
 
 
-def create_name_to_quantity(quantities: Iterable[Quantity], /, ) -> dict[str, Quantity]:
+def create_name_to_quantity(quantities: Iterable[Quantity], ) -> dict[str, Quantity]:
     return { qty.human: qty for qty in quantities if qty.human is not None }
 
 
@@ -249,7 +249,6 @@ def generate_names_of_kind(
 def count_quantities_of_kind(
     quantities: Iterable[Quantity],
     kind: QuantityKind | None,
-    /,
 ) -> int:
     """
     """
@@ -295,6 +294,7 @@ def create_name_to_logly(quantities: Iterable[Quantity]) -> dict[int, bool]:
         if qty.id is not None and qty.logly is not None
     }
 
+
 def create_qid_to_logly(quantities: Iterable[Quantity]) -> dict[int, bool]:
     return {
         qty.id: qty.logly for qty in quantities
@@ -325,7 +325,6 @@ def change_logly(
 def validate_selection_of_quantities(
     allowed_quantities: Iterable[Quantity],
     custom_quantities: Iterable[Quantity] | None,
-    /,
 ) -> tuple[Iterable[Quantity], Iterable[Quantity]]:
     """
     """
@@ -337,7 +336,6 @@ def validate_selection_of_quantities(
 def lookup_quantities_by_name(
     quantities: Iterable[Quantity],
     custom_names: Iterable[str],
-    /,
 ) -> tuple[tuple[Quantity, ...], tuple[str, ...]]:
     """
     Lookup quantities by name, and return a list of quantities and a list
@@ -358,7 +356,6 @@ def lookup_quantities_by_name(
 def lookup_qids_by_name(
     quantities: Iterable[Quantity],
     custom_names: Iterable[str],
-    /,
 ) -> tuple[tuple[int, ...], tuple[str, ...]]:
     """
     Lookup quantities by name, and return a list of quantities and a list
@@ -378,7 +375,6 @@ def lookup_qids_by_name(
 
 def filter_quantities_by_name(
     quantities: Iterable[Quantity],
-    /,
     include_names: Iterable[str] | None = None,
     exclude_names: Iterable[str] | None = None,
 ) -> Iterable[Quantity]:
@@ -394,18 +390,17 @@ def filter_quantities_by_name(
 def generate_where_logly(
     qids: Iterable[int],
     qid_to_logly: dict[int, bool],
-    /,
 ) -> Iterable[int]:
     """
     """
     return (i for i, qid in enumerate(qids, ) if qid_to_logly.get(qid, False))
 
 
-def wrap_logly(name, logly: bool = True, /, ) -> str:
+def wrap_logly(name, logly: bool = True, ) -> str:
     return f"log({name})" if logly else name
 
 
-def check_unique_names(quantities: Iterable[Quantity], /, ) -> None:
+def check_unique_names(quantities: Iterable[Quantity], ) -> None:
     """
     """
     #[
@@ -429,7 +424,7 @@ def stamp_id(quantities: Iterable[Quantity], /) -> None:
         q.id = i
 
 
-def to_portable(quantities: Iterable[Quantity], /, ) -> tuple[_PortableType, ...]:
+def to_portable(quantities: Iterable[Quantity], ) -> tuple[_PortableType, ...]:
     """
     """
     #[
@@ -440,7 +435,7 @@ def to_portable(quantities: Iterable[Quantity], /, ) -> tuple[_PortableType, ...
     #]
 
 
-def from_portable(portables: Iterable[_PortableType], /, ) -> tuple[Quantity, ...]:
+def from_portable(portables: Iterable[_PortableType], ) -> tuple[Quantity, ...]:
     """
     """
     return tuple( Quantity.from_portable(i) for i in portables )
@@ -451,7 +446,7 @@ class AccessQuantitiesProtocol(Protocol, ):
     """
     #[
 
-    def _access_quantities(self, /, ) -> Iterable[Quantity, ...]: ...
+    def _access_quantities(self, ) -> Iterable[Quantity, ...]: ...
 
     #]
 
@@ -501,28 +496,28 @@ class Mixin:
             if qty.kind in QuantityKind.LOGGABLE_VARIABLE
         }
 
-    def create_name_to_qid(self, /, ) -> dict[str, int]:
+    def create_name_to_qid(self, ) -> dict[str, int]:
         """
         Create a dictionary mapping quantity names to quantity ids
         """
         quantities = self._access_quantities()
         return create_name_to_qid(quantities, )
 
-    def create_qid_to_name(self, /, ) -> dict[int, str]:
+    def create_qid_to_name(self, ) -> dict[int, str]:
         """
         Create a dictionary mapping quantity ids to quantity names
         """
         quantities = self._access_quantities()
         return create_qid_to_name(quantities, )
 
-    def create_qid_to_kind(self, /, ) -> dict[int, str]:
+    def create_qid_to_kind(self, ) -> dict[int, str]:
         """
         Create a dictionary mapping quantity ids to quantity kinds
         """
         quantities = self._access_quantities()
         return create_qid_to_kind(quantities, )
 
-    def create_qid_to_description(self, /, ) -> dict[int, str]:
+    def create_qid_to_description(self, ) -> dict[int, str]:
         """
         Create a dictionary mapping quantity ids to quantity descriptions
         """
@@ -535,7 +530,7 @@ class Mixin:
         quantities = self._access_quantities()
         return create_name_to_description(quantities, )
 
-    def create_qid_to_logly(self, /, ) -> dict[int, bool]:
+    def create_qid_to_logly(self, ) -> dict[int, bool]:
         """
         Create a dictionary mapping from quantity id to quantity log-status
         """

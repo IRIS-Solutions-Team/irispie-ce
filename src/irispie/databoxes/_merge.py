@@ -53,12 +53,12 @@ def mixin(klass, ):
 def by_merging(
     klass,
     databoxes: Iterable[Self],
-    merge_strategy: MergeStrategyType = "stack",
+    *args, **kwargs,
 ) -> Self:
     r"""
     """
     self = klass()
-    self.merge(databoxes, merge_strategy, )
+    self.merge(databoxes, *args, **kwargs, )
     return self
 
 
@@ -66,9 +66,9 @@ def by_merging(
 def merge(
     self: Self,
     other: Self | Iterable[Self],
-    merge_strategy: MergeStrategyType = "stack",
-    # Do not include the following in the docstring
-    action = None,
+    strategy: MergeStrategyType = "stack",
+    # Legacy argument
+    merge_strategy: MergeStrategyType | None = None,
 ) -> None:
     r"""
 ................................................................................
@@ -80,7 +80,7 @@ strategy to handle potential conflicts between duplicate keys.
 
 self.merge(
     other,
-    merge_strategy="stack",
+    strategy="stack",
 )
 
 
@@ -91,7 +91,7 @@ self.merge(
     merging a single databox, it should be passed directly; for multiple
     databoxes, pass an iterable containing all.
 
-???+ input "merge_strategy"
+???+ input "strategy"
     Determines how to process keys that exist in more than one databox. The
     default strategy is `"stack"`.
 
@@ -115,14 +115,11 @@ self.merge(
 
 ................................................................................
     """
-    # Legacy name
-    if action is not None:
-        _wa.warn("The 'action' input argument is deprecated; use 'merge_strategy' instead", )
-        merge_strategy = action
-    #
-    merge_strategy_func = _MERGE_STRATEGY_DISPATCH[merge_strategy]
+    if merge_strategy is not None:
+        strategy = merge_strategy
+    strategy_func = _MERGE_STRATEGY_DISPATCH[strategy]
     stream = _wrongdoings.create_stream(
-        merge_strategy,
+        strategy,
         "Duplicate keys when merging databoxes",
         when_no_stream="silent",
     )
@@ -131,7 +128,7 @@ self.merge(
     for t in other:
         for key, value in t.items():
             if key in self:
-                merge_strategy_func(self, key, value, stream, )
+                strategy_func(self, key, value, stream, )
             else:
                 self[key] = value
     stream._raise()

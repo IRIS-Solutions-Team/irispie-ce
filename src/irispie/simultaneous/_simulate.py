@@ -69,9 +69,11 @@ def simulate(
     remove_initial: bool = True,
     remove_terminal: bool = True,
     shocks_from_data: bool = True,
+    shocks_to_output: bool = True,
     stds_from_data: bool = True,
+    stds_to_output: bool = False,
     parameters_from_data: bool = False,
-    output_parameters: bool = False,
+    parameters_to_output: bool = False,
     force_split_frames: bool = False,
     when_fails: Literal["critical", "error", "warning", "silent"] = "critical",
     #
@@ -95,9 +97,11 @@ def simulate(
 
     slatable = self.slatable_for_simulate(
         shocks_from_data=shocks_from_data,
+        shocks_to_output=shocks_to_output,
         stds_from_data=stds_from_data,
+        stds_to_output=stds_to_output,
         parameters_from_data=parameters_from_data,
-        output_parameters=output_parameters,
+        parameters_to_output=parameters_to_output,
     )
 
     dataslate = Dataslate.from_databox_for_slatable(

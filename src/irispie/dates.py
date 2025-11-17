@@ -2180,16 +2180,16 @@ from a start period to an end period (possibly with a step size other than
         return self._class.frequency
 
     @_dm.reference(category="manipulation", )
-    def reverse(self, ) -> None:
+    def reverse(self, ) -> Self:
         r"""
 ................................................................................
 
-==Reverse the time span==
+==Create a reversed span==
 
-Reverses the direction of the time span, so that the start period becomes
-the end period and vice versa.
+Create a new time span with the start and end periods swapped, and the
+step size negated.
 
-    self.reverse()
+    other = self.reverse()
 
 
 ### Input arguments ###
@@ -2200,19 +2200,49 @@ the end period and vice versa.
 
 ### Returns ###
 
-The time span is reversed in place.
+???+ returns "other"
+    A new time span with the start and end periods swapped, and the
+    step size negated.
 
 ................................................................................
         """
-        self._start, self._end = self._end, self._start
-        self._step = -self._step
+        return type(self)(self._end, self._start, -self._step, )
 
-    def reversed(self, ) -> Self:
+    @_dm.reference(category="manipulation", )
+    def refrequent(self, new_freq: Frequency | int, ) -> Self:
+        r"""
+................................................................................
+
+==Convert time span to a different frequency==
+
+Convert the time span to a different time frequency by converting
+each period within the span to the new frequency.
+
+    new = self.refrequent()
+
+### Input arguments ###
+
+???+ input "self"
+    The time span to be converted to a different frequency.
+
+### Returns ###
+
+???+ returns "new"
+    A new time span with periods converted to the new frequency.
+
+................................................................................
         """
-        """
-        new = self.copy()
-        new.reverse()
-        return new
+        if self.frequency == new_freq:
+            return type(self)(self._start, self._end, self._step, )
+        if self._step == 1:
+            new_start = self._start.refrequent(new_freq, position="start", )
+            new_end = self._end.refrequent(new_freq, position="end", )
+        elif self._step == -1:
+            new_start = self._start.refrequent(new_freq, position="end", )
+            new_end = self._end.refrequent(new_freq, position="start", )
+        else:
+            raise IrisPieCritical("Refrequenting time spans with steps other than 1 or -1 is not supported.")
+        return type(self)(new_start, new_end, self._step, )
 
     @_dm.reference(category="manipulation", )
     def shift_end(
