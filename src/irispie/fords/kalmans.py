@@ -20,9 +20,8 @@ from ..series.main import Series
 from .solutions import Solution, right_div, left_div
 
 from . import initializers as _initializers
-from . import shock_simulators as _shock_simulators
 from . import covariances as _covariances
-from .descriptors import Squid, SquidableProtocol
+from .descriptors import Squid, Squidable
 from .. import wrongdoings as _wd
 
 from typing import TYPE_CHECKING
@@ -36,12 +35,6 @@ if TYPE_CHECKING:
 #]
 
 
-_simulate_anticipated_shock_values = (
-    _shock_simulators
-    .simulate_triangular_anticipated_shock_values
-)
-
-
 _DEFAULT_DELTA_TOLERANCE = 1e-12
 
 
@@ -52,11 +45,17 @@ DiffuseMethodType = Literal[
 ]
 
 
+INITIALIZER_DISPATCH = {
+    "asymptotic": _initializers.initialize_asymptotic,
+    "data": _initializers.initialize_from_data,
+}
+
+
 class SingularMatrixError(ValueError, ):
     pass
 
 
-class KalmanFilterableProtocol(SquidableProtocol, ):
+class KalmanFilterableProtocol(Squidable, ):
     """
     """
     #[
@@ -116,7 +115,7 @@ class KalmanOutputData:
                 self_attr = attr
             setattr(self, attr_name, self_attr, )
 
-    def __repr__(self, /, ) -> str:
+    def __repr__(self, ) -> str:
         """
         """
         slots_to_repr = (
@@ -216,24 +215,26 @@ class _LogDataslate:
         self: Self,
         array: _np.ndarray,
         lhs_indexes: tuple,
-        rhs_indexes=None,
+        rhs_row_indexes=None,
         transform=None,
     ) -> None:
         """
         """
         if array is None:
             return
-        rhs_indexes = rhs_indexes if rhs_indexes is not None else slice(None, )
+        rhs_row_indexes = (
+            list(rhs_row_indexes) if rhs_row_indexes is not None
+            else slice(None, )
+        )
         if transform is not None:
-            array = transform[rhs_indexes, :] @ array
+            array_to_store = transform[rhs_row_indexes, :] @ array
         else:
-            array = array[rhs_indexes]
-        self._dataslate._variants[0].data[lhs_indexes] = array
+            array_to_store = array[rhs_row_indexes]
+        self._dataslate._variants[0].data[lhs_indexes] = array_to_store
 
     def _prepare_log_names(
         self,
         name_to_log_name: dict[str, str],
-        /,
     ) -> None:
         """
         """
@@ -248,7 +249,6 @@ class _LogDataslate:
     def extend(
         self,
         other: Self,
-        /,
     ) -> None:
         """
         """
@@ -264,7 +264,6 @@ class _MedLogDataslate(_LogDataslate, ):
 
     def to_output_arg(
         self: Self,
-        /,
     ) -> Databox:
         """
         """
@@ -286,23 +285,23 @@ class _StdLogDataslate(_LogDataslate, ):
         self: Self,
         mse_array: _np.ndarray,
         lhs_indexes: tuple,
-        rhs_indexes=None,
+        rhs_row_indexes=None,
         transform=None,
     ) -> None:
         if mse_array is None:
             return
-        rhs_indexes = rhs_indexes if rhs_indexes is not None else slice(None, )
+        rhs_row_indexes = (
+            list(rhs_row_indexes) if rhs_row_indexes is not None
+            else slice(None, )
+        )
         if transform is not None:
-            transform_rhs_indexes = transform[rhs_indexes, :]
-            mse_array = transform_rhs_indexes @ mse_array @ transform_rhs_indexes.T
+            transform_submatrix = transform[rhs_row_indexes, :]
+            mse_array = transform_submatrix @ mse_array @ transform_submatrix.T
         else:
-            mse_array = mse_array[rhs_indexes, ...][..., rhs_indexes]
+            mse_array = mse_array[rhs_row_indexes, ...][..., rhs_row_indexes]
         self._dataslate._variants[0].data[lhs_indexes] = _covariances.std_from_cov(mse_array, )
 
-    def to_output_arg(
-        self: Self,
-        /,
-    ) -> Databox:
+    def to_output_arg(self: Self, ) -> Databox:
         """
         """
         return self._dataslate.to_databox()
@@ -400,14 +399,14 @@ class _OutputStore:
         self.smooth_med = _med_constructor() if needs.return_smooth else None
         self.smooth_std = _std_constructor() if needs.return_smooth else None
 
-    def extend(self, other: Self, /, ) -> None:
+    def extend(self, other: Self, ) -> None:
         """
         """
         for s in self.__slots__:
             if getattr(self, s) is not None:
                 getattr(self, s).extend(getattr(other, s), )
 
-    def rescale_stds(self, var_scale, /, ) -> None:
+    def rescale_stds(self, var_scale, ) -> None:
         r"""
         """
         if var_scale == 1 or var_scale is None:
@@ -420,7 +419,7 @@ class _OutputStore:
             for v in attr._dataslate._variants:
                 v.rescale_data(std_scale)
 
-    def create_out_data(self: Self, /, ) -> Databox:
+    def create_out_data(self: Self, ) -> Databox:
         r"""
         """
         out_data = Databox()
@@ -458,7 +457,7 @@ class _OutputStore:
             w_qids = self.squid.w_qids
             y_qids = self.squid.y_qids
             #
-            self.predict_med.store(a0, (curr_xi_qids, t), rhs_indexes=curr_xi_indexes, transform=self.transform, )
+            self.predict_med.store(a0, (curr_xi_qids, t), rhs_row_indexes=curr_xi_indexes, transform=self.transform, )
             self.predict_med.store(u0, (u_qids, t), )
             self.predict_med.store(v0, (v_qids, t), )
             self.predict_med.store(w0, (w_qids, t), )
@@ -470,7 +469,7 @@ class _OutputStore:
             curr_xi_indexes = self.squid.curr_xi_indexes
             u_qids = self.squid.u_qids
             w_qids = self.squid.w_qids
-            self.predict_std.store_from_mse(Q0, (curr_xi_qids, t), rhs_indexes=curr_xi_indexes, transform=self.transform, )
+            self.predict_std.store_from_mse(Q0, (curr_xi_qids, t), rhs_row_indexes=curr_xi_indexes, transform=self.transform, )
             self.predict_std.store_from_mse(cov_u0, (u_qids, t), )
             self.predict_std.store_from_mse(cov_w0, (w_qids, t), )
             #
@@ -498,7 +497,7 @@ class _OutputStore:
             v_qids = self.squid.v_qids
             w_qids = self.squid.w_qids
             y_qids = self.squid.y_qids
-            self.update_med.store(xi, (curr_xi_qids, t), rhs_indexes=curr_xi_indexes, transform=self.transform, )
+            self.update_med.store(xi, (curr_xi_qids, t), rhs_row_indexes=curr_xi_indexes, transform=self.transform, )
             self.update_med.store(u, (u_qids, t), )
             self.update_med.store(v, (v_qids, t), )
             self.update_med.store(w, (w_qids, t), )
@@ -507,7 +506,7 @@ class _OutputStore:
         if self.update_std is not None:
             curr_xi_qids = self.squid.curr_xi_qids
             curr_xi_indexes = self.squid.curr_xi_indexes
-            self.update_std.store_from_mse(Q, (curr_xi_qids, t), rhs_indexes=curr_xi_indexes, transform=self.transform, )
+            self.update_std.store_from_mse(Q, (curr_xi_qids, t), rhs_row_indexes=curr_xi_indexes, transform=self.transform, )
         if self.predict_err is not None:
             full_pe = self._expand_y_to_full(pe, t, )
             self.predict_err.store(full_pe, (..., t), )
@@ -532,7 +531,7 @@ class _OutputStore:
             v_qids = self.squid.v_qids
             w_qids = self.squid.w_qids
             y_qids = self.squid.y_qids
-            self.smooth_med.store(xi, (curr_xi_qids, t), rhs_indexes=curr_xi_indexes, transform=self.transform, )
+            self.smooth_med.store(xi, (curr_xi_qids, t), rhs_row_indexes=curr_xi_indexes, transform=self.transform, )
             self.smooth_med.store(u, (u_qids, t), )
             self.smooth_med.store(v, (v_qids, t), )
             self.smooth_med.store(w, (w_qids, t), )
@@ -541,7 +540,7 @@ class _OutputStore:
         if self.smooth_std is not None:
             curr_xi_qids = self.squid.curr_xi_qids
             curr_xi_indexes = self.squid.curr_xi_indexes
-            self.smooth_std.store_from_mse(Q, (curr_xi_qids, t), rhs_indexes=curr_xi_indexes, transform=self.transform, )
+            self.smooth_std.store_from_mse(Q, (curr_xi_qids, t), rhs_row_indexes=curr_xi_indexes, transform=self.transform, )
 
     def _expand_y_to_full(
         self,
@@ -574,13 +573,16 @@ def neg_log_likelihood(model, *args, **kwargs, ) -> Real:
 
 def kalman_filter(
     model,
-    #
-    input_db: Databox,
+    input_ds: Dataslate,
     span: Iterable[Period],
     #
     generate_period_system: Callable,
     generate_period_data: Callable,
+    presimulate_exogenous_impact: Callable | None = None,
     #
+    columns_to_run: Sequence[int] | None = None,
+    #
+    initialize: Literal["asymptotic", "data", ] = "asymptotic",
     diffuse_scale: Real | None = None,
     diffuse_method: DiffuseMethodType = "fixed_unknown",
     #
@@ -593,13 +595,6 @@ def kalman_filter(
     rescale_variance: bool = False,
     likelihood_contributions: bool = True,
     #
-    shocks_from_data: bool = False,
-    stds_from_data: bool = False,
-    initials_from_data: bool = False,
-    parameters_to_output: bool = False,
-    #
-    prepend_initial: bool = False,
-    append_terminal: bool = False,
     deviation: bool = False,
     check_singularity: bool = False,
     when_singularity: Literal["critical", "error", "warning", "silent" ] | None = "critical",
@@ -609,173 +604,8 @@ def kalman_filter(
     return_info: bool = False,
 ) -> Databox | tuple[Databox, _Info]:
     r"""
-················································································
-
-==Run Kalman filter on a model using time series data==
-
-Executes a Kalman filter on a model, compliant with `KalmanFilterableProtocol`,
-using time series observations from the input Databox. This method enables state
-estimation and uncertainty quantification in line with the model's dynamics and
-the time series data.
-
-kalman_output = model.kalman_filter(
-    input_db,
-    span,
-    diffuse_scale=None,
-    return_=("predict", "update", "smooth", "predict_err", "predict_mse_obs", ),
-    return_predict=True,
-    return_update=True,
-    return_smooth=True,
-    return_predict_err=True,
-    return_predict_mse_obs=True,
-    rescale_variance=False,
-    likelihood_contributions=True,
-    shocks_from_data=False,
-    stds_from_data=False,
-    prepend_initial=False,
-    append_terminal=False,
-    deviation=False,
-    check_singularity=False,
-    unpack_singleton=True,
-    return_info=False,
-)
-
-kalman_output, info = model.kalman_filter(
-    ...
-    return_info=True,
-)
-
-
-### Input arguments ###
-
-
-???+ input "model"
-The model, compliant with `KalmanFilterableProtocol`, performing the
-Kalman filtering.
-
-???+ input "input_db"
-A Databox containing time series data to be used for filtering.
-
-???+ input "span"
-A date span over which the filtering process is executed based on the
-measurement time series.
-
-???+ input "diffuse_scale"
-A real number or `None`, specifying the scale factor for the diffuse
-initialization. If `None`, the default value is used.
-
-???+ input "return_"
-An iterable of strings indicating which steps' results to return:
-"predict", "update", "smooth".
-
-???+ input "return_predict"
-If `True`, return prediction step results.
-
-???+ input "return_update"
-If `True`, return update step results.
-
-???+ input "return_smooth"
-If `True`, return smoothing step results.
-
-???+ input "rescale_variance"
-If `True`, rescale all variances by the optimal variance scale factor
-estimated using maximum likelihood after the filtering process.
-
-???+ input "likelihood_contributions"
-If `True`, return the contributions of individual periods to the overall
-(negative) log likelihood.
-
-???+ input "shocks_from_data"
-If `True`, use possibly time-varying shock values from the data; these
-values are interpreted as the medians (means) of the shocks. If `False`,
-zeros are used for all shocks.
-
-???+ input "stds_from_data"
-If `True`, use possibly time-varying standard deviation values from the
-data. If `False`, currently assigned constant values are used for the
-standard deviations of all shocks.
-
-???+ input "prepend_initial"
-If `True`, prepend observations to the resulting time series to cover
-initial conditions based on the model's maximum lag. No measurement
-observations are used in these initial time periods (even if some are
-available in the input data).
-
-???+ input "append_terminal"
-If `True`, append observations to the resulting time series to cover
-terminal conditions based on the model's maximum lead. No measurement
-observations are used in these terminal time periods (even if some are
-available in the input data).
-
-???+ input "deviation"
-If `True`, the constant vectors in transition and measurement equations are
-set to zeros, effectively running the Kalman filter as deviations from
-steady state (a balanced-growth path)
-
-???+ input "check_singularity"
-If `True`, check the one-step ahead MSE matrix for the measurement variables
-for singularity, and throw a `SingularMatrixError` exception if the matrix
-is singular.
-
-???+ input "unpack_singleton"
-If `True`, unpack `out_info` into a plain dictionary for models with a
-single variant.
-
-???+ input "return_info"
-If `True`, return additional information about the Kalman filtering process.
-
-
-### Returns ###
-
-
-???+ returns "kalman_output"
-A Databox containing some of the following items (depending on the user requests):
-
-| Attribute         | Type       | Description
-|-------------------|---------------------------------------------------
-| `predict_med`     | `Databox`  | Medians from the prediction step
-| `predict_std`     | `Databox`  | Standard deviations from the prediction step
-| `predict_mse_obs` | `list`     | Mean squared error matrices for the prediction step of the available observations of measurement variables
-| `update_med`      | `Databox`  | Medians from the update step
-| `update_std`      | `Databox`  | Standard deviations from the update step
-| `predict_err`     | `Databox`  | Prediction errors
-| `smooth_med`      | `Databox`  | Medians from the smoothing step
-| `smooth_std`      | `Databox`  | Standard deviations from the smoothing step
-
-
-???+ returns "out_info"
-A dictionary containing additional information about the filtering process,
-such as log likelihood and variance scale. For models with multiple
-variants, `out_info` is a list of such dictionaries. If
-`unpack_singleton=False`, also `out_info` is a one-element list
-containing the dictionary for singleton models, too.
-
-················································································
     """
     #[
-    work_db = input_db.shallow()
-    #if not shocks_from_data:
-    #    shock_names = model.get_names(kind=_quantities.ANY_SHOCK, )
-    #    work_db.remove(shock_names, strict_names=False, )
-    #if not stds_from_data:
-    #    std_names = model.get_names(kind=_quantities.ANY_STD, )
-    #    work_db.remove(std_names, strict_names=False, )
-
-    num_variants = model.resolve_num_variants_in_context(num_variants, )
-
-    slatable = model.slatable_for_kalman_filter(
-        shocks_from_data=shocks_from_data,
-        stds_from_data=stds_from_data,
-        parameters_to_output=parameters_to_output,
-    )
-
-    input_ds = Dataslate.from_databox_for_slatable(
-        slatable, work_db, span,
-        num_variants=num_variants,
-        prepend_initial=prepend_initial,
-        append_terminal=append_terminal,
-        clip_data_to_base_span=True,
-    )
 
     frame = Frame(
         start=input_ds.periods[0],
@@ -794,7 +624,7 @@ containing the dictionary for singleton models, too.
         likelihood_contributions=likelihood_contributions,
     )
 
-    squid = Squid.from_squidable(model, )
+    squid = Squid(model, )
     qid_to_logly = model.create_qid_to_logly()
 
     logly_within_y = tuple(
@@ -818,11 +648,8 @@ containing the dictionary for singleton models, too.
         name_to_log_name=name_to_log_name,
     ) if needs.output_store else None
 
-    initialize = _ft.partial(
-        _initializers.initialize,
-        diffuse_method=diffuse_method,
-        diffuse_scale=diffuse_scale,
-    )
+    solution_vectors = model._get_dynamic_solution_vectors()
+    initializer = INITIALIZER_DISPATCH[initialize]
 
     #
     # Include the variants even though they are not used because otherwise
@@ -835,7 +662,7 @@ containing the dictionary for singleton models, too.
 
     out_info = []
 
-    for vid, model_v, input_ds_v in main_iter:
+    for vid, model_v, input_ds_v, in main_iter:
 
         variant_header = f"[Variant {vid}]"
         when_singularity = _wd.create_stream(
@@ -843,22 +670,34 @@ containing the dictionary for singleton models, too.
             f"Singularity in prediction MSE matrix in {variant_header}",
         ) if check_singularity else None
 
+        # Get singleton (0th) solution including cov_u and cov_w
         solution_v = model_v._gets_solution(deviation=deviation, )
+
+        # Get singleton (0th) data arary
         data_array = input_ds_v.get_data_variant()
 
         #
         # Initialize median and MSE of the alpha state vector
         #
-        init_cov_u = model_v._gets_cov_transition_shocks()
-        initials = initialize(solution_v, init_cov_u, )
+        num_periods = input_ds_v.num_periods
+        if columns_to_run is None:
+            columns_to_run = range(num_periods, )
+
+        initials = initializer(
+            solution=solution_v,
+            solution_vectors=solution_vectors,
+            data_array=data_array,
+            first_column=columns_to_run[0],
+            diffuse_method=diffuse_method,
+            diffuse_scale=diffuse_scale,
+        )
 
         #
         # Presimulate the impact of anticipated shocks
         #
-        all_v_impact = (
-            _simulate_anticipated_shock_values(model_v, input_ds_v, frame, )
-            if shocks_from_data else None
-        )
+        all_v_impact = None
+        if presimulate_exogenous_impact is not None:
+            all_v_impact = presimulate_exogenous_impact(model_v, input_ds_v, frame, )
 
         #
         # Get values of observables
@@ -913,7 +752,8 @@ containing the dictionary for singleton models, too.
         )
 
         cache = predict(
-            num_periods=input_ds_v.num_periods,
+            num_periods=num_periods,
+            columns_to_run=columns_to_run,
             initials=initials,
             partial_generate_period_system=partial_generate_period_system,
             partial_generate_period_data=partial_generate_period_data,
@@ -949,7 +789,10 @@ containing the dictionary for singleton models, too.
         if needs.output_store:
             output_store_v.rescale_stds(cache.var_scale, )
 
-        out_info_v = cache.create_out_info(span, )
+        out_info_v = cache.create_out_info(
+            base_span=span,
+            extended_span=input_ds_v.periods,
+        )
 
         if needs.output_store:
             output_store.extend(output_store_v, )
@@ -981,6 +824,7 @@ class Cache:
 
     _slots_to_input = (
         "num_periods",
+        "columns_to_run",
     )
 
     _slots_to_preallocate = (
@@ -1073,7 +917,7 @@ class Cache:
             # if num_obs is not None
         )
 
-    def _calculate_variance_scale(self: Self, /, ) -> None:
+    def _calculate_variance_scale(self: Self, ) -> None:
         """
         """
         if self.sum_num_obs == 0:
@@ -1084,18 +928,22 @@ class Cache:
         self.sum_log_det_F += self.sum_num_obs * _np.log(self.var_scale)
         self.sum_pe_Fi_pe = self.sum_pe_Fi_pe / self.var_scale
 
-    def create_out_info(self: Self, span: Iterable[Period], ) -> dict[str, Any]:
+    def create_out_info(
+        self: Self,
+        base_span: Iterable[Period],
+        extended_span: Iterable[Period],
+    ) -> dict[str, Any]:
         """
         """
         out_info = {
             "neg_log_likelihood": float(self.neg_log_likelihood),
-            "log_det_F": Series(periods=span, values=self.all_log_det_F, ),
+            "log_det_F": Series(periods=extended_span, values=self.all_log_det_F, ),
             "var_scale": float(self.var_scale),
             "std_scale": float(_covariances.sqrt_positive(self.var_scale)),
         }
         if self.neg_log_likelihood_contributions is not None:
             out_info["neg_log_likelihood_contributions"] = Series(
-                periods=span,
+                periods=extended_span,
                 values=self.neg_log_likelihood_contributions,
             )
         return out_info
@@ -1105,6 +953,7 @@ class Cache:
 
 def predict(
     num_periods: int,
+    columns_to_run: Sequence[int],
     initials: tuple[_np.ndarray, _np.ndarray, _np.ndarray | None],
     partial_generate_period_system: Callable,
     partial_generate_period_data: Callable,
@@ -1114,17 +963,21 @@ def predict(
     check_singularity: bool = False,
     when_singularity: _wd.Stream | None = None,
 ) -> None:
-    """
+    r"""
     """
     #[
-    cache = Cache(num_periods=num_periods, )
+    cache = Cache(
+        num_periods=num_periods,
+        columns_to_run=columns_to_run,
+    )
     a1_prev, Q1_prev, Xi_prev, = initials
     needs_estimate_unknown_init = Xi_prev is not None
     cache.needs_estimate_unknown_init = needs_estimate_unknown_init
     cache.last_period_of_observations = -1
     create_empty = _ft.partial(_np.empty, shape=(0, 0), dtype=_np.float64, )
     #
-    for t in range(num_periods, ):
+    first_period = columns_to_run[0]
+    for t in cache.columns_to_run:
         #
         T, P, K, Z, H, D, cov_u, cov_w, v_impact, U, *_ = partial_generate_period_system(t, )
         y1, u0, v0, w0, inx_y, *_ = partial_generate_period_data(t, )
@@ -1135,7 +988,7 @@ def predict(
         if any_y:
             cache.last_period_of_observations = t
         #
-        if t > 0 and store_smooth:
+        if t > first_period and store_smooth:
             T_G_prev = T @ G_prev
             cache.all_T_G_prev[t-1] = T_G_prev
             cache.all_L[t-1] = T - T_G_prev @ Z_prev
@@ -1211,7 +1064,7 @@ def predict(
             cache.all_H_cov_w[t] = H_cov_w
         #
         if needs_estimate_unknown_init:
-            if t == 0:
+            if t == first_period:
                 Xi = T @ Xi_prev
             else:
                 Xi = (T - T @ G_prev @ Z_prev) @ Xi_prev
@@ -1270,7 +1123,7 @@ def correct_for_unknown_init(
     """
     #[
     delta = cache.unknown_init_estimate
-    for t in range(cache.num_periods, ):
+    for t in cache.columns_to_run:
         cache.all_a0[t] += cache.all_Xi[t] @ delta
         M_delta = cache.all_M[t] @ delta
         cache.all_y0[t] += M_delta
@@ -1287,7 +1140,7 @@ def update(
     """
     """
     #[
-    for t in range(cache.num_periods, ):
+    for t in cache.columns_to_run:
         a1, y1, u1, v1, w1, Q1, *_ = one_step_back(t, cache, )
         if store_update:
             pe = cache.all_pe[t]
@@ -1304,7 +1157,7 @@ def smooth(
     #[
     N = None
     r = None
-    for t in reversed(range(cache.num_periods, )):
+    for t in reversed(cache.columns_to_run):
         a2, y2, u2, v2, w2, Q2, N, r = one_step_back(t, cache, N, r, )
         if store_smooth:
             store_smooth(t=t, xi=a2, y=y2, u=u2, v=v2, w=w2, Q=Q2, )
@@ -1316,7 +1169,6 @@ def one_step_back(
     cache: Cache,
     N: _np.ndarray | None = None,
     r: _np.ndarray | None = None,
-    /,
 ) -> tuple:
     """
     """

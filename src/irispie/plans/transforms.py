@@ -33,7 +33,6 @@ class PlanTransformProtocol(Protocol, ):
         exogenized_values_after: _np.ndarray | None,
         values_before: _np.ndarray,
         values_after_inclusive: _np.ndarray,
-        /,
     ) -> Real:
         ...
 
@@ -57,7 +56,6 @@ class PlanTransform:
 
     def __init__(
         self,
-        /,
         when_data: bool | None = False,
         name_format: str | None = None,
         shift: int = -1,
@@ -67,19 +65,18 @@ class PlanTransform:
         self._shift = shift
 
     @property
-    def symbol(self, /, ) -> str:
+    def symbol(self, ) -> str:
         return _WHEN_DATA_SYMBOL[self.when_data] + self._SYMBOL
 
-    def __str__(self, /, ) -> str:
+    def __str__(self, ) -> str:
         return self.symbol
 
-    def __repr__(self, /, ) -> self:
+    def __repr__(self, ) -> self:
         return self.__str__()
 
     def resolve_databox_name(
         self,
         base_name: str,
-        /,
     ) -> str | None:
         """
         """
@@ -94,7 +91,6 @@ class PlanTransform:
         exogenized_values_after: _np.ndarray | None,
         values_before: _np.ndarray,
         values_after_inclusive: _np.ndarray,
-        /,
     ) -> Real:
         ...
 
@@ -113,7 +109,6 @@ class PlanTransformNone(PlanTransform, ):
         exogenized_values_after: _np.ndarray,
         values_before: _np.ndarray,
         values_after_inclusive: _np.ndarray,
-        /,
     ) -> Real:
         return exogenized_values_after[0]
     #]
@@ -131,7 +126,6 @@ class PlanTransformLog(PlanTransform, ):
         exogenized_values_after: _np.ndarray,
         values_before: _np.ndarray,
         values_after_inclusive: _np.ndarray,
-        /,
     ) -> Real:
         return _np.exp(exogenized_values_after[0])
     #]
@@ -149,7 +143,6 @@ class PlanTransformDiff(PlanTransform, ):
         exogenized_values_after: _np.ndarray,
         values_before: _np.ndarray,
         values_after_inclusive: _np.ndarray,
-        /,
     ) -> Real:
         return values_before[self._shift] + exogenized_values_after[0]
     #]
@@ -167,7 +160,6 @@ class PlanTransformDiffLog(PlanTransform, ):
         exogenized_values_after: _np.ndarray,
         values_before: _np.ndarray,
         values_after_inclusive: _np.ndarray,
-        /,
     ) -> Real:
         return values_before[self._shift] * _np.exp(exogenized_values_after[0])
     #]
@@ -185,7 +177,6 @@ class PlanTransformRoc(PlanTransform, ):
         exogenized_values_after: _np.ndarray | None,
         values_before: _np.ndarray,
         values_after_inclusive: _np.ndarray,
-        /,
     ) -> Real:
         return values_before[self._shift] * exogenized_values_after[0]
     #]
@@ -204,7 +195,6 @@ class PlanTransformPct(PlanTransform, ):
         exogenized_values_after: _np.ndarray,
         values_before: _np.ndarray,
         values_after_inclusive: _np.ndarray,
-        /,
     ) -> Real:
         return values_before[self._shift] * (1 + exogenized_values_after[0]/100)
 
@@ -224,7 +214,6 @@ class PlanTransformFlat(PlanTransform, ):
         exogenized_values_after: _np.ndarray,
         values_before: _np.ndarray,
         values_after_inclusive: _np.ndarray,
-        /,
     ) -> Real:
         return values_before[self._shift]
 

@@ -35,67 +35,82 @@ _GET_SPANS_DISPATCH = {
 }
 
 
-class Inlay:
+def mixin(klass: type, ) -> type:
+    r"""
+    Inlay plannable protocol methods in the class
+    """
+    #[
+    klass.estimate = estimate
+    return klass
+    #]
+
+
+#-------------------------------------------------------------------------------
+# Functions to be used as methods in RedVAR class
+#-------------------------------------------------------------------------------
+
+
+def estimate(
+    self,
+    input_data: Databox,
+    span: Iterable[Period] | None = None,
+    #
+    interpret_span: Literal["short", "long"] = "short",
+    num_variants: int | None = None,
+    omit_missing: bool = True,
+    prior_obs: PriorObs | Iterable[PriorObs, ] | None = None,
+    dof_correction: bool = False,
+    target_db: Databox | None = None,
+    show_progress: bool = False,
+    progress_bar_settings: dict = dict(title="Estimating RedVAR", ),
+) -> Databox:
     r"""
     """
     #[
-
-    def estimate(
-        self,
-        input_data: Databox,
-        span: Iterable[Period] | None = None,
-        #
-        interpret_span: Literal["short", "long"] = "short",
-        num_variants: int | None = None,
-        omit_missing: bool = True,
-        prior_obs: PriorObs | Iterable[PriorObs, ] | None = None,
-        dof_correction: bool = False,
-        target_db: Databox | None = None,
-        show_progress: bool = False,
-        progress_bar_settings: dict = dict(title="Estimating RedVAR", ),
-    ) -> Databox:
-        r"""
-        """
-        dimensions = self._invariant.dimensions
-        has_intercept = dimensions.has_intercept
-        short_span, long_span, = _GET_SPANS_DISPATCH[interpret_span](span, )
-        num_variants = self.resolve_num_variants_in_context(num_variants, )
-        slatable = self.slatable_for_estimate()
-        dataslate = Dataslate.from_databox_for_slatable(
-            slatable, input_data, short_span,
-            num_variants=num_variants,
+    dimensions = self._invariant.dimensions
+    has_intercept = dimensions.has_intercept
+    short_span, long_span, = _GET_SPANS_DISPATCH[interpret_span](span, )
+    num_variants = self.resolve_num_variants_in_context(num_variants, )
+    slatable = self.slatable_for_estimate()
+    dataslate = Dataslate.from_databox_for_slatable(
+        slatable, input_data, short_span,
+        num_variants=num_variants,
+    )
+    #
+    zipped = zip(
+        range(num_variants, ),
+        dataslate.iter_variants(),
+    )
+    self._variants = []
+    #
+    # Estimate each variant
+    #=======================================================================
+    progress_bar = ProgressBar(
+        num_steps=num_variants,
+        show_progress=show_progress,
+        **progress_bar_settings,
+    )
+    for vid, dataslate_v in zipped:
+        estimated_variant = _estimate_variant(
+            self._invariant,
+            dataslate_v,
+            omit_missing=omit_missing,
+            prior_obs=prior_obs,
+            dof_correction=dof_correction,
         )
-        #
-        zipped = zip(
-            range(num_variants, ),
-            dataslate.iter_variants(),
-        )
-        self._variants = []
-        #
-        # Estimate each variant
-        #=======================================================================
-        progress_bar = ProgressBar(
-            num_steps=num_variants,
-            show_progress=show_progress,
-            **progress_bar_settings,
-        )
-        for vid, dataslate_v in zipped:
-            estimated_variant = _estimate_variant(
-                self._invariant,
-                dataslate_v,
-                omit_missing=omit_missing,
-                prior_obs=prior_obs,
-                dof_correction=dof_correction,
-            )
-            self._variants.append(estimated_variant, )
-            progress_bar.increment()
-        #=======================================================================
-        #
-        output_db = dataslate.to_databox()
-        if target_db is not None:
-            output_db = target_db | output_db
-        return output_db
+        self._variants.append(estimated_variant, )
+        progress_bar.increment()
+    #=======================================================================
+    #
+    output_db = dataslate.to_databox()
+    if target_db is not None:
+        output_db = target_db | output_db
+    #
+    return output_db
     #]
+
+
+#-------------------------------------------------------------------------------
 
 
 def _estimate_variant(
@@ -195,12 +210,12 @@ def _get_estimation_data(
     x = data[exogenous_qids, order:]
     k = _np.ones((int(has_intercept), x.shape[1], ), dtype=float, )
     if omit_missing:
-        where = get_where_observations([y0, y1, x, k], )
+        where_data = get_where_observations([y0, y1, x, k], )
     else:
         num_periods = y0.shape[1]
-        where = _np.ones(num_periods, dtype=bool, )
+        where_data = _np.ones(num_periods, dtype=bool, )
     #
-    return y0, y1, x, k, where,
+    return y0, y1, x, k, where_data,
     #]
 
 

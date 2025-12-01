@@ -104,6 +104,13 @@ class Solution:
     Ru: Forward-looking impact matrix of transition shocks
     X: Impact matrix in square system
     Xa: Impact matrix in triangular system
+
+
+    ## Covariance matrices:
+
+    cov_u: Covariance matrix of transition shocks
+    cov_w: Covariance matrix of measurement shocks
+
     """
     #[
 
@@ -119,13 +126,19 @@ class Solution:
         "system_stability",
         "transition_vector_stability",
         "measurement_vector_stability",
+
+        "cov_u",
+        "cov_w",
     )
 
-    def __init__(self, ) -> None:
+    def __init__(self, **kwargs, ) -> None:
         r"""
         """
-        for n in self.__slots__:
-            setattr(self, n, None, )
+        for k in self.__slots__:
+            setattr(self, k, None, )
+        for k, v in kwargs.items():
+            if k in self.__slots__:
+                setattr(self, k, v, )
 
     @classmethod
     def from_system(

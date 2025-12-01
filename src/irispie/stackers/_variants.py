@@ -138,7 +138,7 @@ class Variant:
         self.std_name_to_value = std_name_to_value
         #
         self.init_med, self.init_mse, Xi = \
-            _initializers.initialize(solution, cov_u, )
+            _initializers.initialize_asymptotic(solution, cov_u, )
         #
         self.has_unknown_initial = Xi is not None
         if self.has_unknown_initial:

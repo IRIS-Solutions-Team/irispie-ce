@@ -34,7 +34,7 @@ _AUTO_SMOOTH = {
 }
 
 
-def _get_default_smooth(frequency, /, ):
+def _get_default_smooth(frequency, ):
     """
     Default smoothing parameter (lambda)
     """
@@ -131,7 +131,7 @@ class _ConstrainedHodrickPrescottFilter:
             K[i,i+1] = -2
         self._F = self._smooth * (K.T @ K)
 
-    def _add_level_constraints(self, level_where: list[int], /, ):
+    def _add_level_constraints(self, level_where: list[int], ):
         if not level_where:
             return
         num_constraints = len(level_where)
@@ -144,7 +144,7 @@ class _ConstrainedHodrickPrescottFilter:
         self._F = _np.vstack((self._F, extra_rows, ))
         self._F = _np.hstack((self._F, extra_variants, ))
 
-    def _add_change_constraints(self, change_where: list[int], /, ):
+    def _add_change_constraints(self, change_where: list[int], ):
         if not change_where:
             return
         num_constraints = len(change_where)
@@ -166,7 +166,7 @@ class Inlay:
     #[
 
     @_dm.reference(category="filtering", )
-    def hpf(self, /, ):
+    def hpf(self, ):
         r"""
 ················································································
 
@@ -178,7 +178,6 @@ class Inlay:
 
     trend, gap = irispie.hpf(
         self,
-        /,
         span=None,
         smooth=None,
         log=False,
@@ -191,7 +190,6 @@ class Inlay:
 
 
     self.hpf_trend(
-        /,
         span=None,
         smooth=None,
         log=False,
@@ -344,13 +342,13 @@ class Inlay:
         """
         raise NotImplementedError
 
-    def hpf_trend(self, /, *args, **kwargs):
+    def hpf_trend(self, *args, **kwargs):
         """
         """
         start_date, trend_data, _ = _data_hpf(self, *args, **kwargs, )
         self._replace_start_and_values(start_date, trend_data, )
 
-    def hpf_gap(self, /, *args, **kwargs):
+    def hpf_gap(self, *args, **kwargs):
         """
         """
         start_date, _, gap_data = _data_hpf(self, *args, **kwargs, )

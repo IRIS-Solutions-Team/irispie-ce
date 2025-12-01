@@ -3,15 +3,17 @@
 
 
 #[
+
 from __future__ import annotations
 
-from typing import (Callable, )
+from typing import Callable
 import numpy as _np
 import functools as _ft
 
-from ..frames import (Frame, )
-from ..dataslates.main import (Dataslate, )
-from .solutions import (Solution, )
+from ..frames import Frame
+from ..dataslates.main import Dataslate
+from .solutions import Solution
+
 #]
 
 

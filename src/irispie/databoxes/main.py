@@ -869,6 +869,79 @@ the results.
                 when_fails_stream.add(f"{s}: {repr(e)}", )
         when_fails_stream._raise()
 
+    @_dm.reference(category="manipulation", )
+    def generate(
+        self,
+        func: Callable,
+        target_names: TargetNames,
+        source_names: SourceNames = None,
+        when_fails: Literal["critical", "error", "warning", "silent", ] = "critical",
+        strict_names: bool = False,
+    ) -> None:
+        r"""
+················································································
+
+
+==Generate new items by applying a function on the existing items==
+
+    self.generate(
+        func,
+        target_names,
+        source_names=None,
+        when_fails="critical",
+        strict_names=False,
+    )
+
+
+### Input arguments ###
+
+
+???+ input "func"
+    The function to apply to each selected item in the Databox to generate a new
+    item.
+
+???+ input "target_names"
+    Names of the newly generate items, either an iterable of strings (ordered
+    same as `source_names`), or a function transforming a string (an existing
+    name) into another string (the new name).
+
+???+ input "source_names"
+    Names of the items to which the function will be applied. Can be a list of 
+    names, a single name, a callable returning `True’ for names to include, or 
+    `None` to apply to all items.
+
+???+ input "when_fails"
+    Specifies the action to take if applying the function fails. Options are 
+    "critical", "error", "warning", or "silent".
+
+???+ input "strict_names"
+    If set to `True`, strictly adheres to the provided names, raising an error 
+    if any source name is not found in the Databox.
+
+
+### Returns ###
+
+
+???+ returns "None"
+    Modifies items in the Databox in-place and does not return a value. Errors
+    are handled based on the `when_fails’ setting.
+
+
+················································································
+        """
+        source_names, target_names = self._resolve_source_target_names(
+            source_names, target_names, strict_names,
+        )
+        when_fails_stream = \
+            _wrongdoings.STREAM_FACTORY[when_fails] \
+            (f"Error(s) when applying function to Databox items:")
+        for s, t, in zip(source_names, target_names, ):
+            try:
+                self[t] = func(self[s], )
+            except Exception as e:
+                when_fails_stream.add(f"{s}: {repr(e)}", )
+        when_fails_stream._raise()
+
     def max_abs(
         self,
         other: Self,

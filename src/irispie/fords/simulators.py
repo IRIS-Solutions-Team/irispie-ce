@@ -1,4 +1,4 @@
-"""
+r"""
 First-order system simulators
 ==============================
 
@@ -35,6 +35,7 @@ from ..incidences.main import Token
 from .descriptors import Squid
 from . import kalmans as _kalmans
 from . import shock_simulators as _shock_simulators
+from . import initializers as _initializers
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -146,7 +147,7 @@ def simulate_frame(
     if is_plan_empty:
         simulate_transition = simulate_flat
     else:
-        squid = Squid.from_squidable(model_v, )
+        squid = Squid(model_v, )
         plan_registers = plan.get_registers_as_bool_arrays(
             periods=frame_ds.periods,
             register_names=_RELEVANT_REGISTER_NAMES,
@@ -209,8 +210,11 @@ def simulate_flat(
     # Simulate one period at a time
     # Store results in data_array
     # Capture xi_array for later use in measurement equations
-    xi = get_init_xi(data_array, vec.transition_variables, simulation_columns[0], )
-    zero_false_init_xi(xi, vec.true_initials, )
+    xi = _initializers.get_true_init_xi_from_data(
+        data_array,
+        vec,
+        simulation_columns[0],
+    )
     for t in simulation_columns:
         xi = T @ xi + K
         if Pu is not None:
@@ -246,7 +250,7 @@ def _simulate_conditional(
     vec = model_v._get_dynamic_solution_vectors()
     periods = frame_ds.periods
     num_periods = frame_ds.num_periods
-    squid = Squid.from_squidable(model_v, )
+    squid = Squid(model_v, )
     #
     frame_ds.logarithmize()
     data_array = frame_ds.get_data_variant()
@@ -256,13 +260,9 @@ def _simulate_conditional(
     #
     curr_xi_qids, curr_xi_indexes = vec.get_curr_transition_indexes()
     #
-    # Initialize Kalman filter:
+    # Initialize Kalman filter from the data array with zero MSE
     # [initial median, initial MSE, number of initials to estimates, ]
-    init_med = get_init_xi(data_array, vec.transition_variables, frame.first, )
-    zero_false_init_xi(init_med, vec.true_initials, )
-    init_mse = _np.zeros((squid.num_xi, squid.num_xi), )
-    unknown_init_impact = None
-    initials = (init_med, init_mse, unknown_init_impact, )
+    initials = _initializers.initialize_from_data(data_array, vec, frame.first, )
     #
     u0_array = data_array[squid.u_qids, frame.simulation_slice]
     v0_array = data_array[squid.v_qids, frame.simulation_slice]

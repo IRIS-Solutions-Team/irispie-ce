@@ -27,51 +27,66 @@ _rng = _np.random.default_rng()
 _standard_normal = _rng.standard_normal
 
 
-class Inlay:
+def mixin(klass: type, ) -> type:
     r"""
+    Inlay simulation methods in the RedVAR class
     """
     #[
-    def simulate(
-        self,
-        input_db: Databox,
-        span: Iterable[Period],
-        #
-        residuals_from_data: bool = True,
-        deviation: bool = False,
-        progress_bar_settings: dict = dict(title="Simulating RedVAR", ),
-        **kwargs,
-    ) -> Databox:
-        r"""
-        """
-        return _simulate(
-            self, input_db, span,
-            draw_residuals=None,
-            residuals_from_data=residuals_from_data,
-            deviation=deviation,
-            progress_bar_settings=progress_bar_settings,
-            **kwargs,
-        )
-
-    def resample(
-        self,
-        input_db: Databox,
-        span: Iterable[Period],
-        method: Literal["monte_carlo", "bootstrap", "wild_bootstrap", ],
-        progress_bar_settings: dict = dict(title="Resampling RedVAR", ),
-        **kwargs,
-    ) -> Databox:
-        r"""
-        """
-        return _simulate(
-            self, input_db, span,
-            draw_residuals=_RESAMPLE_SIMULATOR_DISPATCH[method],
-            residuals_from_data=True,
-            deviation=False,
-            progress_bar_settings=progress_bar_settings,
-            **kwargs,
-        )
-
+    klass.simulate = simulate
+    klass.resample = resample
+    return klass
     #]
+
+
+#-------------------------------------------------------------------------------
+# Functions to be used as methods in RedVAR class
+#-------------------------------------------------------------------------------
+
+
+def simulate(
+    self,
+    input_db: Databox,
+    span: Iterable[Period],
+    #
+    residuals_from_data: bool = True,
+    deviation: bool = False,
+    progress_bar_settings: dict = dict(title="Simulating RedVAR", ),
+    **kwargs,
+) -> Databox:
+    r"""
+    """
+    return _simulate(
+        self, input_db, span,
+        draw_residuals=None,
+        residuals_from_data=residuals_from_data,
+        deviation=deviation,
+        progress_bar_settings=progress_bar_settings,
+        **kwargs,
+    )
+
+
+def resample(
+    self,
+    input_db: Databox,
+    span: Iterable[Period],
+    method: Literal["monte_carlo", "bootstrap", "wild_bootstrap", ],
+    progress_bar_settings: dict = dict(title="Resampling RedVAR", ),
+    **kwargs,
+) -> Databox:
+    r"""
+    """
+    return _simulate(
+        self, input_db, span,
+        draw_residuals=_RESAMPLE_SIMULATOR_DISPATCH[method],
+        residuals_from_data=True,
+        deviation=False,
+        progress_bar_settings=progress_bar_settings,
+        **kwargs,
+    )
+
+
+#-------------------------------------------------------------------------------
+
 
 def _simulate(
     self: RedVAR,
@@ -119,7 +134,7 @@ def _simulate(
         show_progress=show_progress,
         **progress_bar_settings,
     )
-    for vid, model_v, dataslate_v in zipped:
+    for vid, model_v, dataslate_v, in zipped:
         #
         # Resample residuals
         if needs_draw_residuals:

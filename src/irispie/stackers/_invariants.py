@@ -132,7 +132,7 @@ class Invariant:
     def _populate_squid(self, model, ) -> None:
         r"""
         """
-        squid = Squid.from_squidable(model, )
+        squid = Squid(model, )
         squid.y_qids = _extract_by_index(squid.y_qids, self.index_y, )
         squid.u_qids = _extract_by_index(squid.u_qids, self.index_u, )
         squid.v_qids = _extract_by_index(squid.v_qids, self.index_v, )

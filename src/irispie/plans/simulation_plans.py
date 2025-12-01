@@ -45,6 +45,7 @@ class SimulationPlannableProtocol(Protocol, ):
 
     simulate_can_be_exogenized: Iterable[str] | None
     simulate_can_be_endogenized: Iterable[str] | None
+    simulate_can_be_conditioned: Iterable[str] | None
     simulate_can_be_exogenized_anticipated: Iterable[str] | None
     simulate_can_be_exogenized_anticipated: Iterable[str] | None
     simulate_can_be_endogenized_unanticipated: Iterable[str] | None
@@ -77,13 +78,13 @@ Simulation meta plans
 ======================
 
 `SimulationPlan` objects are used to set up meta information about
-conditioning assumptions for simulations of
-[`Simultaneous`](simultaneous_modelsd) or [`Sequential`](sequential_models)
-models. The simulation plans specify
+various types of conditioning assumptions for simulations of models. The
+simulation plans specify
 
 * what variables to exogenize in what periods
 * what shocks to endogenized in what periods (`Simultaneous` models only)
 * what anticipation status to assign (`Simultaneous` models only)
+* what variables to condition the simulation upon and in what periods
 
 The plans only contain meta information, not the actual data points for the
 exogenized variables. The actual data points are expected to be included in
@@ -162,7 +163,7 @@ Create a new simulation plan object for a
         """
         benchmark = type(self)(plannable, span, )
         if self.base_span != benchmark.base_span:
-            raise _wrongdoings.IrisPieError(f"Plan span must be the same as the simulation span")
+            raise _wrongdoings.IrisPieError(f"Plan span must match the simulation span")
         for r in self._registers:
             if getattr(self, f"can_be_{r}") != getattr(benchmark, f"can_be_{r}"):
                 raise _wrongdoings.IrisPieError(f"Plan must be created using the simulated model")
@@ -200,7 +201,7 @@ Create a new simulation plan object for a
     @_dm.reference(category="definition_sequential", )
     def exogenize(
         self,
-        dates: Iterable[Period] | EllipsisType,
+        periods: Iterable[Period] | EllipsisType,
         names: Iterable[str] | str | EllipsisType,
         *,
         transform: str | None = None,
@@ -210,16 +211,16 @@ Create a new simulation plan object for a
         r"""
 ................................................................................
 
-==Exogenize certain LHS quantities at certain dates==
+==Exogenize certain LHS quantities in certain periods==
 
-Exogenize certain LHS quantities at specified dates, setting them as
+Exogenize certain LHS quantities in specified periods, setting them as
 predetermined values within the simulation of
 a [`Sequential` model](sequential.md). This method is used to control how
 the model behaves during simulations by fixing certain variables to known
 values.
 
     self.exogenize(
-        dates,
+        periods,
         names,
         *,
         transform=None,
@@ -231,13 +232,13 @@ values.
 ???+ input "self"
     The simulation plan in which data points will be exogenized.
 
-???+ input "dates"
-    A list of dates or `...` to apply to all dates at which the quantities 
-    will be exogenized.
+???+ input "periods"
+    A list of periods or `...` (for all simulation periods) in which the
+    quantities will be exogenized.
 
 ???+ input "names"
     A list of names or a single name, or `...` to apply to all names that 
-    specifies which quantities to set as predetermined at the specified dates.
+    specifies which quantities to set as predetermined in the specified periods.
 
 ???+ input "transform"
     Specifies the transformation to apply to the exogenized quantities. If not
@@ -277,7 +278,61 @@ values.
 ................................................................................
         """
         transform = _transforms.resolve_transform(transform, **kwargs, )
-        self._write_to_register("exogenized", dates, names, transform, )
+        self._write_to_register("exogenized", periods, names, transform, )
+
+    @_dm.reference(category="definition_sequential", )
+    def condition(
+        self,
+        periods: Iterable[Period] | EllipsisType,
+        names: Iterable[str] | str | EllipsisType,
+    ) -> None:
+        r"""
+................................................................................
+
+==Exogenize certain LHS quantities in certain periods==
+
+Exogenize certain LHS quantities at specified periods, setting them as
+predetermined values within the simulation of
+a [`Sequential` model](sequential.md). This method is used to control how
+the model behaves during simulations by fixing certain variables to known
+values.
+
+    self.condition(
+        periods,
+        names,
+        *,
+        transform=None,
+        when_data=False,
+    )
+
+### Input arguments ###
+
+???+ input "self"
+    The simulation plan in which the simulation will be conditioned upon the
+    specified data points.
+
+???+ input "periods"
+    A list of periods or `...` (for all periods) in which the simulation will be
+    conditioned upon the quantities.
+
+???+ input "names"
+    A list of names or a single name, or `...` to apply to all names that
+    specifies which quantities to set as predetermined at the specified periods.
+
+???+ input "when_data"
+    Specifies whether the conditioning should only occur if a valid value exists
+    in the input data.
+
+
+### Returns ###
+
+???+ returns "None"
+    This method modifies `self` in-place and does not return a value.
+
+
+................................................................................
+        """
+        self._write_to_register("conditioned", periods, names, )
 
     @_dm.reference(category="definition_simultaneous", )
     def exogenize_anticipated(
@@ -839,7 +894,7 @@ quantity in the pair at the specified dates. It is equivalent to calling
 for n in (
     "exogenized", "exogenized_anticipated", "exogenized_unanticipated",
     "endogenized_anticipated", "endogenized_unanticipated",
-    "conditioned_upon",
+    "conditioned",
 ):
     exec(_tw.dedent(f"""
         def _get_{n}_periods(self, ) -> dict[str, tuple[Period]]:

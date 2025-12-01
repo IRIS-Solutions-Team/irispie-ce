@@ -2829,13 +2829,21 @@ def spans_from_short_span(
     short_span: Iterable[Period],
     max_lag: int = 0,
     max_lead: int = 0,
-) -> Span:
+) -> tuple[tuple[Period], tuple[Period]]:
     r"""
     """
     short_span = tuple(short_span)
     short_span = periods_from_until(short_span[0], short_span[-1], )
-    long_span = periods_from_until(short_span[0]+max_lag, short_span[-1]+max_lead, )
+    long_span = long_span_from_short_span(short_span, max_lag, max_lead, )
     return short_span, long_span,
+
+
+def long_span_from_short_span(
+    short_span: Iterable[Period],
+    max_lag: int = 0,
+    max_lead: int = 0,
+) -> tuple[Period]:
+    return periods_from_until(short_span[0]+max_lag, short_span[-1]+max_lead, )
 
 
 def spans_from_long_span(

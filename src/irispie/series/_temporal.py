@@ -6,12 +6,12 @@ Temporal change functions
 #[
 from __future__ import annotations
 
-from typing import (Self, Callable, )
-from numbers import (Real, )
+from typing import Self, Callable
+from numbers import Real
 import numpy as _np
 import documark as _dm
 
-from ..dates import (Span, )
+from ..dates import Span
 from ._functionalize import FUNC_STRING
 from ._categories import CATEGORIES
 #]
@@ -35,7 +35,6 @@ class Inlay:
         self,
         by: int | str,
         func: Callable,
-        /,
         **kwargs,
     ) -> None:
         r"""
@@ -212,7 +211,6 @@ self.roc_from_aroc()
     def diff(
         self,
         shift: int | str = -1,
-        /,
     ) -> None:
         r"""
 ................................................................................
@@ -295,7 +293,6 @@ See documentation for [temporal change calculations](#temporal-change-calculatio
     @_dm.reference(category="temporal_change", )
     def aroc(
         self,
-        /,
     ) -> None:
         r"""
 ................................................................................
@@ -315,7 +312,6 @@ See documentation for [temporal change calculations](#temporal-change-calculatio
     def pct(
         self,
         shift: int | str = -1,
-        /,
     ) -> None:
         r"""
 ................................................................................
@@ -332,7 +328,6 @@ See documentation for [temporal change calculations](#temporal-change-calculatio
     @_dm.reference(category="temporal_change", )
     def apct(
         self,
-        /,
     ) -> None:
         r"""
 ................................................................................
@@ -351,7 +346,6 @@ See documentation for [temporal change calculations](#temporal-change-calculatio
     @_dm.reference(category="temporal_change_conversion", )
     def roc_from_pct(
         self,
-        /,
     ) -> None:
         r"""
 ................................................................................
@@ -368,7 +362,6 @@ change](#temporal-change-conversion).
     @_dm.reference(category="temporal_change_conversion", )
     def pct_from_roc(
         self,
-        /,
     ) -> None:
         r"""
 ................................................................................
@@ -385,7 +378,6 @@ change](#temporal-change-conversion).
     @_dm.reference(category="temporal_change_conversion", )
     def pct_from_apct(
         self,
-        /,
     ) -> None:
         r"""
 ................................................................................
@@ -403,7 +395,6 @@ change](#temporal-change-conversion).
     @_dm.reference(category="temporal_change_conversion", )
     def roc_from_apct(
         self,
-        /,
     ) -> None:
         r"""
 ................................................................................
@@ -421,7 +412,6 @@ change](#temporal-change-conversion).
     @_dm.reference(category="temporal_change_conversion", )
     def roc_from_aroc(
         self,
-        /,
     ) -> None:
         r"""
 ................................................................................
@@ -590,7 +580,7 @@ self.cum_roc(shift=-1, initial=None, span=None)
         elif direction == "backward":
             self._cumulate_backward(shift, cum_func, initial, span, )
 
-    def _cumulate_forward(self, shift, cum_func, initial, span, /, ) -> None:
+    def _cumulate_forward(self, shift, cum_func, initial, span, ) -> None:
         """
         """
         zipped_span = tuple((t, t.shift(shift, )) for t in span)
@@ -604,7 +594,7 @@ self.cum_roc(shift=-1, initial=None, span=None)
             new_data = cum_func(self.get_data(sh, ), change.get_data(t, ), )
             self.set_data(t, new_data)
 
-    def _cumulate_backward(self, shift, cum_func, initial, shifted_backward_range, /, ) -> None:
+    def _cumulate_backward(self, shift, cum_func, initial, shifted_backward_range, ) -> None:
         """
         """
         orig_range_shifted = Span(self.start_date, self.end_date, -1, )
@@ -636,8 +626,8 @@ _CUMULATIVE_FACTORY = {
         "initial": 0,
     },
     "diff_log": {
-        "forward": lambda x_past, change_curr: x_past * exp(change_curr),
-        "backward": lambda x_future, change_future: x_future / exp(change_future),
+        "forward": lambda x_past, change_curr: x_past * _np.exp(change_curr),
+        "backward": lambda x_future, change_future: x_future / _np.exp(change_future),
         "initial": 0,
     },
     "pct": {
@@ -660,7 +650,7 @@ def _catch_invalid_shift(shift: int | str, ):
         raise ValueError("Time shift must be a negative integer or a string")
 
 
-def _roc_from_pct(pct: Real, /, ) -> Real:
+def _roc_from_pct(pct: Real, ) -> Real:
     """
     """
     return 1 + pct/100
