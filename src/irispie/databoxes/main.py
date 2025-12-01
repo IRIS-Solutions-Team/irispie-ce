@@ -929,7 +929,7 @@ the results.
 
 ················································································
         """
-        source_names, target_names = self._resolve_source_target_names(
+        source_names, target_names, *_ = self._resolve_source_target_names(
             source_names, target_names, strict_names,
         )
         when_fails_stream = \
@@ -1631,7 +1631,7 @@ This method modifies the Databox in place and returns `None`.
         if not strict_names:
             source_target_pairs = tuple((s, t) for s, t in zip(source_names, target_names, ) if s in context_names)
             source_names, target_names = zip(*source_target_pairs, ) if source_target_pairs else ((), (), )
-        return source_names, target_names, context_names
+        return source_names, target_names, context_names,
 
     #]
 
