@@ -106,6 +106,18 @@ class System:
         else:
             return None
 
+    @property
+    def dynamic_identity(self, ) -> _np.ndarray:
+        r"""
+        """
+        num_endogenous = self.num_endogenous
+        num_lagged_endogenous = self.num_lagged_endogenous
+        return _np.eye(
+            num_lagged_endogenous - num_endogenous,
+            num_lagged_endogenous,
+            dtype=float,
+        )
+
     #]
 
 
@@ -177,6 +189,12 @@ class Variant:
         self._max_abs_eigenvalue = _number_from_numpy(max_abs_eigenvalue, )
 
     @property
+    def num_fitted_periods(self, ) -> int:
+        r"""
+        """
+        return len(self.fitted_periods)
+
+    @property
     def max_abs_eigenvalue(self, ) -> Number:
         r"""
         """
@@ -208,13 +226,9 @@ class Variant:
         if self.system.A is None:
             self._companion_T = None
             return
-        num_endogenous = self.system.num_endogenous
-        order = self.system.order
-        num_extra = num_endogenous * (order - 1)
-        dynamic_identity = _np.eye(num_extra, num_endogenous * order, )
-        self._companion_T = _np.concatenate((
+        self._companion_T = _np.vstack((
             self.system.A,
-            dynamic_identity,
+            self.system.dynamic_identity,
         ))
 
     def _get_companion_P(self, ) -> _np.ndarray:
@@ -227,26 +241,45 @@ class Variant:
     def _get_companion_K(self, ) -> _np.ndarray:
         r"""
         """
+        num_lagged_endogenous = self.system.num_lagged_endogenous
+        num_endogenous = self.system.num_endogenous
+        K = _np.zeros((num_lagged_endogenous, ), dtype=float, )
+        if self.system.c is not None:
+            K[:num_endogenous] = self.system.c
+        return K
+
+    def _get_companion_Z(self, ) -> _np.ndarray:
+        r"""
+        """
         num_endogenous = self.system.num_endogenous
         num_lagged_endogenous = self.system.num_lagged_endogenous
-        if self.system.c is None:
-            return _np.zeros((num_lagged_endogenous, ), dtype=float, )
-        else:
-            return _np.concatenate((
-                self.system.c,
-                _np.zeros((num_lagged_endogenous - num_endogenous, ), dtype=float, ),
-            ))
+        return _np.eye(num_endogenous, num_lagged_endogenous, dtype=float, )
+
+    def _get_companion_H(self, ) -> _np.ndarray:
+        r"""
+        """
+        num_endogenous = self.system.num_endogenous
+        return _np.empty((num_endogenous, 0), dtype=float, )
+
+    def _get_companion_D(self, ) -> _np.ndarray:
+        r"""
+        """
+        num_endogenous = self.system.num_endogenous
+        return _np.zeros((num_endogenous, ), dtype=float, )
 
     def _get_companion_sigma(self, ) -> tuple[_np.ndarray, _np.ndarray, ]:
         r"""
         """
         num_endogenous = self.system.num_endogenous
-        order = self.system.order
-        num_extra = num_endogenous * (order - 1)
-        extra_zeros = _np.zeros((num_extra, num_extra), dtype=self.system.cov_residuals.dtype, )
-        return _sp.linalg.block_diag(
-            self.system.cov_residuals, extra_zeros,
-        )
+        num_lagged_endogenous = self.system.num_lagged_endogenous
+        sigma = _np.zeros((num_lagged_endogenous, num_lagged_endogenous, ), dtype=float, )
+        sigma[:num_endogenous, :num_endogenous] = self.system.cov_residuals
+        return sigma
+
+    def _get_companion_cov_w(self, ) -> _np.ndarray:
+        r"""
+        """
+        return _np.empty((0, 0, ), dtype=float, )
 
     def get_acov(
         self,
@@ -286,10 +319,16 @@ class Variant:
     ) -> Solution:
         r"""
         """
-        solution = Solution()
-        solution.T = self.companion_T
-        solution.P = self._get_companion_P()
-        solution.K = self._get_companion_K()
+        solution = Solution(
+            T=self.companion_T,
+            P=self._get_companion_P(),
+            K=self._get_companion_K(),
+            Z=self._get_companion_Z(),
+            H=self._get_companion_H(),
+            D=self._get_companion_D(),
+            cov_u=self.system.cov_residuals,
+            cov_w=self._get_companion_cov_w(),
+        )
         if deviation:
             solution = solution.create_deviation_solution()
         return solution

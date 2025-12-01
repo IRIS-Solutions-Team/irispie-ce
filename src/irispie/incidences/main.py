@@ -133,8 +133,8 @@ def rows_and_columns_from_tokens(
     tokens: Iterable[Token],
     column_zero: int,
 ) -> tuple[Iterable[int], Iterable[int]]:
+    r"""
     """
-    """
-    rows, columns = zip(*((t.qid, column_zero+t.shift) for t in tokens))
-    return tuple(rows), tuple(columns)
+    rows, columns, = zip(*((t.qid, column_zero+t.shift) for t in tokens))
+    return tuple(rows), tuple(columns),
 

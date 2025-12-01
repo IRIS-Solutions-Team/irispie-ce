@@ -142,7 +142,6 @@ model based on the provided factor.
         self,
         variant: _variants.Variant,
         boolex_zero_shift: tuple[bool, ...] | Ellipsis,
-        #
         up_to_order: int = 0,
     ) -> _np.ndarray:
         r"""
@@ -195,11 +194,15 @@ model based on the provided factor.
         for v in self._variants:
             yield self.getv_std_w(v, )
 
-    # TODO: Refactor this function and getv_cov_u to avoid code duplication
     def _gets_cov_transition_shocks(self, ) -> _np.ndarray:
         r"""
         """
         return self.getv_cov_u(self._variants[0], )
+
+    def _gets_cov_measurement_shocks(self, ) -> _np.ndarray:
+        r"""
+        """
+        return self.getv_cov_w(self._variants[0], )
 
     def get_cov_transition_shocks(
         self,

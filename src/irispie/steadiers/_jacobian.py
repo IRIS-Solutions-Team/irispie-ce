@@ -7,19 +7,19 @@ Jacobians for dynamic period-by-period systems
 from __future__ import annotations
 
 import numpy as _np
-from types import (SimpleNamespace, )
+from types import SimpleNamespace
 
-from ..incidences.main import (Token, )
+from ..incidences.main import Token
 from ..incidences import main as _incidence
-from ..aldi.maps import (ArrayMap, )
-from ..equations import (Equation, )
-from ..jacobians.base import (DenseJacobian, )
+from ..aldi.maps import ArrayMap
+from ..equations import Equation
+from ..jacobians.base import DenseJacobian
 
-from typing import (TYPE_CHECKING, )
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from typing import (Any, )
-    from collections.abc import (Collection, Iterable, )
-    from ..aldi.differentiators import (AtomFactoryProtocol, )
+    from typing import Any
+    from collections.abc import Collection, Iterable
+    from ..aldi.differentiators import AtomFactoryProtocol
 #]
 
 

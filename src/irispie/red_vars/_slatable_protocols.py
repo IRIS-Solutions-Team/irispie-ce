@@ -25,37 +25,52 @@ if TYPE_CHECKING:
 _DEFAULT_RESIDUAL_VALUE = 0.0
 
 
-class Inlay:
+def mixin(klass: type, ) -> type:
     r"""
+    Inlay plannable protocol methods in the class
     """
     #[
-
-    def slatable_for_estimate(self, **kwargs, ) -> Slatable:
-        r"""
-        """
-        slatable = _slatable_for_anything(self, )
-        residual_name_to_value = _create_residual_name_to_value(self, )
-        slatable.overwrites.update(residual_name_to_value, )
-        return slatable
-
-    def slatable_for_simulate(
-        self,
-        residuals_from_data: bool,
-        **kwargs,
-    ) -> Slatable:
-        r"""
-        """
-        slatable = _slatable_for_anything(self, )
-        residual_name_to_value = _create_residual_name_to_value(self, )
-        if residuals_from_data:
-            slatable.fallbacks.update(residual_name_to_value, )
-        else:
-            slatable.overwrites.update(residual_name_to_value, )
-        return slatable
-
-    slatable_for_kalman_filter = slatable_for_simulate
-
+    klass.slatable_for_estimate = slatable_for_estimate
+    klass.slatable_for_simulate = slatable_for_simulate
+    klass.slatable_for_kalman_filter = slatable_for_kalman_filter
+    return klass
     #]
+
+
+#-------------------------------------------------------------------------------
+# Functions to be used as methods in RedVAR class
+#-------------------------------------------------------------------------------
+
+
+def slatable_for_estimate(self, **kwargs, ) -> Slatable:
+    r"""
+    """
+    slatable = _slatable_for_anything(self, )
+    residual_name_to_value = _create_residual_name_to_value(self, )
+    slatable.overwrites.update(residual_name_to_value, )
+    return slatable
+
+
+def slatable_for_simulate(
+    self,
+    residuals_from_data: bool,
+    **kwargs,
+) -> Slatable:
+    r"""
+    """
+    slatable = _slatable_for_anything(self, )
+    residual_name_to_value = _create_residual_name_to_value(self, )
+    if residuals_from_data:
+        slatable.fallbacks.update(residual_name_to_value, )
+    else:
+        slatable.overwrites.update(residual_name_to_value, )
+    return slatable
+
+
+slatable_for_kalman_filter = slatable_for_simulate
+
+
+#-------------------------------------------------------------------------------
 
 
 def _slatable_for_anything(model: RedVAR, ) -> Slatable:
@@ -99,10 +114,11 @@ def _create_residual_name_to_value(model, ) -> dict[str, Real]:
     Create dict with default residual values for all residuals in the model
     """
     #[
-    residual_names = model.get_names(kind=_quantities.TRANSITION_SHOCK, )
+    residual_names = model.get_names(kind=_quantities.RESIDUAL, )
     return {
         name: _DEFAULT_RESIDUAL_VALUE
         for name in residual_names
     }
     #]
+
 

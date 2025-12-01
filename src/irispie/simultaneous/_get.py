@@ -297,6 +297,8 @@ class Inlay(
         r"""
         """
         solution = self._variants[0].solution
+        solution.cov_u = self._gets_cov_transition_shocks()
+        solution.cov_w = self._gets_cov_measurement_shocks()
         if deviation:
             solution = solution.create_deviation_solution()
         return solution

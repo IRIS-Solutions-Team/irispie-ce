@@ -24,6 +24,10 @@ if TYPE_CHECKING:
 #]
 
 
+_RESIDUAL_NAME_PREFIX = "res_"
+_CONDITIONING_NAME_PREFIX = "cnd_"
+
+
 class Invariant(
     _descriptions.DescriptionMixin,
 ):
@@ -70,7 +74,12 @@ class Invariant(
     def get_residual_qids(self, ) -> tuple[int, ...]:
         r"""
         """
-        return self._get_some_qids(QuantityKind.TRANSITION_SHOCK, )
+        return self._get_some_qids(QuantityKind.RESIDUAL, )
+
+    def get_conditioning_qids(self, ) -> tuple[int, ...]:
+        r"""
+        """
+        return self._get_some_qids(QuantityKind.MEASUREMENT_VARIABLE, )
 
     def get_exogenous_qids(self, ) -> tuple[int, ...]:
         r"""
@@ -82,25 +91,31 @@ class Invariant(
         """
         order = self.dimensions.order
         num_lagged_endogenous = self.dimensions.num_lagged_endogenous
+        #
+        #
         endogenous_qids = self.get_endogenous_qids()
-        residual_qids = self.get_residual_qids()
-        measurement_tokens = tuple(
-            Token(qid=qid, shift=0, )
-            for qid in endogenous_qids
-        )
-        transition_tokens = tuple(
+        endogenous_tokens = tuple(
             Token(qid=qid, shift=shift, )
-            for shift, qid in _it.product(range(order), endogenous_qids, )
+            for shift, qid, in _it.product(range(0, -order, -1, ), endogenous_qids, )
         )
+        #
+        residual_qids = self.get_residual_qids()
         residual_tokens = tuple(
             Token(qid=qid, shift=0, )
             for qid in residual_qids
         )
+        #
+        conditioning_qids = self.get_conditioning_qids()
+        conditioning_tokens = tuple(
+            Token(qid=qid, shift=0, )
+            for qid in conditioning_qids
+        )
+        #
         self.solution_vectors = SolutionVectors(
-            transition_variables=transition_tokens,
+            transition_variables=endogenous_tokens,
             transition_shocks=residual_tokens,
             anticipated_shock_values=(),
-            measurement_variables=measurement_tokens,
+            measurement_variables=conditioning_tokens,
             measurement_shocks=(),
             true_initials=(True, ) * num_lagged_endogenous,
         )
@@ -109,35 +124,41 @@ class Invariant(
 
 
 def _create_quantities(
-    endogenous_names: Iterable[str],
-    exogenous_names: Iterable[str] | None = None,
+    endogenous_names: tuple[str, ...],
+    exogenous_names: tuple[str, ...],
 ) -> tuple[Quantity, ...]:
+    r"""
     """
-    """
+    #[
     quantities = []
     def append_quantities(names, kind, ):
         for n in names:
-            quantities.append(Quantity(id=len(quantities), human=n, kind=kind, ))
-    #
-    endogenous_names = tuple(endogenous_names)
-    exogenous_names = tuple(exogenous_names or ())
+            qid = len(quantities)
+            quantities.append(Quantity(id=qid, human=n, kind=kind, ))
     residual_names = tuple(
         _residual_name_from_endogenous_name(name)
         for name in endogenous_names
     )
-    #
+    conditioning_names = tuple(
+        _conditioning_name_from_endogenous_name(name)
+        for name in endogenous_names
+    )
     append_quantities(endogenous_names , QuantityKind.TRANSITION_VARIABLE, )
+    append_quantities(conditioning_names, QuantityKind.MEASUREMENT_VARIABLE, )
     append_quantities(exogenous_names, QuantityKind.EXOGENOUS_VARIABLE, )
-    append_quantities(residual_names, QuantityKind.TRANSITION_SHOCK, )
-    #
+    append_quantities(residual_names, QuantityKind.RESIDUAL, )
     return tuple(quantities, )
-
-
-_RESIDUAL_NAME_PREFIX = "res_"
+    #]
 
 
 def _residual_name_from_endogenous_name(n: str) -> str:
     r"""
     """
     return f"{_RESIDUAL_NAME_PREFIX}{n}"
+
+
+def _conditioning_name_from_endogenous_name(n :str) -> str:
+    r"""
+    """
+    return f"{_CONDITIONING_NAME_PREFIX}{n}"
 

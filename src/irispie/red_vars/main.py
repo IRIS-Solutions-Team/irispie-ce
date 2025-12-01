@@ -18,7 +18,10 @@ from ..namings import DimensionNames
 
 from . import _estimators as _estimators
 from . import _simulators as _simulators
-from . import _slatable_protocols as _slatable_protocols
+from . import _kalmans as _kalmans
+from . import _slatable_protocols
+from . import _plannable_protocols
+from . import _squidable_protocols
 from ._invariants import Invariant
 from ._variants import Variant, System
 from ._dimensions import Dimensions
@@ -37,10 +40,13 @@ __all__ = (
 )
 
 
+@_plannable_protocols.mixin
+@_slatable_protocols.mixin
+@_squidable_protocols.mixin
+@_kalmans.mixin
+@_simulators.mixin
+@_estimators.mixin
 class RedVAR(
-    _estimators.Inlay,
-    _simulators.Inlay,
-    _slatable_protocols.Inlay,
     _has_invariant.Mixin,
     _has_variants.Mixin,
     _quantities.Mixin,
@@ -170,6 +176,18 @@ class RedVAR(
         amean_by_variant = [ v.get_mean() for v in self._variants ]
         return self.unpack_singleton(
             amean_by_variant,
+            unpack_singleton=unpack_singleton,
+        )
+
+    def get_cov_residuals(
+        self,
+        unpack_singleton: bool = True,
+    ) -> _np.ndarray | list[_np.ndarray]:
+        r"""
+        """
+        cov_residuals_by_variant = [ v.system.cov_residuals for v in self._variants ]
+        return self.unpack_singleton(
+            cov_residuals_by_variant,
             unpack_singleton=unpack_singleton,
         )
 

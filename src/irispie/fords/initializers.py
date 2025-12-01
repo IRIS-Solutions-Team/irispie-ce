@@ -4,17 +4,32 @@ Initialize median and MSE matrix for alpha vector
 
 
 #[
+
 from __future__ import annotations
 
 import numpy as _np
-from numbers import (Real, )
 
-from .solutions import (Solution, left_div, )
+from ..incidences import main as _incidences
+from .solutions import left_div
 from . import covariances as _covariances
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from numbers import Real
+    from typing import Literal
+    from ..dataslates.main import Dataslate
+    from .solutions import Solution
+    from .descriptors import SolutionVectors
+
 #]
 
 
 _DEFAULT_DIFFUSE_SCALE = 1e8
+
+
+#-------------------------------------------------------------------------------
+# Initializers for asymptotic initial conditions
+#-------------------------------------------------------------------------------
 
 
 def _approx_diffuse(
@@ -66,13 +81,12 @@ _RESOLVE_DIFFUSE = {
 }
 
 
-def initialize(
+def initialize_asymptotic(
     solution: Solution,
-    cov_u: _np.ndarray,
-    *,
     diffuse_method: Literal["approx_diffuse", "fixed_unknown", "fixed_zero", ] = "fixed_unknown",
     diffuse_scale: Real | None = None,
-) -> tuple[np_.ndarray, np_.ndarray, _np.ndarray, ]:
+    **kwargs,
+) -> tuple[_np.ndarray, _np.ndarray, _np.ndarray, ]:
     r"""
     Return median and MSE matrix for initial alpha, and the impact of fixed
     unknowns on initial alpha
@@ -81,7 +95,7 @@ def initialize(
     diffuse_func = _RESOLVE_DIFFUSE[diffuse_method]
     diffuse_scale, unknown_init_impact = diffuse_func(solution, diffuse_scale, )
     init_med = _initialize_med(solution, )
-    init_mse = _initialize_mse(solution, cov_u, diffuse_scale, )
+    init_mse = _initialize_mse(solution, diffuse_scale, )
     return init_med, init_mse, unknown_init_impact,
     #]
 
@@ -108,17 +122,16 @@ def _initialize_med(solution: Solution, ) -> _np.ndarray:
 
 def _initialize_mse(
     solution: Solution,
-    cov_u: _np.ndarray,
     diffuse_scale: Real | None = None,
 ) -> _np.ndarray:
     """
     """
     #[
-    init_mse = _covariances.get_cov_alpha_00(solution, cov_u, )
+    init_mse = _covariances.get_cov_alpha_00(solution, solution.cov_u, )
     if diffuse_scale:
         num_unit_roots = solution.num_unit_roots
         init_mse[:num_unit_roots, :num_unit_roots] = \
-            _initialize_mse_unstable_approx_diffuse(solution, cov_u, init_mse, diffuse_scale, )
+            _initialize_mse_unstable_approx_diffuse(solution, init_mse, diffuse_scale, )
     init_mse = _covariances.symmetrize(init_mse, )
     return init_mse
     #]
@@ -126,7 +139,6 @@ def _initialize_mse(
 
 def _initialize_mse_unstable_approx_diffuse(
     solution: Solution,
-    cov_u: _np.ndarray,
     init_mse: _np.ndarray,
     diffuse_scale: Real | None = None,
 ) -> _np.ndarray:
@@ -135,6 +147,7 @@ def _initialize_mse_unstable_approx_diffuse(
     #[
     num_unit_roots = solution.num_unit_roots
     num_alpha = solution.num_alpha
+    cov_u = solution.cov_u
     base_cov = (
         init_mse[num_unit_roots:, num_unit_roots:] if num_alpha
         else (cov_u if cov_u.size else _np.ones((1, 1, ), dtype=float, ))
@@ -148,4 +161,68 @@ def _mean_of_diag(x: _np.ndarray, ) -> Real:
     """
     """
     return _np.mean(_np.diag(x, ), )
+
+
+
+#-------------------------------------------------------------------------------
+# Initializers from data
+#-------------------------------------------------------------------------------
+
+
+def initialize_from_data(*args, **kwargs, ) -> tuple[_np.ndarray, _np.ndarray, _np.ndarray, ]:
+    r"""
+    """
+    #[
+    init_med = get_true_init_xi_from_data(*args, **kwargs, )
+    num_alpha = init_med.size
+    init_mse = _np.zeros((num_alpha, num_alpha, ), dtype=float, )
+    unknown_init_impact = None
+    return init_med, init_mse, unknown_init_impact,
+    #]
+
+
+def get_true_init_xi_from_data(
+    data_array: _np.ndarray,
+    solution_vectors: SolutionVectors,
+    first_column: int,
+    **kwargs,
+) -> _np.ndarray:
+    r"""
+    """
+    #[
+    init_xi = _get_init_xi_from_data(
+        data_array,
+        solution_vectors.transition_variables,
+        first_column,
+    )
+    _zero_false_init_xi(init_xi, solution_vectors.true_initials, )
+    return init_xi
+    #]
+
+
+def _get_init_xi_from_data(
+    maybelog_working_data: _np.ndarray,
+    transition_solution_vector: Iterable[Token, ...],
+    first_column: int,
+) -> _np.ndarray:
+    """
+    """
+    #[
+    init_xi_rows, init_xi_columns = _incidences.rows_and_columns_from_tokens(
+        transition_solution_vector,
+        first_column - 1,
+    )
+    return maybelog_working_data[init_xi_rows, init_xi_columns]
+    #]
+
+
+def _zero_false_init_xi(
+    init_xi: _np.ndarray,
+    true_initials: Iterable[bool, ...],
+) -> None:
+    #[
+    false_initials = [ (not i) for i in true_initials ]
+    init_xi[false_initials, ...] = 0
+    #]
+
 

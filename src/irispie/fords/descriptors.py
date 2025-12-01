@@ -54,7 +54,7 @@ from types import SimpleNamespace
 from collections.abc import Iterable
 import itertools as _it
 import functools as _ft
-import dataclasses as _dc
+from dataclasses import dataclass
 import numpy as _np
 
 from ..incidences.main import Token
@@ -190,7 +190,7 @@ _SYSTEM_QUANTITY = (
 )
 
 
-@_dc.dataclass(slots=True, )
+@dataclass(slots=True, )
 class SystemVectors:
     """
     Vectors of quantities and equation ids in first-order system matrices
@@ -398,7 +398,7 @@ class SolutionVectors:
     #]
 
 
-@_dc.dataclass(slots=True, )
+@dataclass(slots=True, )
 class HumanSolutionVectors:
     """
     """
@@ -651,15 +651,21 @@ def _custom_order_equations_by_eids(
     #]
 
 
-class SquidableProtocol(Protocol, ):
-    """
+@dataclass(slots=True, )
+class Squidable:
+    r"""
     """
     #[
+    solution_vectors: SolutionVectors | None = None
+    shock_qid_to_std_qid: dict[int, int] | None = None
+    #]
 
-    solution_vectors: SolutionVectors
 
-    shock_qid_to_std_qid: dict[int, int] | None
-
+class SquidableProtocol(Protocol, ):
+    r"""
+    """
+    #[
+    get_squidable: callable[..., Squidable]
     #]
 
 
@@ -683,12 +689,12 @@ class Squid:
 
     def __init__(
         self,
-        solution_vectors: SolutionVectors,
-        shock_qid_to_std_qid: dict[int, int] | None = None,
+        model: SquidableProtocol,
     ) -> None:
         """
         """
-        vec = solution_vectors
+        squidable = model.get_squidable()
+        vec = squidable.solution_vectors
         #
         self.num_xi = len(vec.transition_variables)
         self.curr_xi_qids, self.curr_xi_indexes = vec.get_curr_transition_indexes()
@@ -704,27 +710,19 @@ class Squid:
         self.std_v_qids = ()
         self.std_w_qids = ()
         #
-        if shock_qid_to_std_qid is not None:
+        if squidable.shock_qid_to_std_qid is not None:
+            # Transition shocks
             self.std_u_qids = tuple(
-                shock_qid_to_std_qid[t.qid]
+                squidable.shock_qid_to_std_qid[t.qid]
                 for t in vec.transition_shocks
             )
+            # Anticipated values of transition shocks
             self.std_v_qids = self.std_u_qids
+            # Measurement shocks
             self.std_w_qids = tuple(
-                shock_qid_to_std_qid[t.qid]
+                squidable.shock_qid_to_std_qid[t.qid]
                 for t in vec.measurement_shocks
             )
-
-    @classmethod
-    def from_squidable(
-        klass,
-        squidable: SquidableProtocol,
-    ) -> Self:
-        """
-        """
-        solution_vectors = squidable.solution_vectors
-        shock_qid_to_std_qid = squidable.shock_qid_to_std_qid or None
-        return klass(solution_vectors, shock_qid_to_std_qid, )
 
     @property
     def num_curr_xi(self) -> int:

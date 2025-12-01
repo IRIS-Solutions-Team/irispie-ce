@@ -50,6 +50,7 @@ from . import _plannable_protocols
 from . import _pretty
 from . import _simulate
 from . import _slatable_protocols
+from . import _squidable_protocols
 from . import _steady
 from . import _steady_boxable_protocols
 from . import _tolerance
@@ -63,12 +64,14 @@ __all__ = [
 ]
 
 
-@_simulate.mixin
-@_pretty.mixin
 @_steady_boxable_protocols.mixin
+@_squidable_protocols.mixin
 @_slatable_protocols.mixin
-@_steady.mixin
 @_plannable_protocols.mixin
+@_pretty.mixin
+@_kalmans.mixin
+@_simulate.mixin
+@_steady.mixin
 @_dm.reference(
     path=("structural_models", "simultaneous.md", ),
     categories={
@@ -85,7 +88,6 @@ class Simultaneous(
     _has_variants.Mixin,
     _std_simulators.Mixin,
     _assigns.Inlay,
-    _kalmans.Inlay,
     _logly.Inlay,
     _get.Inlay,
     _covariances.Inlay,
