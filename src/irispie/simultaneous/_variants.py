@@ -211,7 +211,7 @@ class Variant:
         return _np.tile(levels, (1, num_columns, ))
 
     def to_portable(self, qid_to_name, ) -> dict[str, Any]:
-        """
+        r"""
         """
         return {
             qid_to_name[qid]: (level, self.changes[qid], )

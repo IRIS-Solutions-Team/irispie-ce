@@ -1,4 +1,4 @@
-"""
+r"""
 Model equations
 """
 
@@ -14,7 +14,7 @@ import re as _re
 import numpy as _np
 import itertools as _it
 import operator as _op
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .incidences.main import Token
 from .incidences import main as _incidences
@@ -95,9 +95,9 @@ class Equation:
     kind: EquationKind | None = None
     description: str | None = None
     xtring: str | None = None
-    incidence: Iterable[Token] | None = None
+    incidence: Iterable[Token] = field(default_factory=set, )
     entry: int | None = None
-    attributes: set[str] | None = None
+    attributes: set[str] = field(default_factory=set, )
 
     def finalize(self, name_to_id: dict[str, int], ) -> None:
         """
@@ -223,7 +223,7 @@ def create_human_to_eid(
 def xtring_from_human(
     human: str,
     name_to_id: dict[str, int],
-) -> tuple[str, set[Token]]:
+) -> tuple[str, set[Token], list[Token]]:
     """
     Convert human string to xtring and retrieve incidence tokens
     """
@@ -242,7 +242,7 @@ def xtring_from_human(
     xtring = xtring.replace(":=", "=")
     xtring = _quantities.QUANTITY_OCCURRENCE_PATTERN.sub(_replace_human_with_x, xtring, )
     xtring = _postprocess_xtring(xtring)
-    return xtring, set(tokens_list), tokens_list
+    return xtring, set(tokens_list), tokens_list,
     #]
 
 
