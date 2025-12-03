@@ -953,10 +953,10 @@ class Cache:
 
 def predict(
     num_periods: int,
-    columns_to_run: Sequence[int],
     initials: tuple[_np.ndarray, _np.ndarray, _np.ndarray | None],
     partial_generate_period_system: Callable,
     partial_generate_period_data: Callable,
+    columns_to_run: Sequence[int] = None,
     store_predict: Callable | None = None,
     store_update: Callable | None = None,
     store_smooth: Callable | None = None,
@@ -966,6 +966,9 @@ def predict(
     r"""
     """
     #[
+    if columns_to_run is None:
+        columns_to_run = range(num_periods, )
+    #
     cache = Cache(
         num_periods=num_periods,
         columns_to_run=columns_to_run,
