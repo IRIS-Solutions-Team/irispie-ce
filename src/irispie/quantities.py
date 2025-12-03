@@ -12,7 +12,7 @@ from collections.abc import Iterable, Iterator, Sequence
 import enum
 import collections as _co
 import re as _re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from . import wrongdoings as _wrongdoings
 from . import attributes as _attributes
@@ -139,7 +139,7 @@ class Quantity:
     logly: bool | None = None
     description: str | None = None
     entry: int | None = None
-    attributes: set[str] | None = None
+    attributes: set[str] = field(default_factory=set, )
 
     def wrap_logly(self, ) -> str:
         return wrap_logly(self.human, self.logly, )
