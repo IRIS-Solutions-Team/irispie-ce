@@ -26,11 +26,9 @@ from ..conveniences import iterators as _iterators
 from ..series import Series
 from ..dates import Period, Frequency, Span, EmptySpan
 from .. import dates as _times
-from .. import quantities as _quantities
 from .. import wrongdoings as _wrongdoings
 
 from . import _merge
-from . import _fred
 
 from . import _imports as _imports
 from . import _exports as _exports
@@ -59,7 +57,6 @@ class SteadyDataboxableProtocol(Protocol):
 
 @_jsonables.mixin
 @_merge.mixin
-@_fred.mixin
 @_dm.reference(
     path=("data_management", "databoxes.md", ),
     categories={
@@ -108,7 +105,7 @@ batch processing, importing and exporting data, and more.
         """
         """
         super().__init__(*args, **kwargs, )
-        self.__description__ = ""
+        self._description = ""
 
     @classmethod
     @_dm.reference(

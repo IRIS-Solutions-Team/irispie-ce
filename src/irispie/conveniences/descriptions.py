@@ -18,7 +18,7 @@ class DescriptionableProtocol(Protocol, ):
     """
     #[
 
-    __description__: str | None = None
+    _description: str | None = None
 
     #]
 
@@ -55,7 +55,7 @@ class DescriptionMixin:
 
 ................................................................................
         """
-        return str(self.__description__ or "")
+        return str(self._description or "")
 
     @_dm.reference(category="information", )
     def set_description(
@@ -90,7 +90,7 @@ This method modifies the Iris Pie object in place and returns `None`.
 
 ................................................................................
         """
-        self.__description__ = str(description or "")
+        self._description = str(description or "")
 
     #]
 

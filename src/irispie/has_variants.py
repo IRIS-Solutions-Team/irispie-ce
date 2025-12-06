@@ -82,7 +82,6 @@ class Mixin:
     def alter_num_variants(
         self,
         new_num: int,
-        /,
     ) -> None:
         """
         Alter (expand, shrink) the number of alternative parameter variants in this model object
@@ -161,7 +160,6 @@ class Mixin:
     def repack_singleton(
         self: HasVariantsProtocol,
         anything: list[_T] | _T,
-        /,
     ) -> list[_T]:
         """
         """
@@ -198,7 +196,6 @@ class Mixin:
 def _resolve_vids(
     self,
     vids: Iterable[int] | int | slice | EllipsisType,
-    /,
 ) -> Iterable[int]:
     """
     """
@@ -260,7 +257,6 @@ shadow_unpack_singleton = unpack_singleton
 def unpack_singleton_in_dict(
     anything_in_dict: dict[str, list[_T] | _T],
     is_singleton: bool,
-    /,
     unpack_singleton: bool = True,
 ) -> dict[str, _T | list[_T]]:
     """

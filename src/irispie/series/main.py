@@ -120,7 +120,7 @@ variants of the data, stored as mutliple columns.
         "start",
         "data",
         "data_type",
-        "__description__",
+        "_description",
     )
 
     _numeric_format: str = "15g"
@@ -347,9 +347,9 @@ variants of the data, stored as mutliple columns.
     @property
     def is_singleton(self, ) -> bool:
         """
-        True for time series with only one variant
+        True for time series with only one variant (column)
         """
-        return _has_variants.is_singleton(self.num_variants, )
+        return self.data.shape[1] == 1
 
     @property
     @_dm.reference(category="property", )

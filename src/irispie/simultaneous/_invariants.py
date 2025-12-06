@@ -93,7 +93,7 @@ class Invariant(
         "_flags",
         "_min_shift",
         "_max_shift",
-        "__description__",
+        "_description",
     )
 
     _derived_slots = (

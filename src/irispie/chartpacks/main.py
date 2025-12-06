@@ -91,7 +91,7 @@ Chartpacks
         "_figures",
         "_figure_settings",
         "_chart_settings",
-        "__description__",
+        "_description",
     )
 
     def __init__(
@@ -103,7 +103,7 @@ Chartpacks
         """
         self.title = title
         self._figures = None
-        self.__description__ = None
+        self._description = None
         #
         self._figure_settings = {
             n: kwargs[n]

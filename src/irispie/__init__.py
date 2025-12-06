@@ -104,11 +104,11 @@ from .ez_plotly import __all__ as ez_plotly_all
 from .databoxes import *
 from .databoxes import __all__ as databoxes_all
 
-from .dataslates import *
-from .dataslates import __all__ as dataslates_all
-
 from .chartpacks.main import *
 from .chartpacks.main import __all__ as chartpacks_all
+
+from .dataslates import *
+from .dataslates import __all__ as dataslates_all
 
 from .sources import *
 from .sources import __all__ as sources_all
@@ -158,6 +158,7 @@ __all__ = (
     *series_all,
     *ez_plotly_all,
     *databoxes_all,
+    *chartpacks_all,
     *dataslates_all,
     *sources_all,
     *simultaneous_all,
