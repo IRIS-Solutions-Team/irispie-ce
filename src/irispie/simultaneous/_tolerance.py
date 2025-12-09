@@ -8,13 +8,13 @@ from __future__ import annotations
 #]
 
 
-_DEFAULT_TOLERANCE = {
+DEFAULT_TOLERANCE = {
     "eigenvalue": 1e-12,
     "equality": 1e-12,
 }
 
 
-class InlayForInvariant:
+class Mixin:
     r"""
     """
     #[
@@ -22,18 +22,7 @@ class InlayForInvariant:
     def reset_tolerance(self, ) -> None:
         r"""
         """
-        self.tolerance = dict(_DEFAULT_TOLERANCE, )
-
-
-class Inlay:
-    r"""
-    """
-    #[
-
-    def reset_tolerance(self, ) -> None:
-        r"""
-        """
-        self._invariant.reset_tolerance()
+        self._invariant.populate_tolerance()
 
     def override_tolerance(self, *args, **kwargs, ) -> dict[str, float]:
         r"""

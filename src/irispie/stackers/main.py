@@ -9,14 +9,13 @@ from __future__ import annotations
 import numpy as _np
 import scipy as _sp
 
-from .. import has_variants as _has_variants
+from datapie import has_variants as _has_variants
+from datapie import Databox, Period
+
 from ..simultaneous.main import Simultaneous
 from .. import quantities as _quantities
 from ..quantities import QuantityKind, Quantity
-from ..databoxes.main import Databox
 from ..dataslates.main import Dataslate
-from .. import dates as _dates
-from ..dates import Period
 
 from ._invariants import Invariant
 from ._variants import Variant

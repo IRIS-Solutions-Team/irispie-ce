@@ -75,8 +75,8 @@ class Variant:
         #
         num_periods = invariant.num_periods
         #
-        T, P, K, Z, H, D, U = solution.unpack_triangular_solution()
-        R = self.expand_triangular_solution(forward=num_periods-1, )
+        T, P, K, Z, H, D, U, = solution.unpack_triangular_solution()
+        R = solution.expand_triangular_solution(forward=num_periods-1, )
         #
         index_xi = invariant.index_xi
         index_u = invariant.index_u
@@ -137,8 +137,12 @@ class Variant:
         #
         self.std_name_to_value = std_name_to_value
         #
-        self.init_med, self.init_mse, Xi = \
-            _initializers.initialize_asymptotic(solution, cov_u, )
+        self.init_med, self.init_mse, Xi = _initializers.initialize_asymptotic(
+            solution,
+            diffuse_method="fixed_unknown",
+            diffuse_scale=None,
+            cov_u=cov_u,
+        )
         #
         self.has_unknown_initial = Xi is not None
         if self.has_unknown_initial:

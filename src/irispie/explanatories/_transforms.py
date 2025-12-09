@@ -3,13 +3,19 @@
 
 
 #[
+
 from __future__ import annotations
 
-from typing import (Protocol, )
+# Standard library imports
+from typing import Protocol
 import re as _re
 
+# Friendly imports
+from datapie import wrongdoings as _wrongdoings
+
+# Local imports
 from ..incidences import main as _incidence
-from .. import wrongdoings as _wrongdoings
+
 #]
 
 
@@ -162,6 +168,6 @@ def recognize_transform_in_equation(
         m = t._LHS_PATTERN.fullmatch(lhs)
         if m is not None:
             return t(), m.group(1)
-    raise _wrongdoings.IrisPieError(f"Could not parse this LHS expression: {lhs}")
+    raise _wrongdoings.Error(f"Could not parse this LHS expression: {lhs}")
     #]
 

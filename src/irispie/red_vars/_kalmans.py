@@ -7,10 +7,14 @@ Kalman filter inlay
 
 from __future__ import annotations
 
+# Third-party imports
 import numpy as _np
-import documark as _dm
 
-from .. import dates as _dates
+# Friendly imports
+import documark as _dm
+from datapie import dates as _times
+
+# Local imports
 from ..fords import kalmans as _kalmans
 from ..dataslates.main import Dataslate
 
@@ -52,7 +56,7 @@ def kalman_filter(
         residuals_from_data=residuals_from_data,
     )
     #
-    long_span = _dates.long_span_from_short_span(span, max_lag=-self.order, )
+    long_span = _times.long_span_from_short_span(span, max_lag=-self.order, )
     num_variants = self.resolve_num_variants_in_context(num_variants, )
     work_db = input_db.shallow()
     input_ds = Dataslate.from_databox_for_slatable(

@@ -7,25 +7,28 @@ Data arrays with row and column names
 
 from __future__ import annotations
 
-from typing import Self, Protocol
-from numbers import Real
-from collections.abc import Iterable, Iterator
+# Standard library imports
 import numpy as _np
 import numpy as _np
 import functools as _ft
 import itertools as _it
+from typing import Self, Literal, Any
+from collections.abc import Iterable, Iterator
+from numbers import Real
 
-from ..series.main import Series
-from ..databoxes.main import Databox
+# Friendly imports
+from datapie import has_variants as _has_variants
+from datapie import iterators as _iterators
+from datapie import dates as _times
+from datapie import Databox, Series, Period, Span
+
+# Local imports
 from ..incidences import main as _incidences
-from ..conveniences import iterators as _iterators
-from ..dates import Period, Span
-from .. import dates as _dates
-from .. import has_variants as _has_variants
-
 from ._invariants import Invariant
 from ._variants import Variant
 from ._slatables import Slatable
+
+#]
 
 
 class Dataslate(
@@ -54,7 +57,7 @@ class Dataslate(
     def nan_from_names_periods(
         klass,
         names: Iterable[str],
-        periods: Iterable[Period] | string,
+        periods: Iterable[Period] | str,
         *,
         num_variants: int = 1,
         **kwargs,
@@ -62,7 +65,7 @@ class Dataslate(
         """
         """
         names = tuple(names or databox.keys())
-        periods = _dates.ensure_period_tuple(periods, )
+        periods = _times.ensure_period_tuple(periods, )
         num_names = len(names)
         num_periods = len(periods)
         self = klass()
@@ -108,7 +111,7 @@ class Dataslate(
         if names is None:
             names = databox.keys()
         names = tuple(names)
-        periods = _dates.ensure_period_tuple(periods, )
+        periods = _times.ensure_period_tuple(periods, )
         #
         if validators:
             Databox.validate(databox, validators, )
@@ -478,7 +481,7 @@ def _get_extended_span(
     max_base_date = max(base_span)
     start_date = min_base_date + min_shift
     end_date = max_base_date + max_shift
-    base_columns = tuple(_dates.period_indexes(base_span, start_date, ))
+    base_columns = tuple(_times.period_indexes(base_span, start_date, ))
     extended_dates = tuple(Span(start_date, end_date))
     return extended_dates, base_columns, min_shift, max_shift
 

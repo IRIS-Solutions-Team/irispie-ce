@@ -16,19 +16,17 @@ import itertools as _it
 import functools as _ft
 import documark as _dm
 
-from .. import has_invariant as _has_invariant
-from .. import has_variants as _has_variants
+from datapie import has_invariant as _has_invariant
+from datapie import has_variants as _has_variants
+from datapie import wrongdoings as _wrongdoings
+
 from .. import equations as _equations
 from .. import quantities as _quantities
 from .. import portables as _portables
 from ..quantities import QuantityKind, Quantity
 from ..sources import ModelSource
 from .. import sources as _sources
-from .. import dates as _dates
-from .. import wrongdoings as _wrongdoings
-from ..conveniences import iterators as _iterators
 from ..parsers import common as _pc
-from ..databoxes import main as _databoxes
 
 from ..fords import solutions as _solutions
 from ..fords import steadiers as _fs
@@ -91,7 +89,7 @@ class Simultaneous(
     _logly.Inlay,
     _get.Inlay,
     _covariances.Inlay,
-    _tolerance.Inlay,
+    _tolerance.Mixin,
     _io.Inlay,
 ):
     """
@@ -264,7 +262,7 @@ See [`Simultaneous.from_file`](simultaneousfrom_file) for return values.
         quantities = self._invariant.quantities
         qids, invalid_names = _quantities.lookup_qids_by_name(quantities, (name, ), )
         if invalid_names:
-            raise _wrongdoings.IrisPieCritical(f"Invalid model name \"{invalid_names[0]}\"", )
+            raise _wrongdoings.Critical(f"Invalid model name \"{invalid_names[0]}\"", )
         return _has_variants.unpack_singleton(
             self._get_values_as_dict("levels", qids, )[name],
             self.is_singleton,
@@ -504,7 +502,7 @@ See [`Simultaneous.from_file`](simultaneousfrom_file) for return values.
                 tolerance=tolerance,
             )
         except _solutions.UnitRootException:
-            raise _wrongdoings.IrisPieCritical(
+            raise _wrongdoings.Critical(
                 f"{variant_header} Inconsistency in classification of unit roots; "
                 "modify (increase) the tolerance level",
             )

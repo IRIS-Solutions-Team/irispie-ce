@@ -6,15 +6,18 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+# Typing imports
+from typing import Any, TYPE_CHECKING
+from collections.abc import Iterable
 
-from .. import has_variants as _has_variants
+# Friendly imports
+from datapie import has_variants as _has_variants
+from datapie import Databox, Period
+
+# Local imports
 from ..dataslates.main import Dataslate
-from ..databoxes.main import Databox
 
 if TYPE_CHECKING:
-    from typing import Any, Iterable
-    from ..dates import Period
     _Info = dict[str, Any] | list[dict[str, Any]]
 
 #]

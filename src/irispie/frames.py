@@ -7,16 +7,21 @@ Time frames for dynamic simulations
 
 from __future__ import annotations
 
+# Typing imports
+from typing import TYPE_CHECKING
+from collections.abc import Callable, Iterable
+
+# Third-party imports
 import numpy as _np
 
-from .dates import SPAN_ELLIPSIS
+# Friendly imports
+from datapie.dates import SPAN_ELLIPSIS
+from datapie import Period
 
-from typing import TYPE_CHECKING
+# Local imports
 if TYPE_CHECKING:
-    from typing import (Callable, Iterable, )
     from .dataslates.main import Dataslate
     from .plans.simulation_plans import SimulationPlan
-    from .dates import Period
 
 #]
 

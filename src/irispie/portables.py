@@ -18,5 +18,5 @@ SUPPORTED_PORTABLE_FORMATS = {CURRENT_PORTABLE_FORMAT, } | SUPPORTED_LEGACY_PORT
 def validate_portable_format(portable_format: str, /, ) -> None:
     if portable_format in SUPPORTED_PORTABLE_FORMATS:
         return
-    raise _wrongdoings.IrisPieCritical(f"Portable format {portable_format} not supported")
+    raise _wrongdoings.Critical(f"Portable format {portable_format} not supported")
 

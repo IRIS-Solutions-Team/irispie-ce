@@ -14,9 +14,10 @@ import functools as _ft
 import warnings as _wa
 import documark as _dm
 
-from .. import wrongdoings as _wrongdoings
-from .. import has_variants as _has_variants
-from ..databoxes.main import Databox
+from datapie import wrongdoings as _wrongdoings
+from datapie import has_variants as _has_variants
+from datapie import Databox
+
 from ..plans.simulation_plans import SimulationPlan
 from ..plans.transforms import PlanTransform
 from ..explanatories import main as _explanatories
@@ -259,9 +260,10 @@ def _simulate_v(
 ) -> dict[str, Any]:
     r"""
     """
-    when_nonfinite_stream = \
-        _wrongdoings.STREAM_FACTORY[when_simulates_nan] \
-        ("These simulated data point(s) are nan or inf:", )
+    when_nonfinite_stream = _wrongdoings.create_stream(
+        when_simulates_nan,
+        "These simulated data point(s) are nan or inf:",
+    )
     #
     name_to_row = ds.create_name_to_row()
     base_columns = ds.base_columns
@@ -305,7 +307,7 @@ def _simulate_v(
                 f"Error when simulating {lhs_date_str}"
                 f"\nDirect cause: {str(exc)}"
             )
-            raise _wrongdoings.IrisPieCritical(message, ) from exc
+            raise _wrongdoings.Critical(message, ) from exc
         #
         _catch_nonfinite(
             when_nonfinite_stream,

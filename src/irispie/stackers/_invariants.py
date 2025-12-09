@@ -6,18 +6,20 @@
 
 from __future__ import annotations
 
-from .. import dates as _dates
-from ..dates import Period
+# Type imports
+from typing import Self, Any
+from collections.abc import Iterable, Sequence
+
+# Friendly imports
+from datapie import dates as _times
+from datapie import Period
+
+# Local imports
 from ..fords.descriptors import SolutionVectors, Squid
 from ..simultaneous.main import Simultaneous
 from .. import quantities as _quantities
 from ..quantities import QuantityKind, Quantity
 from ..incidences.main import Token
-
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
-    from typing import Self, Any
 
 #]
 
@@ -57,8 +59,8 @@ class Invariant:
         span: Iterable[Period],
         *,
         transition_variables: None | Iterable[str] = None,
-        anticipated_shocks: None | Iterable[str] = None,
-        unanticipated_shocks: None | Iterable[str] = None,
+        transition_shocks: None | Iterable[str] = None,
+        anticipated_shock_values: None | Iterable[str] = None,
         measurement_variables: None | Iterable[str] = None,
         measurement_shocks: None | Iterable[str] = None,
     ) -> Self:
@@ -74,8 +76,8 @@ class Invariant:
         name_to_qid = model.create_name_to_qid()
         quantity_names = {
             "transition_variables": transition_variables,
-            "anticipated_shocks": anticipated_shocks,
-            "unanticipated_shocks": unanticipated_shocks,
+            "transition_shocks": transition_shocks,
+            "anticipated_shock_values": anticipated_shock_values,
             "measurement_variables": measurement_variables,
             "measurement_shocks": measurement_shocks,
         }
@@ -105,7 +107,7 @@ class Invariant:
         r"""
         """
         span = tuple(i for i in span)
-        self.base_periods = _dates.periods_from_until(span[0], span[-1], )
+        self.base_periods = _times.periods_from_until(span[0], span[-1], )
 
     def _populate_indexes(self, ) -> None:
         self.index_xi = _create_index(
@@ -113,12 +115,12 @@ class Invariant:
             self.stacked_solution_vectors.transition_variables,
         )
         self.index_u = _create_index(
-            self.source_solution_vectors.unanticipated_shocks,
-            self.stacked_solution_vectors.unanticipated_shocks,
+            self.source_solution_vectors.transition_shocks,
+            self.stacked_solution_vectors.transition_shocks,
         )
         self.index_v = _create_index(
-            self.source_solution_vectors.anticipated_shocks,
-            self.stacked_solution_vectors.anticipated_shocks,
+            self.source_solution_vectors.anticipated_shock_values,
+            self.stacked_solution_vectors.anticipated_shock_values,
         )
         self.index_y = _create_index(
             self.source_solution_vectors.measurement_variables,

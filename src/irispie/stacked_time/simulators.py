@@ -7,12 +7,25 @@ Dynamic nonlinear stacked-time simulator
 
 from __future__ import annotations
 
+# Standard library imports
 import warnings as _wa
+import itertools as _it
+
+# Typing imports
+from typing import Any, Literal, TYPE_CHECKING
+from collections.abc import Callable
+from numbers import Real
+
+# Third-party imports
 import numpy as _np
 import scipy as _sp
-import itertools as _it
-import neqs as _nq
 
+# Friendly imports
+import neqs as _nq
+from datapie import wrongdoings as _wrongdoings
+from datapie import Period
+
+# Local imports
 from ..simultaneous import main as _simultaneous
 from ..plans.simulation_plans import SimulationPlan
 from ..dataslates.main import Dataslate
@@ -21,21 +34,13 @@ from ..incidences.main import Token
 from .. import quantities as _quantities
 from .. import equations as _equations
 from .. import frames as _frames
-from .. import dates as _dates
-from ..dates import Span
 from ..frames import SingleFrame
-from .. import wrongdoings as _wrongdoings
 from ..fords import simulators as _ford_simulators
 from ..fords.terminators import Terminator
-
 from . import _evaluators as _evaluators
 from . import _iter_printers as _iter_printers
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from numbers import Real
-    from typing import Callable, Any, Literal
-    from ..dates import Period
     from ..simultaneous.main import Simultaneous
     from ..frames import Frame
 
@@ -111,13 +116,13 @@ def simulate_frame(
     """
     """
     #[
-
     solver_settings = solver_settings or {}
     solver_settings = {"norm_order": float("inf"), } | solver_settings
 
-    when_missing_stream = \
-        _wrongdoings.STREAM_FACTORY[when_missing] \
-        (f"These values are missing at the start of the {frame} simulation: ")
+    when_missing_stream = _wrongdoings.create_stream(
+        when_missing,
+        f"These values are missing at the start of the {frame} simulation: ",
+    )
 
     all_quantities = model_v.get_quantities()
     qid_to_logly = _quantities.create_qid_to_logly(all_quantities, )
@@ -132,7 +137,7 @@ def simulate_frame(
     wrt_equations = model_v.get_dynamic_equation_objects(kind=_equations.TRANSITION_EQUATION, )
 
     if len(wrt_equations) != len(endogenous_qids):
-        raise _wrongdoings.IrisPieCritical(
+        raise _wrongdoings.Critical(
             f"Number of endogenous equations {len(wrt_equations)} "
             f"does not match number of endogenous quantities {len(endogenous_qids)}"
         )

@@ -6,19 +6,20 @@ r"""
 
 from __future__ import annotations
 
+# Standard library imports
 import warnings as _wa
-import copy as _co
-import numpy as _np
 import operator as _op
 
-from ..conveniences import copies as _copies
-from .. import quantities as _quantities
+# Typing imports
+from typing import Self, Literal
+from collections.abc import Iterable, Callable
+from numbers import Real
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from numbers import Real
-    from typing import Self, Literal, Callable
-    from collections.abc import Iterable
+# Third party imports
+import numpy as _np
+
+# Local imports
+from .. import quantities as _quantities
 
 #]
 

@@ -20,13 +20,22 @@ Table of contents
 
 from __future__ import annotations
 
-from typing import Protocol
+# Standard library imports
+import functools as _ft
+
+# Typing imports
+from typing import Protocol, Any, TYPE_CHECKING
+from collections.abc import Iterable
+
+# Third-party imports
 import numpy as _np
 import scipy as _sp
-import functools as _ft
-import neqs as _nq
 
-from ..dates import Period
+# Friendly imports
+import neqs as _nq
+from datapie import Period
+
+# Local imports
 from ..dataslates.main import Dataslate
 from ..plans.simulation_plans import SimulationPlan
 from .. import frames as _frames
@@ -37,11 +46,8 @@ from . import kalmans as _kalmans
 from . import shock_simulators as _shock_simulators
 from . import initializers as _initializers
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..frames import Frame
-    from typing import Any
-    from collections.abc import Iterable
     from .solutions import Solution
     from .descriptors import SolutionVectors
 

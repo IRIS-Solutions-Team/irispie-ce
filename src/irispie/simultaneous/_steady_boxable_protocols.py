@@ -7,17 +7,19 @@ Implement SteadyDataboxableProtocol
 
 from __future__ import annotations
 
+# Typing imports
+from collections.abc import Iterable
+from numbers import Real
+
+# Third-party imports
 import numpy as _np
 
-from .. import has_variants as _has_variants
-from ..quantities import QuantityKind
-from ..series.main import Series
+# Friendly imports
+from datapie import has_variants as _has_variants
+from datapie import Series, Period
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-    from numbers import Real
-    from ..dates import Period
+# Local imports
+from ..quantities import QuantityKind
 
 #]
 
