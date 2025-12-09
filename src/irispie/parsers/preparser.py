@@ -14,7 +14,8 @@ import itertools as _it
 import copy as _cp
 import jinja2 as _jj
 
-from .. import wrongdoings as _wrongdoings
+from datapie import wrongdoings as _wrongdoings
+
 from . import _pseudofunctions as _pseudofunctions
 from . import common as _common
 from . import _shifts as _shifts
@@ -323,7 +324,7 @@ class _If:
             value = eval(self._condition_text, context_copy, )
             self._condition_result = bool(value)
         except Exception as exc:
-            raise _wrongdoings.IrisPieError(
+            raise _wrongdoings.Error(
                 f"Failed to evaluate this !if condition: {self._condition_text}",
             ) from exc
     #]
@@ -343,7 +344,7 @@ class _Else:
     def resolve(self, *args, **kwargs, ) -> NoReturn:
         """
         """
-        raise _wrongdoings.IrisPieError(
+        raise _wrongdoings.Error(
             "Misplaced preparsing directive !else",
         )
     #]
@@ -362,7 +363,7 @@ class _End:
     def resolve(self, *args, **kwargs, ) -> NoReturn:
         """
         """
-        raise _wrongdoings.IrisPieError(
+        raise _wrongdoings.Error(
             "Misplaced preparsing directive !end",
         )
 

@@ -7,25 +7,30 @@ Dynamic nonlinear period-by-period simulator
 
 from __future__ import annotations
 
+# Typing imports
+from numbers import Real
+from typing import Any, Literal, TYPE_CHECKING
+from collections.abc import Callable
+
+# Third-party imports
 import numpy as _np
 import scipy as _sp
 
+# Friendly imports
+from datapie import wrongdoings as _wrongdoings
+from datapie import Period
+
+# Local imports
 from .. import equations as _equations
-from .. import wrongdoings as _wrongdoings
 from .. import frames as _frames
 from ..simultaneous import main as _simultaneous
 from ..plans.simulation_plans import SimulationPlan
 from ..dataslates.main import Dataslate
 from ..fords import terminators as _terminators
-
 from . import _evaluators as _evaluators
 from ..stacked_time import simulators as _stacked_time_simulators
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from numbers import Real
-    from typing import Callable, Any, Literal
-    from ..dates import Period
     from ..frames import Frame
     from ..incidences.main import Token
 
@@ -103,7 +108,7 @@ def _setup_current_period(
         names_exogenized = plan.get_exogenized_unanticipated_in_period(current_period, )
         names_endogenized = plan.get_endogenized_unanticipated_in_period(current_period, )
         if len(names_exogenized) != len(names_endogenized):
-            raise _wrongdoings.IrisPieCritical(
+            raise _wrongdoings.Critical(
                 f"Number of exogenized quantities {len(names_exogenized)}"
                 f" does not match number of endogenized quantities {len(names_endogenized)}"
                 f" in period {current_period}"

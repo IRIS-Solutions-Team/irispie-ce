@@ -14,17 +14,16 @@ import json as _js
 import numpy as _np
 import documark as _dm
 
+from datapie import has_variants as _has_variants
+from datapie.has_variants import unpack_singleton_decorator
+from datapie import Databox
+
 from .. import equations as _equations
 from .. import quantities as _quantities
 from ..quantities import QuantityKind
-from .. import has_variants as _has_variants
-from ..has_variants import unpack_singleton_decorator as _unpack_singleton
-from ..series import main as _series
 from ..incidences import main as _incidence
-from ..databoxes.main import Databox
 from ..fords.solutions import EigenvalueKind, Solution
 from ..fords import descriptors as _descriptors
-
 
 from . import _flags
 
@@ -440,7 +439,7 @@ class Inlay(
         """
         return _equations.create_human_to_description(self._invariant.dynamic_equations, )
 
-    @_unpack_singleton
+    @unpack_singleton_decorator
     def get_eigenvalues(
         self,
         transform: Callable[[Real], Real] = lambda x: x,
@@ -457,7 +456,7 @@ class Inlay(
             for v in self._variants
         ]
 
-    @_unpack_singleton
+    @unpack_singleton_decorator
     def get_eigenvalues_stability(
         self,
         kind: EigenvalueKind = EigenvalueKind.ALL,
@@ -485,7 +484,7 @@ class Inlay(
             if token.shift == 0
         }
 
-    @_unpack_singleton
+    @unpack_singleton_decorator
     def get_variable_stability(
         self,
         unpack_singleton: bool = True,

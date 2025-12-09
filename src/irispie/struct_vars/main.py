@@ -7,8 +7,8 @@ Structural vector autoregression models
 
 from __future__ import annotations
 
-from .. import has_invariant as _has_invariant
-from .. import has_variants as _has_variants
+from datapie import has_invariant as _has_invariant
+from datapie import has_variants as _has_variants
 
 from ._invariants import Invariant
 from ._variants import Variant

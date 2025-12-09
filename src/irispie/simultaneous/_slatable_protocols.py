@@ -7,13 +7,12 @@ Implement SlatableProtocol for Simultaneous models
 
 from __future__ import annotations
 
-from ..series.main import Series
+# Friendly imports
+from datapie import Series
+
+# Local imports
 from .. import quantities as _quantities
 from ..dataslates import Slatable
-
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from numbers import Real
 
 #]
 

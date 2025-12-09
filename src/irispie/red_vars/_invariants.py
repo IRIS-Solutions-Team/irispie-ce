@@ -6,20 +6,20 @@
 
 from __future__ import annotations
 
+# Standard library imports
 import itertools as _it
+from collections.abc import Iterable
 
-from ..conveniences import descriptions as _descriptions
+# Friendly imports
+from datapie import descriptions as _descriptions
+
+# Local imports
 from .. import quantities as _quantities
 from ..quantities import Quantity, QuantityKind
 from ..dataslates import Dataslate
 from ..fords.descriptors import SolutionVectors
 from ..incidences.main import Token
-
 from ._dimensions import Dimensions
-
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from collections.abc import Iterable
 
 #]
 
@@ -29,7 +29,7 @@ _CONDITIONING_NAME_PREFIX = "cnd_"
 
 
 class Invariant(
-    _descriptions.DescriptionMixin,
+    _descriptions.Mixin,
 ):
     r"""
     """

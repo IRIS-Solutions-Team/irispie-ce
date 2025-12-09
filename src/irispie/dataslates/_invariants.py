@@ -3,20 +3,18 @@
 
 
 #[
+
 from __future__ import annotations
 
-from typing import (Callable, )
-from numbers import (Real, )
+from typing import Callable
+from numbers import Real
 import dataclasses as _dc
 import copy as _cp
 import numpy as _np
 
-from ..dates import (Period, Frequency, )
-from .. import dates as _dates
-from ..conveniences import descriptions as _descriptions
-from ..series import main as _series
-from ..databoxes import main as _databoxes
-from .. import has_variants as _has_variants
+from datapie import Period, Frequency
+from datapie import dates as _times
+
 #]
 
 
@@ -208,6 +206,6 @@ class Invariant:
         if num_periods_to_add > 0:
             end_period = self.periods[-1]
             new_end_period = end_period + num_periods_to_add
-            self.periods = self.periods + _dates.periods_from_until(end_period, new_end_period, )
+            self.periods = self.periods + _times.periods_from_until(end_period, new_end_period, )
 
 

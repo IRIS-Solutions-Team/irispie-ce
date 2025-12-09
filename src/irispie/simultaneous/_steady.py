@@ -14,13 +14,14 @@ import scipy as _sp
 import neqs as _ne
 import warnings as _wa
 
+from datapie import wrongdoings as _wrongdoings
+from datapie import dates as _times
+from datapie import has_variants as _has_variants
+from datapie import Databox
+
 from .. import equations as _equations
-from ..databoxes import Databox
 from ..incidences import blazer as _blazer
 from ..incidences.blazer import Block, HumanBlock
-from .. import dates as _times
-from .. import has_variants as _has_variants
-from .. import wrongdoings as _wrongdoings
 from ..fords import steadiers as _fs
 from ..steadiers import evaluators as _evaluators
 from ..steadiers import solver_dispatcher as _solver_dispatcher
@@ -31,11 +32,11 @@ from . import _flags
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Callable
+    from typing import Any, Literal, NoReturn
     from ..plans.steady_plans import SteadyPlan
     from ..equations import Equation
     from ._variants import Variant
-    from collections.abc import Iterable, Callable
-    from typing import Any, Literal, NoReturn
     from ..steadiers.solver_dispatcher import SolverType
     from ..steadiers.evaluators import SteadyEvaluator
 
@@ -665,6 +666,6 @@ def _throw_block_error(human_block, custom_header: str, ) -> NoReturn:
         *human_block.equations,
         "Solved for " + " ".join(human_block.quantities, ),
     )
-    raise _wrongdoings.IrisPieError(message, )
+    raise _wrongdoings.Error(message, )
     #]
 

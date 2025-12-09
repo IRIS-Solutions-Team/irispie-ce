@@ -6,19 +6,24 @@ r"""
 
 from __future__ import annotations
 
+# Typing imports
+from typing import Literal, TYPE_CHECKING
+from collections.abc import Iterable, Callable
+
+# Third-party imports
 import numpy as _np
 
-from ..dates import Period
+# Friendly imports
+from datapie import Period
+
+# Local imports
 from ..dataslates import Dataslate
 from ..fords import simulators as _simulators
 from ..frames import SingleFrame
-
 from ..progress_bars import ProgressBar
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .red_vars import RedVAR
-    from typing import Iterable, Callable, Literal
 
 #]
 

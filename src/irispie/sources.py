@@ -12,11 +12,12 @@ from typing import Self, Any, Type, TypeAlias, Literal, Protocol, NoReturn
 from collections.abc import Iterable
 import documark as _dm
 
+from datapie import wrongdoings as _wd
+
 from . import equations as _equations
 from .equations import Equation, EquationKind
 from . import quantities as _quantities
 from .quantities import QuantityKind, Quantity
-from . import wrongdoings as _wd
 from .parsers import preparser as _preparser
 from .parsers import models as _models
 from .parsers import common as _common
@@ -211,7 +212,7 @@ class ModelSource:
         loggables = _extract_loggable_names(self.quantities, )
         illegal_log_variables = set(log_variables) - loggables
         if illegal_log_variables:
-            raise _wd.IrisPieCritical((
+            raise _wd.Critical((
                 f"Illegal name(s) on the {_models.LOG_VARIABLES_KEYWORD} list",
                 *illegal_log_variables,
             ))

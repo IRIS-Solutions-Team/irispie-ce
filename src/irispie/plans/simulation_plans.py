@@ -7,20 +7,27 @@ Meta plans for dynamic simulations
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import Self, Any, Protocol, NoReturn
-from types import EllipsisType, MethodType
+# Standard library imports
 import itertools as _it
-import numpy as _np
 import textwrap as _tw
 import functools as _ft
-import documark as _dm
+import copy as _cp
 
-from ..conveniences import copies as _copies
-from ..dates import Period
-from ..series.main import Series
+# Typing imports
+from typing import Self, Any, Protocol, NoReturn
+from collections.abc import Iterable
+from types import EllipsisType, MethodType
+
+# Third party imports
+import numpy as _np
+
+# Friendly imports
+import documark as _dm
+from datapie import wrongdoings as _wrongdoings
+from datapie import Series, Period
+
+# Local imports
 from .. import simultaneous as _simultaneous
-from .. import wrongdoings as _wrongdoings
 from . import _registers
 from . import _pretty
 from . import _indexes
@@ -69,9 +76,8 @@ class SimulationPlannableProtocol(Protocol, ):
 class SimulationPlan(
     _pretty.Mixin,
     _indexes.ItemMixin,
-    _copies.Mixin,
 ):
-    """
+    r"""
 ················································································
 
 Simulation meta plans
@@ -154,6 +160,11 @@ Create a new simulation plan object for a
                 MethodType(eval(f"_get_{n}_periods", globals(), locals(), ), self),
             )
 
+    def copy(self, ) -> Self:
+        r"""
+        """
+        return _cp.deepcopy(self, )
+
     def check_consistency(
         self,
         plannable: SimulationPlannableProtocol,
@@ -163,10 +174,10 @@ Create a new simulation plan object for a
         """
         benchmark = type(self)(plannable, span, )
         if self.base_span != benchmark.base_span:
-            raise _wrongdoings.IrisPieError(f"Plan span must match the simulation span")
+            raise _wrongdoings.Error(f"Plan span must match the simulation span")
         for r in self._registers:
             if getattr(self, f"can_be_{r}") != getattr(benchmark, f"can_be_{r}"):
-                raise _wrongdoings.IrisPieError(f"Plan must be created using the simulated model")
+                raise _wrongdoings.Error(f"Plan must be created using the simulated model")
 
     @property
     @_dm.reference(category="property", )
@@ -926,7 +937,7 @@ def catch_invalid_periods(
     """
     invalid = tuple(repr(d) for d in dates if d not in base_span)
     if invalid:
-        raise _wrongdoings.IrisPieError(
+        raise _wrongdoings.Error(
             ("These date(s) are out of simulation span:", ) + invalid
         )
 

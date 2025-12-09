@@ -4,16 +4,18 @@ Simultaneous model simulation inlay
 
 
 #[
+
 from __future__ import annotations
 
 import numpy as _np
 
+from datapie import has_variants as _has_variants
+from datapie import wrongdoings as _wrongdoings
+from datapie import dates as _times
+from datapie import Databox, Period
+
 from typing import Any, Literal
 from .. import quantities as _quantities
-from .. import has_variants as _has_variants
-from .. import wrongdoings as _wrongdoings
-from ..import dates as _dates
-from ..databoxes.main import Databox
 from ..dataslates.main import Dataslate
 from ..fords import solutions as _solutions
 from ..plans.simulation_plans import SimulationPlan
@@ -25,7 +27,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from ..frames import Frame
-    from ..dates import Period
+
 #]
 
 
@@ -260,7 +262,7 @@ def _create_simulation_header(
     """
     """
     #[
-    simulation_span = _dates.get_printable_span(frame.start, frame.simulation_end, )
+    simulation_span = _times.get_printable_span(frame.start, frame.simulation_end, )
     return f"[Variant {vid}][Periods {simulation_span}]"
     #]
 

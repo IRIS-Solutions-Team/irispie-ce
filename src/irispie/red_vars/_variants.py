@@ -6,18 +6,22 @@
 
 from __future__ import annotations
 
-import numpy as _np
-import scipy as _sp
+# Typing imports
+from typing import Self
+from collections.abc import Iterable
 from numbers import Number
 
+# Third-party imports
+import numpy as _np
+import scipy as _sp
+
+# Friendly imports
+from datapie import Period
+
+# Local imports
 from ..dataslates import Dataslate
 from ..fords.solutions import Solution
 from ._invariants import Invariant
-
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import Self, Iterable
-    from ..dates import Period
 
 #]
 

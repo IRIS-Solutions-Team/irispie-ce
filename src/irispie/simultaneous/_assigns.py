@@ -4,18 +4,18 @@ Assign custom values to quantities
 
 
 #[
+
 from __future__ import annotations
 
-from typing import (TYPE_CHECKING, Iterable )
+# Standard library imports
+from typing import Iterable, Iterator, Any
+from numbers import Real
 
-from ..wrongdoings import (IrisPieCritical, )
-from ..conveniences import iterators as _iterators
-from ..databoxes.main import (Databox, )
+# Friendly imports
+from datapie import wrongdoings as _wrongdoings
+from datapie import iterators as _iterators
+from datapie import Databox
 
-if TYPE_CHECKING:
-    from typing import (Any, )
-    from collections.abc import (Iterator, )
-    from numbers import (Real, )
 #]
 
 
@@ -48,7 +48,7 @@ class Inlay:
         assigned_keys, nonexistent_keys = self._assign(*args, **kwargs, )
         if nonexistent_keys:
             message = ("Cannot assign these names (nonexistent in the model object): ", ) + nonexistent_keys
-            raise IrisPieCritical(message, )
+            raise _wrongdoings.Critical(message, )
 
     def _assign(
         self,

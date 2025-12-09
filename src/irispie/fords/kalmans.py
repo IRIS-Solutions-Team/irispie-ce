@@ -6,30 +6,33 @@
 
 from __future__ import annotations
 
-from typing import Protocol
-from typing import Literal
+# Standard library imports
 import functools as _ft
+
+# Third-party imports
 import numpy as _np
 
-from .. import has_variants as _has_variants
+# Typing imports
+from typing import Protocol, Literal, Any, Self, NoReturn, TYPE_CHECKING
+from types import EllipsisType
+from numbers import Real
+from collections.abc import Iterable, Sequence
+
+# Friendly imports
+from datapie import has_variants as _has_variants
+from datapie import wrongdoings as _wd
+from datapie import Databox, Series, Period
+
+# Local imports
 from .. import quantities as _quantities
 from ..frames import Frame
 from ..dataslates.main import Dataslate
-from ..databoxes.main import Databox
-from ..series.main import Series
 from .solutions import Solution, right_div, left_div
-
 from . import initializers as _initializers
 from . import covariances as _covariances
 from .descriptors import Squid, Squidable
-from .. import wrongdoings as _wd
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from typing import Any, Iterable, Sequence, Self, NoReturn
-    from types import EllipsisType
-    from numbers import Real
-    from ..dates import Period
     from ..dataslates.slatables import Slatable
 
 #]

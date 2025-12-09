@@ -6,15 +6,19 @@ r"""
 
 from __future__ import annotations
 
+# Standard library imports
 import functools as _ft
 import numpy as _np
+from typing import Literal
+from collections.abc import Iterable, Callable
 
-from ..databoxes import Databox
+# Friendly imports
+from datapie import dates as _times
+from datapie import Databox, Period
+
+# Local imports
 from ..dataslates import Dataslate
-from ..dates import Period
 from ..fords import least_squares as _least_squares
-from .. import dates as _periods
-
 from ._variants import Variant
 from . import prior_obs as _prior_obs
 from .prior_obs import PriorObs
@@ -22,16 +26,12 @@ from ._dimensions import Dimensions
 from ..progress_bars import ProgressBar
 from ..fords import covariances as _covariances
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import Iterable, Callable, Literal
-
 #]
 
 
 _GET_SPANS_DISPATCH = {
-    "short": _periods.spans_from_short_span,
-    "long": _periods.spans_from_long_span,
+    "short": _times.spans_from_short_span,
+    "long": _times.spans_from_long_span,
 }
 
 

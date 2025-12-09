@@ -9,10 +9,11 @@ from __future__ import annotations
 import numpy as _np
 import documark as _dm
 
+from datapie import wrongdoings as _wrongdoings
+from datapie import has_variants as _has_variants
+from datapie import Databox
+
 from .. import quantities as _quantities
-from .. import wrongdoings as _wrongdoings
-from .. import has_variants as _has_variants
-from ..databoxes.main import (Databox, )
 
 #]
 
@@ -133,7 +134,7 @@ list of missing parameter names.
         )
         if missing:
             message = ("Missing parameters: ", ) + missing
-            raise _wrongdoings.IrisPieCritical(message, )
+            raise _wrongdoings.Critical(message, )
 
     @_dm.reference(category="parameters", )
     def get_parameters(

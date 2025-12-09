@@ -3,20 +3,25 @@
 
 
 #[
+
 from __future__ import annotations
 
-from collections.abc import (Iterable, )
-from typing import (Any, Callable, )
+# Standard library imports
+from collections.abc import Iterable
+from typing import Any, Callable
 import dataclasses as _dc
 import copy as _cp
 import numpy as _np
 
+# Friendly imports
+from datapie import wrongdoings as _wrongdoings
+
+# Local imports
 from ..incidences import main as _incidence
 from .. import equations as _equations
-from .. import wrongdoings as _wrongdoings
 from .. import makers as _makers
-
 from . import _transforms as _transforms
+
 #]
 
 
@@ -137,7 +142,7 @@ class Explanatory:
         equal_sign = "=" if not self.is_identity else self._IDENTITY_EQUAL_SIGN
         split = human.split(equal_sign, )
         if len(split) != 2:
-            raise _wrongdoings.IrisPieError(
+            raise _wrongdoings.Error(
                 f"This equation is not in a LHS=RHS or LHS{self._IDENTITY_EQUAL_SIGN}RHS form: {self.equation.human}"
             )
         self._lhs_human, self._rhs_human = split

@@ -16,11 +16,12 @@ import itertools as _it
 import operator as _op
 from dataclasses import dataclass, field
 
+from datapie import wrongdoings as _wrongdoings
+
 from .incidences.main import Token
 from .incidences import main as _incidences
 from . import quantities as _quantities
 from . import attributes as _attributes
-from . import wrongdoings as _wrongdoings
 
 #]
 

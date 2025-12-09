@@ -4,6 +4,7 @@ Model quantities
 
 
 #[
+
 from __future__ import annotations
 
 from typing import Self, Any
@@ -14,8 +15,10 @@ import collections as _co
 import re as _re
 from dataclasses import dataclass, field
 
-from . import wrongdoings as _wrongdoings
+from datapie import wrongdoings as _wrongdoings
+
 from . import attributes as _attributes
+
 #]
 
 
@@ -407,7 +410,7 @@ def check_unique_names(quantities: Iterable[Quantity], ) -> None:
     name_counter = _co.Counter(q.human for q in quantities)
     if any(c>1 for c in name_counter.values()):
         duplicates = [ n for n, c in name_counter.items() if c>1 ]
-        raise _wrongdoings.IrisPieError(
+        raise _wrongdoings.Error(
             ["These names are declared multiple times"] + duplicates
         )
     #]

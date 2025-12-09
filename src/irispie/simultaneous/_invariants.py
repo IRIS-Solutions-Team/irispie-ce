@@ -12,14 +12,15 @@ import itertools as _it
 import numpy as _np
 import re as _re
 
-from ..conveniences import descriptions as _descriptions
+from datapie import descriptions as _descriptions
+from datapie import wrongdoings as _wrongdoings
+
 from ..fords import descriptors as _descriptors
 from ..equators import plain as _equators
 from .. import equations as _equations
 from ..equations import EquationKind, Equation
 from .. import quantities as _quantities
 from ..quantities import QuantityKind, Quantity
-from .. import wrongdoings as _wrongdoings
 from .. import makers as _makers
 from .. import contexts as _contexts
 from ..incidences.main import Token, ZERO_SHIFT_TOKEN_PATTERN
@@ -74,10 +75,9 @@ def std_description_from_shock_description(shock_description: str, ) -> str:
 
 
 class Invariant(
-    _tolerance.InlayForInvariant,
-    _descriptions.DescriptionMixin,
+    _descriptions.Mixin,
 ):
-    """
+    r"""
     Invariant part of a Simultaenous object
     """
     #[
@@ -93,7 +93,7 @@ class Invariant(
         "_flags",
         "_min_shift",
         "_max_shift",
-        "__description__",
+        "_description",
     )
 
     _derived_slots = (
@@ -128,7 +128,7 @@ class Invariant(
         """
         """
         self = klass()
-        self.reset_tolerance()
+        self.populate_tolerance()
         self.set_description(
             description if description is not None
             else source.description
@@ -176,7 +176,7 @@ class Invariant(
             self.dynamic_equations + self.steady_equations,
         )
         if undeclared_names and autodeclare_as is None:
-            raise _wrongdoings.IrisPieCritical([
+            raise _wrongdoings.Critical([
                 "These names are used in equations but not declared:",
                 *undeclared_names,
                 ])
@@ -231,6 +231,11 @@ class Invariant(
         self._populate_derived_attributes()
         #
         return self
+
+    def populate_tolerance(self, ) -> None:
+        r"""
+        """
+        self.tolerance = _tolerance.DEFAULT_TOLERANCE.copy()
 
     def _populate_derived_attributes(self, ) -> None:
         """
@@ -343,7 +348,7 @@ def _catch_troublemakers(equations, function_context, ):
     ]
     if fail:
         message = ["Syntax error in these equations"] + fail
-        raise _wrongdoings.IrisPieCritical(message, )
+        raise _wrongdoings.Critical(message, )
     #]
 
 
@@ -453,7 +458,7 @@ def _check_numbers_of_variables_equations(
     num_variables = _quantities.count_quantities_of_kind(quantities, quantity_kind, )
     num_equations = _equations.count_equations_of_kind(equations, equation_kind, )
     if num_variables != num_equations:
-        raise _wrongdoings.IrisPieCritical([
+        raise _wrongdoings.Critical([
             "Inconsistent numbers of variables and equations",
             f"Number of {quantity_kind.human.lower()}s: {num_variables}",
             f"Number of {equation_kind.human.lower()}s: {num_equations}",

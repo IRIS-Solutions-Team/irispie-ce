@@ -2,23 +2,29 @@
 """
 
 #[
+
 from __future__ import annotations
 
-from collections.abc import (Iterable, )
-from typing import (Any, )
+# Typing imports
+from typing import Any
+from collections.abc import Iterable
 
-from ..equations import (Equation, )
-from ..quantities import (Quantity, )
+# Friendly imports
+from datapie import descriptions as _descriptions
+
+# Local imports
+from ..equations import Equation
+from ..quantities import Quantity
 from .. import quantities as _quantities
 from ..explanatories import main as _explanatories
-from ..conveniences import descriptions as _descriptions
+
 #]
 
 
 class Invariant(
-    _descriptions.DescriptionMixin,
+    _descriptions.Mixin,
 ):
-    """
+    r"""
     """
     #[
 
@@ -29,10 +35,10 @@ class Invariant(
         "rhs_only_names",
         "parameter_names",
         "_context",
-        "__description__",
+        "_description",
     )
 
-    def __init__(self, /, ) -> None:
+    def __init__(self, ) -> None:
         """
         """
         self.explanatories = ()
@@ -41,14 +47,14 @@ class Invariant(
         self.rhs_only_names = ()
         self.parameter_names = ()
         self._context = {}
-        self.__description__ = ""
+        self._description = ""
 
     @classmethod
     def from_equations(
         klass,
         equations: Iterable[Equation],
         quantities: Iterable[Quantity] | None,
-        /,
+        *,
         context: dict[str, Any] | None = None,
         description: str | None = None,
         **kwargs,
@@ -69,31 +75,31 @@ class Invariant(
         return self
 
     @property
-    def num_equations(self, /, ) -> int:
+    def num_equations(self, ) -> int:
         """
         Number of equations.
         """
         return len(self.explanatories)
 
     @property
-    def num_lhs_names(self, /, ) -> int:
+    def num_lhs_names(self, ) -> int:
         """
         Number of unique LHS names
         """
         return len(self.lhs_names)
 
     @property
-    def equations(self, /, ) -> tuple[Equation]:
+    def equations(self, ) -> tuple[Equation]:
         return tuple( x.equation for x in self.explanatories )
 
-    def collect_names(self, /, ) -> None:
+    def collect_names(self, ) -> None:
         """
         """
         self.collect_lhs_names()
         self.collect_residual_names()
         self.collect_rhs_only_names()
 
-    def collect_lhs_names(self, /, ) -> None:
+    def collect_lhs_names(self, ) -> None:
         """
         Tuple of names of LHS variables in order of their first appearance in the equations
         """
@@ -103,7 +109,7 @@ class Invariant(
                 self.lhs_names.append(x.lhs_name)
         self.lhs_names = tuple(self.lhs_names)
 
-    def collect_residual_names(self, /, ) -> tuple[str]:
+    def collect_residual_names(self, ) -> tuple[str]:
         """
         Tuple of names of LHS variables in order of appearance
         """
@@ -116,10 +122,7 @@ class Invariant(
             self.residual_names.append(x.residual_name, )
         self.residual_names = tuple(self.residual_names, )
 
-    def collect_rhs_only_names(
-        self,
-        /,
-    ) -> None:
+    def collect_rhs_only_names(self, ) -> None:
         """
         """
         all_names = set()
@@ -128,15 +131,12 @@ class Invariant(
         self.rhs_only_names = tuple(all_names.difference(self.lhs_names + self.residual_names, ))
 
     @property
-    def all_names(self, /, ) -> tuple[str]:
+    def all_names(self, ) -> tuple[str]:
         """
         """
         return self.lhs_names + self.rhs_only_names + self.residual_names
 
-    def finalize_explanatories(
-        self,
-        /,
-    ) -> None:
+    def finalize_explanatories(self, ) -> None:
         """
         """
         name_to_qid = self.create_name_to_qid()
@@ -146,7 +146,6 @@ class Invariant(
     def reorder_equations(
         self,
         new_order = Iterable[int],
-        /,
     ) -> None:
         """
         """
@@ -164,12 +163,12 @@ class Invariant(
         self.collect_names()
         self.finalize_explanatories()
 
-    def create_name_to_qid(self, /, ) -> dict[str, int]:
+    def create_name_to_qid(self, ) -> dict[str, int]:
         """
         """
         return { name: i for i, name in enumerate(self.all_names) }
 
-    def create_name_to_qid(self, /, ) -> dict[str, int]:
+    def create_name_to_qid(self, ) -> dict[str, int]:
         """
         """
         return { name: i for i, name in enumerate(self.all_names) }

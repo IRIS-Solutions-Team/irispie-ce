@@ -7,8 +7,11 @@ Implement SlatableProtocol for Stacker objects
 
 from __future__ import annotations
 
+# Friendly imports
+from datapie import Series
+
+# Local imports
 from ..dataslates import Slatable
-from ..series import Series
 from .. import quantities as _quantities
 
 #]

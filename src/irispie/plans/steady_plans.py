@@ -7,21 +7,28 @@ Meta plans for steady-state calculations
 
 from __future__ import annotations
 
-from typing import Protocol
-from numbers import Real
+# Standard library imports
 import textwrap as _tw
-import documark as _dm
 
-from ..conveniences import copies as _copies
-from ..series.main import Series
+# Typing imports
+from typing import Protocol, Self, TYPE_CHECKING
+from types import EllipsisType
+from collections.abc import Iterable
+from numbers import Real
+
+# Friendly imports
+import documark as _dm
+from datapie import Series
+
+# Local imports
 from . import _registers
 from . import _pretty
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import Iterable
 
 #]
+
+
+_InputNames = Iterable[str] | str | EllipsisType
 
 
 __all__ = (
@@ -29,8 +36,6 @@ __all__ = (
 )
 
 
-if TYPE_CHECKING:
-    _InputNames = Iterable[str] | str | EllipsisType
 
 
 class SimulationPlannableProtocol(Protocol, ):
@@ -58,7 +63,6 @@ class SimulationPlannableProtocol(Protocol, ):
 )
 class SteadyPlan(
     _pretty.Mixin,
-    _copies.Mixin,
 ):
     """
     """
@@ -103,6 +107,11 @@ class SteadyPlan(
             def get_{register_name}_names(self, /, ) -> tuple[str, ...]:
                 return self._get_names_from_register("{register_name}", )
         """))
+
+    def copy(self, ) -> Self:
+        r"""
+        """
+        return _cp.deepcopy(self, )
 
     # TODO: pluralize as default
     fix_levels = fix_level

@@ -7,16 +7,21 @@ Implement SlatableProtocol for RedVAR models
 
 from __future__ import annotations
 
+# Standard library imports
 import warnings as _wa
 
-from ..series import Series
+# Typing imports
+from typing import TYPE_CHECKING, Self
+from numbers import Real
+
+# Friendly imports
+from datapie import Series
+
+# Local imports
 from ..dataslates import Slatable
 from .. import quantities as _quantities
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from typing import Self
-    from numbers import Real
     from .red_vars import RedVAR
 
 #]

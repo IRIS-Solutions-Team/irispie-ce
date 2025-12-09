@@ -6,13 +6,15 @@
 
 from __future__ import annotations
 
+# Standard library imports
 from typing import (Self, Any, )
 import numpy as _np
-import prettytable as _pt
-import documark as _dm
 
-from ..databoxes.main import (Databox, )
-from ..dates import (Period, )
+# Third party imports
+import prettytable as _pt
+
+# Friendly imports
+import documark as _dm
 
 #]
 

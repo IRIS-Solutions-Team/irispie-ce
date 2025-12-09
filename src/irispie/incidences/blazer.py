@@ -9,7 +9,8 @@ from collections.abc import (Generator, Iterable, )
 from typing import (Any, )
 import numpy as _np
 
-from .. import wrongdoings as _wrongdoings
+from datapie import wrongdoings as _wrongdoings
+
 from ..equations import (Equation, )
 from ..quantities import (Quantity, )
 
@@ -272,7 +273,7 @@ def sequentialize_strictly(
             or eids_first != qids_first \
             or eids_last != qids_last
         if fail:
-            _wrongdoings.IrisPieError("Cannot find strict sequential reordering", )
+            _wrongdoings.Error("Cannot find strict sequential reordering", )
         return eids_first + eids_last
         #]
 

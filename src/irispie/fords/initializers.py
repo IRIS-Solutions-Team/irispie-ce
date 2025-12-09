@@ -85,6 +85,7 @@ def initialize_asymptotic(
     solution: Solution,
     diffuse_method: Literal["approx_diffuse", "fixed_unknown", "fixed_zero", ] = "fixed_unknown",
     diffuse_scale: Real | None = None,
+    cov_u: _np.ndarray | None = None,
     **kwargs,
 ) -> tuple[_np.ndarray, _np.ndarray, _np.ndarray, ]:
     r"""
@@ -92,6 +93,8 @@ def initialize_asymptotic(
     unknowns on initial alpha
     """
     #[
+    if cov_u is not None:
+        solution.cov_u = cov_u
     diffuse_func = _RESOLVE_DIFFUSE[diffuse_method]
     diffuse_scale, unknown_init_impact = diffuse_func(solution, diffuse_scale, )
     init_med = _initialize_med(solution, )

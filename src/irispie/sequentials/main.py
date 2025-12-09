@@ -12,6 +12,8 @@ import copy as _co
 import os as _os
 import documark as _dm
 
+from datapie import has_variants as _has_variants
+
 from .. import equations as _equations
 from .. import quantities as _quantities
 from .. import sources as _sources
@@ -19,7 +21,6 @@ from ..incidences.main import Token
 from ..incidences import main as _incidences
 from ..incidences import blazer as _blazer
 from ..explanatories import main as _explanatories
-from .. import has_variants as _has_variants
 
 from . import _simulate as _simulate
 from . import _assigns as _assigns

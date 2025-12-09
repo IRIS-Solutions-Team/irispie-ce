@@ -3,17 +3,20 @@
 
 
 #[
+
 from __future__ import annotations
 
-from typing import (TYPE_CHECKING, )
+# Standard library imports
 import numpy as _np
+from typing import Any, Self, Iterable
+from numbers import Real
 
+# Friendly imports
+from datapie import Databox
+
+# Local imports
 from . import _invariants as _invariants
 
-if TYPE_CHECKING:
-    from typing import (Any, Self, Iterable, )
-    from numbers import (Real, )
-    from ..databoxes.main import (Databox, )
 #]
 
 

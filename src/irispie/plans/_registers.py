@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import functools as _ft
 
-from .. import wrongdoings as _wrongdoings
+from datapie import wrongdoings as _wrongdoings
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -100,7 +100,7 @@ class Register(dict, ):
         invalid = tuple(n for n in names if n not in keys)
         if invalid:
             message = (f"These names cannot be {self.name}:", ) + invalid
-            raise _wrongdoings.IrisPieCritical(message, )
+            raise _wrongdoings.Critical(message, )
 
     #]
 
