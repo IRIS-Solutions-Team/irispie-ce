@@ -27,9 +27,12 @@ def make_function(
     #[
     globals_ = _prepare_globals(context, )
     args_string = ', '.join(args, )
-    func_str = f"def {func_name}({args_string}): return {str(expression)}"
-    exec(func_str, globals_, )
-    return globals_[func_name], func_str, globals_,
+    # func_str = f"def {func_name}({args_string}): return {str(expression)}"
+    # exec(func_str, globals_, )
+    # return globals_[func_name], func_str, globals_,
+    func_str = f"lambda {args_string}: {str(expression)}"
+    func = eval(func_str, globals_, )
+    return func, func_str, globals_,
     #]
 
 
@@ -39,7 +42,7 @@ def _prepare_globals(
     """
     """
     #[
-    globals_ = (context or {}) | {"__builtins__": {}}
+    globals_ = (context or {}) | {"__builtins__": {"__import__": __import__}, }
     globals_ = _adaptations.add_function_adaptations_to_context(globals_, )
     return globals_
     #]

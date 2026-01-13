@@ -22,7 +22,7 @@ EQUATOR_ARGS = ("x", "t", )
 
 
 class PlainEquator:
-    """
+    r"""
     """
     #[
 
