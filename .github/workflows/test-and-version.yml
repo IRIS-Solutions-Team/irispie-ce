@@ -7,6 +7,16 @@ name: Test and version
 
 on:
   workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Type of release (major, minor, patch)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
 
 jobs:
   test:
@@ -79,14 +89,10 @@ jobs:
         id: bump-version
         working-directory: irispie
         run: |
-          if ! [[ -e ./.release_type ]]; then
-            echo "Cannot release without .release_type"
-            exit 1
-          fi
-          RELEASE_TYPE=$(< ./.release_type)
+          RELEASE_TYPE="${{ github.event.inputs.release_type }}"
           python ./.github/workflows/bump_version.py --release-type=$RELEASE_TYPE
           NEW_VERSION=$(python ./.github/workflows/print_version.py)
-          echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT 
+          echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
       - name: Commit and push new version to develop
         env:
@@ -95,7 +101,6 @@ jobs:
         run: |
           git switch develop
           git add ./pyproject.toml
-          git rm .release_type
           git commit -m "Bump version to $version"
           git tag $version
           git push origin develop --tags
