@@ -12,8 +12,8 @@ import dataclasses as _dc
 import copy as _cp
 import numpy as _np
 
+import datapie as _datapie
 from datapie import Period, Frequency
-from datapie import dates as _times
 
 #]
 
@@ -206,6 +206,6 @@ class Invariant:
         if num_periods_to_add > 0:
             end_period = self.periods[-1]
             new_end_period = end_period + num_periods_to_add
-            self.periods = self.periods + _times.periods_from_until(end_period, new_end_period, )
+            self.periods = self.periods + _datapie.periods_from_until(end_period, new_end_period, )
 
 

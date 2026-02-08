@@ -13,7 +13,7 @@ from typing import Literal
 from collections.abc import Iterable, Callable
 
 # Friendly imports
-from datapie import dates as _times
+from datapie import periods as _periods
 from datapie import Databox, Period
 
 # Local imports
@@ -30,8 +30,8 @@ from ..fords import covariances as _covariances
 
 
 _GET_SPANS_DISPATCH = {
-    "short": _times.spans_from_short_span,
-    "long": _times.spans_from_long_span,
+    "short": _periods.spans_from_short_span,
+    "long": _periods.spans_from_long_span,
 }
 
 

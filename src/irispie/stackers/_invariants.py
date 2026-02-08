@@ -11,7 +11,7 @@ from typing import Self, Any
 from collections.abc import Iterable, Sequence
 
 # Friendly imports
-from datapie import dates as _times
+from datapie import periods as _periods
 from datapie import Period
 
 # Local imports
@@ -107,7 +107,7 @@ class Invariant:
         r"""
         """
         span = tuple(i for i in span)
-        self.base_periods = _times.periods_from_until(span[0], span[-1], )
+        self.base_periods = _periods.periods_from_until(span[0], span[-1], )
 
     def _populate_indexes(self, ) -> None:
         self.index_xi = _create_index(
