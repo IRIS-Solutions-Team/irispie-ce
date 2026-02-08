@@ -11,7 +11,7 @@ import numpy as _np
 
 from datapie import has_variants as _has_variants
 from datapie import wrongdoings as _wrongdoings
-from datapie import dates as _times
+from datapie import periods as _periods
 from datapie import Databox, Period
 
 from typing import Any, Literal
@@ -262,7 +262,7 @@ def _create_simulation_header(
     """
     """
     #[
-    simulation_span = _times.get_printable_span(frame.start, frame.simulation_end, )
+    simulation_span = _periods.get_printable_span(frame.start, frame.simulation_end, )
     return f"[Variant {vid}][Periods {simulation_span}]"
     #]
 

@@ -15,7 +15,7 @@ from collections.abc import Callable, Iterable
 import numpy as _np
 
 # Friendly imports
-from datapie.dates import SPAN_ELLIPSIS
+from datapie import periods as _periods
 from datapie import Period
 
 # Local imports
@@ -89,7 +89,8 @@ class SplitFrame(Frame, ):
     def __repr__(self, ) -> str:
         """
         """
-        return f"<SplitFrame {self.start}{SPAN_ELLIPSIS}{self.end}{SPAN_ELLIPSIS}{self.simulation_end}>"
+        span_string = _periods.get_printable_span(self.start, self.end, self.simulation_end, )
+        return f"<SplitFrame {span_string}>"
 
     def prune_frame_data(
         self,

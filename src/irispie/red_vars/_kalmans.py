@@ -12,7 +12,7 @@ import numpy as _np
 
 # Friendly imports
 import documark as _dm
-from datapie import dates as _times
+from datapie import periods as _periods
 
 # Local imports
 from ..fords import kalmans as _kalmans
@@ -56,7 +56,7 @@ def kalman_filter(
         residuals_from_data=residuals_from_data,
     )
     #
-    long_span = _times.long_span_from_short_span(span, max_lag=-self.order, )
+    long_span = _periods.long_span_from_short_span(span, max_lag=-self.order, )
     num_variants = self.resolve_num_variants_in_context(num_variants, )
     work_db = input_db.shallow()
     input_ds = Dataslate.from_databox_for_slatable(

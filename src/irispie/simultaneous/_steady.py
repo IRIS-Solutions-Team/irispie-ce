@@ -15,7 +15,7 @@ import neqs as _ne
 import warnings as _wa
 
 from datapie import wrongdoings as _wrongdoings
-from datapie import dates as _times
+from datapie import periods as _periods
 from datapie import has_variants as _has_variants
 from datapie import Databox
 
@@ -275,7 +275,7 @@ A Databox containing steady-state time series for the `model`.
 
 ................................................................................
     """
-    start, end = _times.extend_span(
+    start, end = _periods.extend_span(
         span,
         self.max_lag,
         self.max_lead,
