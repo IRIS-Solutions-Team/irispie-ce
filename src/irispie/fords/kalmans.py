@@ -638,7 +638,7 @@ def kalman_filter(
     qid_to_name = model.create_qid_to_name()
     y_names = [ qid_to_name[qid] for qid in squid.y_qids ]
     name_to_log_name = {
-        n: _quantities.wrap_logly(n, )
+        n: _quantities.prefix_logly(n, )
         for qid, n in enumerate(input_ds.names, )
         if qid_to_logly.get(qid, False, )
     } if qid_to_logly else {}
