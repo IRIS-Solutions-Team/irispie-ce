@@ -399,8 +399,18 @@ def generate_where_logly(
     return (i for i, qid in enumerate(qids, ) if qid_to_logly.get(qid, False))
 
 
-def wrap_logly(name, logly: bool = True, ) -> str:
+def wrap_logly(
+    name,
+    logly: bool = True,
+) -> str:
     return f"log({name})" if logly else name
+
+
+def prefix_logly(
+    name: str,
+    logly: bool = True,
+) -> str:
+    return f"log_{name}" if logly else name
 
 
 def check_unique_names(quantities: Iterable[Quantity], ) -> None:
