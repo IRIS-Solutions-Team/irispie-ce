@@ -83,6 +83,6 @@ Use the guide below to determine which license applies to your situation.
 
 - All editions are provided “as is”, without warranty or liability.  
 - These licenses are source-available, not OSI-approved open source.  
-- If in doubt about your use case, contact: info@ogresearch.com
+- If in doubt about your use case, contact: info[at]ogresearch.com
 
 
