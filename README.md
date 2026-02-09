@@ -40,9 +40,9 @@ Each edition is intended for a different audience:
 ## Which license applies to me
 
 This project is distributed under three coordinated source-available licenses:
-- Community License (CE)
-- Registered License (RE)
-- Private License (PE)
+- [Community License (CE)](https://pypi.org/project/irispie-ce)
+- [Registered License (RE)](https://github.com/IRIS-Solutions-Team/irispie-re)
+- [Private License (PE)](https://github.com/IRIS-Solutions-Team/irispie-pe)
 
 Use the guide below to determine which license applies to your situation.
 
@@ -66,7 +66,7 @@ Use the guide below to determine which license applies to your situation.
   - Registration with the copyright holders (OGResearch) is required  
   - Use and internal redistribution within your organization are permitted  
   - External redistribution or sublicensing is not allowed  
-- Registration link: https://yourdomain.com/register
+- Registration email: info[at]ogresearch.com
 
 ---
 
