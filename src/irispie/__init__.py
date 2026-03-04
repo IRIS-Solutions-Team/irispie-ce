@@ -1,35 +1,25 @@
+r"""
+"""
 
-# Edition-specific warning
+
+import sys
+
+
+#--------------------------------------------------------------------------------
+# Edition and version
+#--------------------------------------------------------------------------------
+
 #[
 
-from ._banners import irispie_edition_warning
+from ._editions import irispie_edition_warning, min_version_required
+from ._editions import __version__, __doc__
+
+# Issue edition-specific warning if applicable
+
 irispie_edition_warning()
 
-#]
-
-
-# Introspection
-#[
-
-def print_readme():
-    print(__doc__)
-
-def min_version_required(
-    min_version_string: str,
-):
-    """
-    """
-    current_version = _convert_version(__version__, )
-    minimum_version = _convert_version(min_version_string, )
-    if current_version < minimum_version:
-        raise Exception(
-            f"Current version of irispie ({__version__}) is less than the minimum version required ({min_version_string})"
-        )
-
+# Bkw compatibility
 min_irispie_version_required = min_version_required
-
-def _convert_version(version_str: str) -> tuple[int, ...]:
-    return tuple(int(s) for s in version_str.split("."))
 
 #]
 
@@ -40,6 +30,11 @@ def _convert_version(version_str: str) -> tuple[int, ...]:
 
 from datapie import *
 from datapie import __all__ as datapie_all
+
+# Make possible "from irispie.series import functions"
+import datapie.series
+sys.modules[f"{__name__}.series"] = datapie.series
+del datapie
 
 #--------------------------------------------------------------------------------
 
@@ -111,6 +106,4 @@ __all__ = (
     "min_irispie_version_required",
     "__version__",
 )
-
-
 

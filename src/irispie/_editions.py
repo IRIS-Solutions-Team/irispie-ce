@@ -1,5 +1,4 @@
 r"""
-Prepare function to print an edition-specific warning
 """
 
 
@@ -7,8 +6,10 @@ import importlib.metadata as _md
 import re as _re
 import functools as _ft
 import warnings as _wa
+from pathlib import Path
 
-_BANNER = {
+
+_BANNERS = {
     "de": (
         "\n\n"
         "=================================================================\n"
@@ -38,31 +39,51 @@ _BANNER = {
         " Contact info@ogresearch.com for more information.\n"
         "=================================================================\n\n"
     ),
-    "pe": (
-        "\n\n"
-        "=================================================================\n"
-        " You are using IrisPie Private Edition.\n"
-        " This edition may only be used internally by staff members\n"
-        " of OGResearch or by approved contractors and affiliated\n"
-        " institutions.\n"
-        "=================================================================\n\n"
-    ),
+    "pe": None,
 }
+
+package_name = Path(__file__).parent.name
+editions = set(_BANNERS.keys())
+joined_editions = "|".join(editions)
+pattern = _re.compile(f"{package_name}-({joined_editions})$", )
 
 distribution_generator = (
     i for i in _md.distributions()
-    if _re.match("irispie-[dcrp]e$", i.name)
+    if pattern.match(i.name, )
 )
 distribution = next(distribution_generator, None, )
 
 if not distribution:
-    raise Exception("Cannot determine the irispie distribution", )
+    raise Exception(f"Cannot determine the {package_name} distribution", )
 
-edition = distribution.name[-2:]
-version = distribution.version + "-" + edition
-__version__ = version
-__doc__ = distribution.metadata["description"]
+metadata = distribution.metadata
+edition = metadata["name"][-2:]
+__doc__ = metadata["description"]
+__version__ = metadata["version"]
 
-irispie_edition_warning = _ft.partial(_wa.warn, _BANNER[edition], UserWarning, )
 
+banner = _BANNERS[edition]
+if banner:
+    irispie_edition_warning = _ft.partial(_wa.warn, banner, UserWarning, )
+else:
+    def irispie_edition_warning():
+        pass
+
+
+def min_version_required(
+    min_version_string: str,
+):
+    r"""
+    Check if the current version of the package is greater than or equal to the minimum version required.
+    """
+    current_version = _convert_version(__version__, )
+    minimum_version = _convert_version(min_version_string, )
+    if current_version < minimum_version:
+        raise Exception(
+            f"Current version of {package_name} ({__version__}) is less than the minimum version required ({min_version_string})"
+        )
+
+
+def _convert_version(version_str: str) -> tuple[int, ...]:
+    return tuple(int(s) for s in version_str.split("."))
 
