@@ -39,6 +39,7 @@ if TYPE_CHECKING:
 
 
 _DEFAULT_DELTA_TOLERANCE = 1e-12
+_EPSILON = _np.finfo(_np.float64).eps * 1e5
 
 
 DiffuseMethodType = Literal[
@@ -1025,8 +1026,8 @@ def predict(
         # print(t, F.size, relative_cond, sing_values[0], )
         # TODO: Check if F singularity if requested by user
         inv = _INVERSE_FUNCTION["regular"]
-        if when_singularity and any_y:
-            inv = _check_singularity(F, t, inx_y, when_singularity, )
+        # if when_singularity and any_y:
+        #     inv = _check_singularity(F, t, inx_y, when_singularity, )
 
         Fi = inv(F) if any_y else create_empty()
         Fi = _covariances.symmetrize(Fi, )
@@ -1238,12 +1239,16 @@ def _check_singularity(
 ) -> Callable | NoReturn:
     """
     """
-    rank_F = _np.linalg.matrix_rank(F, )
-    if rank_F == F.shape[0]:
+    sing_values = _np.linalg.svd(F, compute_uv=False)
+    max_value = sing_values[0]
+    min_value = sing_values[-1]
+    threshold = max_value * _EPSILON
+    #
+    if max_value > threshold * min_value:
         return _INVERSE_FUNCTION["regular"]
+    #
     index_y = _np.where(boolex_y, )[0].tolist()
-    message = f"Singular prediction MSE matrix in period {t}, rank {rank_F} of {F.shape[0]}"
-    # u, s, v, = _np.linalg.svd(F, )
+    message = f"Singular prediction MSE matrix in period {t}, condition number {max_value/min_value:.2e}"
     when_singularity.add(message, )
     return _INVERSE_FUNCTION["singular"]
 
