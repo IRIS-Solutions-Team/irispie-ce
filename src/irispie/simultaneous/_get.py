@@ -268,7 +268,7 @@ class Inlay(
         qid_to_name = self.create_qid_to_name()
         qid_to_logly = self.create_qid_to_logly()
         return _descriptors.HumanSolutionVectors(
-            self._dynamic_solution_vectors,
+            self._get_dynamic_solution_vectors(),
             qid_to_name,
             qid_to_logly,
         )
