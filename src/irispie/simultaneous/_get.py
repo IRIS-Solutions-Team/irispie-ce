@@ -205,6 +205,32 @@ class Inlay(
 
     @_cast_as_output_type
     @_unpack_singleton_in_dict
+    def get_unassigned_parameters(
+        self,
+        unpack_singleton: bool = True,
+        **kwargs,
+    ) -> dict[str, Real]:
+        """
+        """
+        qids = _quantities.generate_qids_by_kind(self._invariant.quantities, _quantities.QuantityKind.PARAMETER, )
+        parameters = self._get_values_as_dict("levels", qids, **kwargs, )
+        return _filter_unassigned(parameters, )
+
+    @_cast_as_output_type
+    @_unpack_singleton_in_dict
+    def get_unassigned_stds(
+        self,
+        unpack_singleton: bool = True,
+        **kwargs,
+    ) -> dict[str, Real]:
+        """
+        """
+        std_qids = self._get_std_qids()
+        stds = self._get_values_as_dict("levels", std_qids, **kwargs, )
+        return _filter_unassigned(stds, )
+
+    @_cast_as_output_type
+    @_unpack_singleton_in_dict
     def get_stds(
         self,
         kind: _quantities.QuantityKind | None = None,
@@ -539,4 +565,16 @@ def _resolve_steady_kind(
         steady_kind = steady_kind | QuantityKind.ANY_SHOCK_OR_SHOCK_VALUE
     return steady_kind
     #]
+
+
+def _filter_unassigned(
+    name_to_value: dict[str, tuple],
+) -> dict[str, tuple]:
+    r"""
+    """
+    return {
+        key: value
+        for key, value in name_to_value.items()
+        if any(i is None for i in value)
+    }
 
