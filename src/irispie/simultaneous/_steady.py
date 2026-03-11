@@ -275,7 +275,7 @@ A Databox containing steady-state time series for the `model`.
 
 ................................................................................
     """
-    start, end = _periods.extend_span(
+    start, end, = _periods.extend_span(
         span,
         self.max_lag,
         self.max_lead,
