@@ -596,6 +596,7 @@ def kalman_filter(
     return_smooth: bool = True,
     return_predict_err: bool = True,
     return_predict_mse_obs: bool = True,
+    return_log: bool = False,
     rescale_variance: bool = False,
     likelihood_contributions: bool = True,
     #
