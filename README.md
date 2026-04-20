@@ -66,7 +66,7 @@ Use the guide below to determine which license applies to your situation.
   - Registration with the copyright holders (OGResearch) is required  
   - Use and internal redistribution within your organization are permitted  
   - External redistribution or sublicensing is not allowed  
-- Registration email: info[at]ogresearch.com
+- Registration email: irispie[at]ogresearch.com
 
 ---
 
@@ -83,6 +83,6 @@ Use the guide below to determine which license applies to your situation.
 
 - All editions are provided “as is”, without warranty or liability.  
 - These licenses are source-available, not OSI-approved open source.  
-- If in doubt about your use case, contact: info[at]ogresearch.com
+- If in doubt about your use case, contact: irispie[at]ogresearch.com
 
 
