@@ -48,7 +48,7 @@ jobs:
       - name: Build dist files
         working-directory: irispie-edition
         run: |
-            python -m build
+            python -m build --wheel
 
       - name: Upload to PYPI
         env:
