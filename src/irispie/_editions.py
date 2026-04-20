@@ -16,7 +16,7 @@ _BANNERS = {
         " You are using IrisPie Developer Edition.\n"
         " This edition is intended for development and testing only.\n"
         " It may be used solely by registered developers.\n"
-        " Contact info@ogresearch.com for more information.\n"
+        " Contact irispie@ogresearch.com for more information.\n"
         "=================================================================\n\n"
     ),
     "ce": (
@@ -25,7 +25,7 @@ _BANNERS = {
         " You are using IrisPie Community Edition.\n"
         " Free for personal, educational, and non-commercial use only.\n"
         " Registration is required for commercial or institutional use.\n"
-        " Contact info@ogresearch.com for more information.\n"
+        " Contact irispie@ogresearch.com for more information.\n"
         "=================================================================\n\n"
     ),
     "re": (
@@ -36,7 +36,7 @@ _BANNERS = {
         " registration with OGResearch.\n"
         " Internal use and redistribution within the organization\n"
         " are permitted. External redistribution is prohibited.\n"
-        " Contact info@ogresearch.com for more information.\n"
+        " Contact irispie@ogresearch.com for more information.\n"
         "=================================================================\n\n"
     ),
     "pe": None,
