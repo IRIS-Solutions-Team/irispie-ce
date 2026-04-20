@@ -1,5 +1,5 @@
 r"""
-Reduced-form vector autoregression models
+Reduced-form vector autoregression (RedVAR) models
 """
 
 
