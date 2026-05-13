@@ -186,9 +186,37 @@ class RedVAR(
     ) -> _np.ndarray | list[_np.ndarray]:
         r"""
         """
-        cov_residuals_by_variant = [ v.system.cov_residuals for v in self._variants ]
+        cov_residuals_by_variant = [
+            v.system.cov_residuals
+            for v in self._variants
+        ]
         return self.unpack_singleton(
             cov_residuals_by_variant,
+            unpack_singleton=unpack_singleton,
+        )
+
+    def get_corr_residuals(
+        self,
+        cov_residuals: _np.ndarray | list[_np.ndarray] | None = None,
+        unpack_singleton: bool = True,
+    ) -> _np.ndarray | list[_np.ndarray]:
+        r"""
+        """
+        if cov_residuals is None:
+            cov_residuals_by_variant = [
+                v.system.cov_residuals
+                for v in self._variants
+            ]
+        else:
+            cov_residuals_by_variant = self.repack_singleton(cov_residuals, )
+        #
+        corr_residuals_by_variant = [
+            _covariances.corr_from_cov(cov)
+            for cov in cov_residuals_by_variant
+        ]
+        #
+        return self.unpack_singleton(
+            corr_residuals_by_variant,
             unpack_singleton=unpack_singleton,
         )
 

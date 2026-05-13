@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 __all__ = (
     "std_from_cov",
     "cov_from_std",
+    "corr_from_cov",
     "CovarianceSimulator",
 )
 
@@ -178,6 +179,19 @@ def acorr_from_acov(
     )
     #
     return acorr_by_order
+    #]
+
+
+def corr_from_cov(
+    cov: _np.ndarray,
+) -> _np.ndarray:
+    r"""
+    """
+    #[
+    # Scale matrix has inv_std[i]*inv_std[j]
+    scale_matrix = _get_scale_matrix(cov, )
+    # Rescale autocovariance matrix to autocorrelation matrix
+    return cov * scale_matrix
     #]
 
 
