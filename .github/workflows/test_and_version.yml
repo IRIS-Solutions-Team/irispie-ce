@@ -37,7 +37,7 @@ jobs:
           fetch-depth: 0
           ref: develop
           path: irispie
-          token: ${{ secrets.IRISPIE_ACTIONS_TOKEN_2025 }}
+          token: ${{ secrets.IRIS_SOLUTIONS_TEAM_TOKEN_2026 }}
           repository: IRIS-Solutions-Team/irispie
 
       - name: Set up identity
@@ -79,7 +79,7 @@ jobs:
         env:
           version: ${{ steps.bump-version.outputs.new-version }}
           # gh picks the token from GITHUB_TOKEN env variable automatically
-          GITHUB_TOKEN: ${{ secrets.IRISPIE_ACTIONS_TOKEN_2025 }}
+          GITHUB_TOKEN: ${{ secrets.IRIS_SOLUTIONS_TEAM_TOKEN_2026 }}
         working-directory: irispie
         run: |
             gh release create "$version" \
@@ -98,7 +98,7 @@ jobs:
       - name: Repository dispatch to ${{ matrix.repository }}
         uses: peter-evans/repository-dispatch@v3
         with:
-          token: ${{ secrets.IRISPIE_ACTIONS_TOKEN_2025 }}
+          token: ${{ secrets.IRIS_SOLUTIONS_TEAM_TOKEN_2026 }}
           repository: IRIS-Solutions-Team/${{ matrix.repository }}
           event-type: new-release
 
