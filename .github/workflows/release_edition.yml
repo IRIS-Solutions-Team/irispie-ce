@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout irispie-edition/master branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: master
           token: ${{ secrets.IRIS_SOLUTIONS_TEAM_TOKEN_2026 }}
@@ -60,7 +60,7 @@ jobs:
 
     steps:
       - name: Checkout irispie-edition/master branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: master
           token: ${{ secrets.IRIS_SOLUTIONS_TEAM_TOKEN_2026 }}

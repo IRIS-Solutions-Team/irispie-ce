@@ -18,21 +18,21 @@ jobs:
 
     steps:
       - name: Checkout irispie/develop
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: develop
           path: irispie
-          token: ${{ secrets.IRISPIE_ACTIONS_TOKEN_2025 }}
+          token: ${{ secrets.IRIS_SOLUTIONS_TEAM_TOKEN_2026 }}
 
       - name: Checkout irispie-tests/master
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: IRIS-Solutions-Team/irispie-tests
           fetch-depth: 1
           ref: master
           path: irispie-tests
-          token: ${{ secrets.IRISPIE_ACTIONS_TOKEN_2025 }}
+          token: ${{ secrets.IRIS_SOLUTIONS_TEAM_TOKEN_2026 }}
 
       - uses: actions/setup-python@v5
         with:
