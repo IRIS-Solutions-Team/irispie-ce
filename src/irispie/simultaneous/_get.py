@@ -22,7 +22,9 @@ from .. import equations as _equations
 from .. import quantities as _quantities
 from ..quantities import QuantityKind
 from ..incidences import main as _incidence
-from ..fords.solutions import EigenvalueKind, Solution
+from ..fords.solutions import (
+    ElementStability, SystemStabilityVerdict, Stability, Solution,
+)
 from ..fords import descriptors as _descriptors
 
 from . import _flags
@@ -65,6 +67,17 @@ class Inlay(
     Frontend getter methods for Simultaneous objects
     """
     #[
+
+    @_dm.reference(category="information", )
+    def get_system_stability(
+        self,
+        unpack_singleton: bool = True,
+    ) -> SystemStabilityVerdict | list[SystemStabilityVerdict]:
+        r"""
+        Get the Blanchard-Kahn verdict for each variant of the model
+        """
+        system_stability = [ v.stability.system_stability for v in self._variants ]
+        return self.unpack_singleton(system_stability, unpack_singleton=unpack_singleton, )
 
     @_dm.reference(category="information", )
     @_cast_as_output_type
@@ -301,10 +314,9 @@ class Inlay(
 
     def get_solution(
         self,
-        #
         unpack_singleton: bool = True,
     ) -> Solution | list[Solution]:
-        """
+        r"""
         """
         solution_matrices = [ i for i in self.iter_solution() ]
         return self.unpack_singleton(solution_matrices, unpack_singleton=unpack_singleton, )
@@ -328,8 +340,17 @@ class Inlay(
             solution = solution.create_deviation_solution()
         return solution
 
-    def iter_std_name_to_value(self, ) -> Iterable[dict[str, Real]]:
+    def get_stability(
+        self,
+        unpack_singleton: bool = True,
+    ) -> Stability | list[Stability]:
+        r"""
         """
+        stability = [ i.stability for i in self._variants ]
+        return self.unpack_singleton(stability, unpack_singleton=unpack_singleton, )
+
+    def iter_std_name_to_value(self, ) -> Iterable[dict[str, Real]]:
+        r"""
         """
         qid_to_name = self.create_qid_to_name()
         std_qids = _quantities.generate_qids_by_kind(self._invariant.quantities, _quantities.QuantityKind.ANY_STD, )
@@ -469,29 +490,48 @@ class Inlay(
     def get_eigenvalues(
         self,
         transform: Callable[[Real], Real] = lambda x: x,
-        kind: EigenvalueKind | None = EigenvalueKind.ALL,
+        kind: ElementStability | None = ElementStability.ALL,
         unpack_singleton: bool = True,
     ) -> tuple[Real, ...] | list[tuple[Real, ...]]:
         r"""
         Eigenvalues
         """
         if kind is None:
-            kind = EigenvalueKind.ALL
+            kind = ElementStability.ALL
         return [
-            tuple(transform(e) for e, s in zip(v.solution.eigenvalues, v.solution.eigenvalues_stability, ) if s in kind)
+            tuple(
+                transform(e)
+                for e, s in zip(v.stability.eigenvalues, v.stability.eigenvalue_stability, )
+                if s in kind
+            )
             for v in self._variants
         ]
 
+    @_dm.reference(category="information", )
     @unpack_singleton_decorator
-    def get_eigenvalues_stability(
+    def get_eigenvalue_stability(
         self,
-        kind: EigenvalueKind = EigenvalueKind.ALL,
+        kind: ElementStability = ElementStability.ALL,
         unpack_singleton: bool = True,
-    ):
-        return [ 
-            tuple(i for i in v.solution.eigenvalues_stability if i in kind)
+    ) -> tuple[ElementStability, ...] | list[tuple[ElementStability, ...]]:
+        r"""
+        ==Classify each eigenvalue as stable, unit root, or unstable==
+        """
+        return [
+            tuple(i for i in v.stability.eigenvalue_stability if i in kind)
             for v in self._variants
         ]
+
+    def get_eigenvalues_stability(self, *args, **kwargs, ):
+        r"""
+        Legacy alias of get_eigenvalue_stability
+
+        Written as a separate function rather than a plain name assignment: an
+        assignment would share one object with the original, and because the
+        documark decorator marks the object in place, the alias would then be
+        picked up as a documented method too
+        """
+        return self.get_eigenvalue_stability(*args, **kwargs, )
 
     def _get_variable_stability_for_variant(self, variant, ) -> dict[str, bool]:
         """
@@ -500,12 +540,12 @@ class Inlay(
         qid_to_name = self.create_qid_to_name()
         return {
             qid_to_name[token.qid]: \
-                variant.solution.transition_vector_stability[index] == EigenvalueKind.STABLE
+                variant.solution.transition_vector_stability[index] == ElementStability.STABLE
             for index, token in enumerate(vec.transition_variables)
             if token.shift == 0
         } | {
             qid_to_name[token.qid]: \
-                variant.solution.measurement_vector_stability[index] == EigenvalueKind.STABLE
+                variant.solution.measurement_vector_stability[index] == ElementStability.STABLE
             for index, token in enumerate(vec.measurement_variables)
             if token.shift == 0
         }
