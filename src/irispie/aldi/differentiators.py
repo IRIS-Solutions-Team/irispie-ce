@@ -63,7 +63,6 @@ class Atom(ValueMixin, ):
         klass,
         value: Real,
         diff: Real,
-        /,
         logly: bool | None = False,
     ) -> Self:
         """
@@ -78,7 +77,6 @@ class Atom(ValueMixin, ):
     @classmethod
     def in_context(
         klass,
-        /,
         diff: _np.ndarray | Real,
         data_index: tuple[int, slice],
         logly: bool,
@@ -98,12 +96,11 @@ class Atom(ValueMixin, ):
     def zero(
         klass,
         diff_shape: tuple[int, int],
-        /,
     ) -> Self:
         return klass.no_context(0, _np.zeros(diff_shape, dtype=_np.float64), False)
 
     @property
-    def value(self, /, ):
+    def value(self, ):
         if self._value is not None:
             return self._value
         else:
@@ -229,13 +226,13 @@ class Atom(ValueMixin, ):
 
     __radd__ = __add__
 
-    def __rsub__(self, other, /, ) -> Self:
+    def __rsub__(self, other, ) -> Self:
         """
         Differenatiate other - self
         """
         return self.__neg__().__add__(other)
 
-    def log(self, /, ) -> Self:
+    def log(self, ) -> Self:
         """
         Differentiate log(self)
         """
@@ -243,7 +240,7 @@ class Atom(ValueMixin, ):
         new_diff = 1 / self.value * self.diff
         return type(self).no_context(new_value, new_diff, False)
 
-    def exp(self, /, ) -> Self:
+    def exp(self, ) -> Self:
         """
         Differentiate exp(self)
         """
@@ -251,15 +248,15 @@ class Atom(ValueMixin, ):
         new_diff = new_value * self.diff
         return type(self).no_context(new_value, new_diff, False)
 
-    def sqrt(self, /, ) -> Self:
+    def sqrt(self, ) -> Self:
         """
         Differentiate sqrt(self)
         """
         new_value = _np.sqrt(self.value)
-        new_diff = 0.5 / _np.sqrt(self.diff)
+        new_diff = 0.5 / _np.sqrt(self.value) * self.diff
         return type(self).no_context(new_value, new_diff, False)
 
-    def logistic(self, /, ) -> Self:
+    def logistic(self, ) -> Self:
         """
         Differentiate logistic(self)
         """
@@ -270,7 +267,6 @@ class Atom(ValueMixin, ):
     def maximum(
         self,
         floor: Real | Atom = 0,
-        /, 
     ) -> Self:
         """
         Differenatiate maximum(self, floor)
@@ -304,7 +300,6 @@ class Atom(ValueMixin, ):
     def mininum(
         self,
         ceiling: Real = 0,
-        /,
     ) -> Self:
         """
         Differenatiate minimum(self, ceiling)
@@ -322,7 +317,6 @@ class Context:
         self,
         atom_factory: AtomFactoryProtocol,
         equations: Iterable[_equations.Equation],
-        /,
         eid_to_wrts: dict[int, tuple[Any, ...]],
         qid_to_logly: dict[int, bool] | None,
         context: dict | None,
@@ -333,7 +327,7 @@ class Context:
         self._qid_to_logly = qid_to_logly or {}
         self._atom_factory = atom_factory
         #
-        def get_diff_shape_for_equantion(equation, /, ) -> tuple[int, int]:
+        def get_diff_shape_for_equantion(equation, ) -> tuple[int, int]:
             return self._atom_factory.get_diff_shape(self._eid_to_wrts[equation.id], )
         #
         self._equations = tuple(
@@ -354,12 +348,12 @@ class Context:
             context=context,
         )
 
-    def _get_num_wrts(self, eid, /, ) -> int:
+    def _get_num_wrts(self, eid, ) -> int:
         """
         """
         return len(self._eid_to_wrts[eid])
 
-    def _populate_atom_dict(self, /, ) -> None:
+    def _populate_atom_dict(self, ) -> None:
         """
         """
         self._x = {}
@@ -420,7 +414,6 @@ class Context:
 def _adapt_equation_for_aldi(
     equation: _eq.Equation,
     diff_shape: tuple[int, int],
-    /,
 ) -> _equations.Equation:
     """
     """
@@ -438,9 +431,9 @@ class AtomFactoryProtocol(Protocol, ):
     """
     #[
 
-    def create_data_index_for_token (token: Token, /, ) -> tuple[int, int | slice]: ...
-    def create_diff_for_token(token: Token, wrts: tuple[Any, ...], /, ) -> _np.ndarray | int: ...
-    def get_diff_shape(wrts: tuple[Any, ...], /, ) -> tuple[int, int]: ...
+    def create_data_index_for_token (token: Token, ) -> tuple[int, int | slice]: ...
+    def create_diff_for_token(token: Token, wrts: tuple[Any, ...], ) -> _np.ndarray | int: ...
+    def get_diff_shape(wrts: tuple[Any, ...], ) -> tuple[int, int]: ...
 
     #]
 
